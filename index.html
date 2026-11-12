@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Eyşan</title>
-<meta name="theme-color" content="#0f1714">
+<meta name="theme-color" content="#090c13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eyşan">
@@ -12,67 +12,76 @@
 <link rel="apple-touch-icon" href="eysan.jpg">
 <link rel="icon" href="icon.svg">
 <style>
-:root{--bg:#0f1714;--panel:#17221e;--line:#24332d;--text:#eef4f1;--muted:#8fa69c;--accent:#3ddc97;--accent-ink:#06261a;--warn:#ffb454;--err:#ff6b6b}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
-header{display:flex;align-items:center;gap:12px;padding:14px 0 10px}
-header img{width:44px;height:44px;border-radius:50%}
-header h1{font-size:18px;margin:0}
-header p{margin:0;color:var(--muted);font-size:13px}
-header div{flex:1}
-#voice{font-size:14px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
-#log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0 16px}
-.msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-wrap:break-word}
-.eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
-.you{background:#21463a;align-self:flex-end;border-bottom-right-radius:4px}
-.card{align-self:stretch;background:#13201b;border:1px solid #2d5545;border-radius:14px;padding:12px 14px;white-space:pre-wrap;font-size:15px}
-.card b{color:var(--accent)}
-.sys{align-self:center;color:var(--muted);font-size:13px;text-align:center}
+:root{--bg:#090c13;--panel:#121827;--panel2:#18203a;--line:#232c44;--text:#eef2fb;--muted:#8d98b3;--accent:#6f7cff;--accent2:#22d3ee;--grad:linear-gradient(135deg,#7b61ff 0%,#4f8bff 55%,#22d3ee 100%);--accent-ink:#ffffff;--warn:#ffb454;--err:#ff6b81;--ok:#34d399}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg)}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);background:radial-gradient(120% 60% at 50% -10%,rgba(111,124,255,.22),transparent 60%),radial-gradient(80% 40% at 100% 100%,rgba(34,211,238,.10),transparent 60%),var(--bg);background-attachment:fixed;overflow:hidden}
+header{display:flex;align-items:center;gap:10px;padding:10px 0 8px;position:relative}
+header img{width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 2px rgba(111,124,255,.55),0 0 18px rgba(111,124,255,.35)}
+header .who{flex:1;min-width:0}
+header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
+#status{margin:0;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menuBtn{background:var(--panel);border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:12px;font-size:18px;line-height:1}
+#menu{display:none;position:absolute;right:0;top:52px;z-index:5;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px;min-width:180px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+#menu.open{display:block}
+#menu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);padding:10px 12px;border-radius:10px;font-size:15px}
+#menu button:active{background:var(--line)}
+#voice{display:none!important}
+#log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 0 10px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+#log:empty::before{content:"";width:96px;height:96px;border-radius:50%;background:url(eysan.jpg) center/cover;margin:auto auto 10px;box-shadow:0 0 0 3px rgba(111,124,255,.6),0 0 40px rgba(111,124,255,.45)}
+#log:empty::after{content:"Size nasıl yardımcı olayım, Oğuzhan Bey?";text-align:center;color:var(--muted);margin:0 auto 18px;font-size:15px}
+.msg{max-width:86%;padding:9px 13px;border-radius:18px;white-space:pre-wrap;word-wrap:break-word;font-size:15.5px}
+.eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:6px}
+.you{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.card{align-self:stretch;background:rgba(111,124,255,.08);border:1px solid rgba(111,124,255,.35);border-radius:16px;padding:12px 14px;white-space:pre-wrap;font-size:15px}
+.card b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sys{align-self:center;color:var(--muted);font-size:12.5px;text-align:center;padding:2px 8px}
 .sys.err{color:var(--err)}
-#bottom{padding:12px 0 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
-#status{color:var(--muted);font-size:14px;min-height:20px}
-#mic{width:96px;height:96px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(61,220,151,.5);transition:transform .15s}
-#mic:active{transform:scale(.96)}
-#mic svg{width:40px;height:40px}
-#mic.live{background:var(--err);color:#fff;animation:pulse 1.6s infinite}
-#mic.busy{opacity:.6}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,107,.45)}70%{box-shadow:0 0 0 22px rgba(255,107,107,0)}100%{box-shadow:0 0 0 0 rgba(255,107,107,0)}}
-#timer{color:var(--muted);font-size:12px}
-#pinbox{display:none;flex-direction:column;gap:10px;align-items:center;margin:auto 0;padding:24px 0}
-#pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:200px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
-#pinbox button{font-size:16px;padding:12px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600}
-#textbar{display:flex;gap:8px;width:100%}
-#txt{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:22px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
-#textbar button{border:0;border-radius:22px;padding:0 16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px}
-#photoBtn{display:grid;place-items:center;width:46px;border-radius:22px;background:var(--panel);border:1px solid var(--line);font-size:20px;cursor:pointer}
-.thumb{align-self:flex-end;max-width:60%;border-radius:12px;border:1px solid var(--line)}
-#qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px 0 8px}
-#qa button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:58px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:6px 4px;font-size:13px;line-height:1.2;font-weight:500}
+.thumb{align-self:flex-end;max-width:60%;border-radius:14px;border:1px solid var(--line)}
+#qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 0 10px}
+#qa button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),var(--panel);color:var(--text);border-radius:16px;padding:8px 4px;font-size:13px;font-weight:600}
 #qa button span{font-size:20px;line-height:1}
-#qa button.on{border-color:var(--accent);background:#13201b}
-#qa button:active{transform:scale(.97)}
-#mode{display:none;width:100%;align-items:center;gap:8px;background:#13201b;border:1px solid #2d5545;border-radius:12px;padding:8px 8px 8px 12px;font-size:14px}
+#qa button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+body.chatting #qa{display:flex;overflow-x:auto;gap:6px;padding:0 0 8px;scrollbar-width:none;margin:0 -14px;padding-left:14px;padding-right:14px}
+body.chatting #qa::-webkit-scrollbar{display:none}
+body.chatting #qa button{flex:0 0 auto;flex-direction:row;min-height:0;padding:7px 11px;border-radius:999px;font-size:13px;gap:5px}
+body.chatting #qa button span{font-size:15px}
+#bottom{display:flex;flex-direction:column;gap:8px;padding:0 0 10px}
+#mode,#livebar{display:none;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 12px;font-size:14px}
 #mode span{flex:1}
 #mode button{background:none;border:0;color:var(--muted);font-size:18px;padding:0 6px}
-#log:empty::before{content:"";width:112px;height:112px;border-radius:50%;background:url(eysan.jpg) center/cover;margin:auto auto 6px;box-shadow:0 0 0 6px rgba(61,220,151,.14)}
-#log:empty::after{content:"Size nasıl yardımcı olayım, Oğuzhan Bey?";text-align:center;color:var(--muted);margin:0 auto auto;font-size:15px}
-#voice{display:none!important}
-#forget{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer}
+#livebar{border-color:rgba(255,107,129,.45)}
+#livebar .dot{width:9px;height:9px;border-radius:50%;background:var(--err);animation:blink 1.2s infinite}
+#livebar .lt{flex:1;font-weight:600}
+#timer{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+#liveStop{border:0;border-radius:10px;padding:7px 12px;background:var(--err);color:#fff;font-weight:700;font-size:13px}
+body.live #livebar{display:flex}
+@keyframes blink{50%{opacity:.25}}
+#textbar{display:flex;gap:8px;align-items:center;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:5px}
+#txt{flex:1;min-width:0;font-size:16px;padding:9px 6px;border:0;outline:0;background:transparent;color:var(--text)}
+#photoBtn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-size:19px;cursor:pointer;flex:0 0 auto}
+#mic{width:42px;height:42px;flex:0 0 auto;border-radius:50%;border:0;background:var(--panel2);color:var(--text);display:grid;place-items:center;cursor:pointer}
+#mic svg{width:22px;height:22px}
+#mic.live{background:var(--err);color:#fff;animation:pulse 1.6s infinite}
+#mic.busy{opacity:.55}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,129,.5)}70%{box-shadow:0 0 0 12px rgba(255,107,129,0)}100%{box-shadow:0 0 0 0 rgba(255,107,129,0)}}
+#send{width:42px;height:42px;flex:0 0 auto;border:0;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center}
+#send svg{width:20px;height:20px}
+#pinbox{display:none;flex-direction:column;gap:12px;align-items:center;margin:auto 0;padding:24px 0}
+#pinbox p{color:var(--muted);margin:0}
+#pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:210px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+#pinbox button{font-size:16px;padding:12px 32px;border-radius:14px;border:0;background:var(--grad);color:#fff;font-weight:700}
 </style>
-</head>
 <body>
-<header><img src="eysan.jpg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div><select id="voice" aria-label="Ses"><option value="marin">Ses: Marin</option><option value="coral">Ses: Coral</option><option value="shimmer">Ses: Shimmer</option><option value="sage">Ses: Sage</option><option value="cedar">Ses: Cedar (erkek)</option><option value="ash">Ses: Ash (erkek)</option></select></header>
+<header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
+<div id="menu"><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
-<div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Rapor</button><button data-q="sharing"><span>📸</span>Paylaşım</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
 <div id="log"></div>
+<div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Rapor</button><button data-q="sharing"><span>📸</span>Paylaşım</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
 <div id="bottom">
  <div id="mode"><span id="modeText"></span><button id="modeX" type="button" aria-label="Vazgeç">✕</button></div>
- <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Yazarak da sorabilirsiniz…" autocomplete="off" enterkeyhint="send"><button>Gönder</button></form>
- <div id="status">Konuşmak için dokunun</div>
- <button id="mic" aria-label="Konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button>
- <div id="timer"></div>
- <div style="display:flex;gap:16px"><button id="clearlog" style="background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer">Geçmişi temizle</button><button id="forget">Şifreyi unut</button></div>
+ <div id="livebar"><i class="dot"></i><span class="lt">Sesli konuşma açık</span><span id="timer"></span><button id="liveStop" type="button">Bitir</button></div>
+ <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Eyşan'a yazın…" autocomplete="off" enterkeyhint="send"><button id="mic" type="button" aria-label="Sesli konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="send" aria-label="Gönder"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button></form>
 </div>
 <audio id="speaker" autoplay playsinline></audio>
 <script>
@@ -86,9 +95,9 @@ function hist(){try{return JSON.parse(localStorage.getItem('eysan_log')||'[]')}c
 function keep(cls,text){if(!/^(msg|card)/.test(cls))return;try{const h=hist();h.push([cls,text]);localStorage.setItem('eysan_log',JSON.stringify(h.slice(-120)))}catch{}}
 function add(cls,text){keep(cls,text);return addRaw(cls,text);}
 function card(text){keep('card',text);const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
-function setStatus(t){statusEl.textContent=t;}
-function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('pin').focus();}
-function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';}
+function setStatus(t){statusEl.textContent=t.replace(/^Konuşmak için.*$/,'Çevrimiçi');}
+function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('qa').style.display='none';$('pin').focus();}
+function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';$('qa').style.display='';}
 $('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();setStatus('Konuşmak için mikrofona dokunun');};
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
 $('forget').onclick=()=>{store.del();stop();askPin();};
@@ -112,7 +121,7 @@ const QA={
  business:{t:'🏢 İşletme',p:'Yeni işletme ekle: ',h:'ör. Lezzet Durağı, restoran, @lezzetduragi'}
 };
 let MODE=null;
-function setMode(k){MODE=k||null;document.querySelectorAll('#qa button').forEach(b=>b.classList.toggle('on',b.dataset.q===MODE));const m=$('mode');if(!MODE){m.style.display='none';$('txt').placeholder='Yazarak da sorabilirsiniz…';return;}$('modeText').textContent=QA[MODE].t+' – yazın, Eyşan ayarlasın';m.style.display='flex';$('txt').placeholder=QA[MODE].h;$('txt').focus();}
+function setMode(k){MODE=k||null;document.querySelectorAll('#qa button').forEach(b=>b.classList.toggle('on',b.dataset.q===MODE));const m=$('mode');if(!MODE){m.style.display='none';$('txt').placeholder='Eyşan\'a yazın…';return;}$('modeText').textContent=QA[MODE].t+' – yazın, Eyşan ayarlasın';m.style.display='flex';$('txt').placeholder=QA[MODE].h;$('txt').focus();}
 async function quick(kind){if(QA[kind])return setMode(MODE===kind?null:kind);setMode(null);const label={report:'📊 Bugünün raporu',sharing:'📸 Paylaşım kontrolü',people:'👥 Kim ne yapıyor'}[kind];add('msg you',label);await textCall('__draft',{kind});}
 
 function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
@@ -211,8 +220,12 @@ async function onEvent(ev){
  }
 }
 for(const [c,t] of hist()){if(c==='card'){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+t));log.appendChild(d);}else addRaw(c,t);}log.scrollTop=log.scrollHeight;
-$('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';};
+$('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';$('menu').classList.remove('open');};
 document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick(b.dataset.q);});
+const syncChat=()=>document.body.classList.toggle('chatting',log.children.length>0);new MutationObserver(syncChat).observe(log,{childList:true});syncChat();
+new MutationObserver(()=>document.body.classList.toggle('live',mic.classList.contains('live'))).observe(mic,{attributes:true,attributeFilter:['class']});
+$('liveStop').onclick=()=>stop();
+$('menuBtn').onclick=e=>{e.stopPropagation();$('menu').classList.toggle('open');};document.addEventListener('click',()=>$('menu').classList.remove('open'));
 window.addEventListener('pagehide',()=>{if(pc||conv)stop();});
 // Leaving the app ends the call, so no minutes or credits are spent in the background.
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(pc||conv))stop('Uygulamadan çıkınca konuşma kapandı.');});
