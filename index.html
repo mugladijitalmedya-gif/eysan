@@ -77,7 +77,7 @@ body.live #livebar{display:flex}
 <div id="menu"><button id="whoBtn" type="button">👤 Kullanan: Oğuzhan</button><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
-<div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Rapor</button><button data-q="sharing"><span>📸</span>Paylaşım</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
+<div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Rapor</button><button data-q="sharing"><span>📸</span>Paylaşılmayan</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
 <div id="bottom">
  <div id="mode"><span id="modeText"></span><button id="modeX" type="button" aria-label="Vazgeç">✕</button></div>
  <div id="livebar"><i class="dot"></i><span class="lt">Sesli konuşma açık</span><span id="timer"></span><button id="liveStop" type="button">Bitir</button></div>
@@ -122,7 +122,7 @@ const QA={
 };
 let MODE=null;
 function setMode(k){MODE=k||null;document.querySelectorAll('#qa button').forEach(b=>b.classList.toggle('on',b.dataset.q===MODE));const m=$('mode');if(!MODE){m.style.display='none';$('txt').placeholder='Eyşan\'a yazın…';return;}$('modeText').textContent=QA[MODE].t+' – yazın, Eyşan ayarlasın';m.style.display='flex';$('txt').placeholder=QA[MODE].h;$('txt').focus();}
-async function quick(kind){if(QA[kind])return setMode(MODE===kind?null:kind);setMode(null);const label={report:'📊 Bugünün raporu',sharing:'📸 Paylaşım kontrolü',people:'👥 Kim ne yapıyor'}[kind];add('msg you',label);await textCall('__draft',{kind});}
+async function quick(kind){if(QA[kind])return setMode(MODE===kind?null:kind);setMode(null);const label={report:'📊 Bugünün raporu',sharing:'📸 Son 1 haftada paylaşım yapılmayanlar',people:'👥 Kim ne yapıyor'}[kind];add('msg you',label);await textCall('__draft',{kind});}
 
 function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('modeX').onclick=()=>setMode(null);
