@@ -45,6 +45,8 @@ header div{flex:1}
 #textbar{display:flex;gap:8px;width:100%}
 #txt{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:22px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
 #textbar button{border:0;border-radius:22px;padding:0 16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px}
+#photoBtn{display:grid;place-items:center;width:46px;border-radius:22px;background:var(--panel);border:1px solid var(--line);font-size:20px;cursor:pointer}
+.thumb{align-self:flex-end;max-width:60%;border-radius:12px;border:1px solid var(--line)}
 #forget{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer}
 </style>
 </head>
@@ -53,7 +55,7 @@ header div{flex:1}
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="bottom">
- <form id="textbar"><input id="txt" placeholder="Yazarak da sorabilirsiniz…" autocomplete="off" enterkeyhint="send"><button>Gönder</button></form>
+ <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Yazarak da sorabilirsiniz…" autocomplete="off" enterkeyhint="send"><button>Gönder</button></form>
  <div id="status">Konuşmak için dokunun</div>
  <button id="mic" aria-label="Konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button>
  <div id="timer"></div>
@@ -64,7 +66,7 @@ header div{flex:1}
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
 const $=id=>document.getElementById(id);
 const log=$('log'),statusEl=$('status'),mic=$('mic'),timerEl=$('timer');
-let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false,pendingText=null,sessionId=null,startedAt=0;
+let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false,pendingText=null,pendingImage=null,sessionId=null,startedAt=0;
 const store={get(){try{return localStorage.getItem('eysan_pin')}catch{return null}},set(v){try{localStorage.setItem('eysan_pin',v)}catch{}},del(){try{localStorage.removeItem('eysan_pin')}catch{}}};
 function add(cls,text){const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
 function card(text){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
@@ -77,6 +79,9 @@ $('forget').onclick=()=>{store.del();stop();askPin();};
 const voiceSel=$('voice');try{const v=localStorage.getItem('eysan_voice');if(v)voiceSel.value=v;}catch{}
 voiceSel.onchange=()=>{try{localStorage.setItem('eysan_voice',voiceSel.value)}catch{};if(pc){stop('Ses değişti, yeni sesle konuşmak için mikrofona dokunun.');}};
 mic.onclick=()=>{if(busy)return;pc?stop():start();};
+function sendImage(u){send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_image',image_url:u},{type:'input_text',text:'Bu fotoğrafı gönderdim, bak ve ne olduğunu kısaca söyle; ne yapabileceğini öner.'}]}});send({type:'response.create'});logTurn('user','[fotoğraf gönderdi]');}
+function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,768/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);res(c.toDataURL('image/jpeg',0.72));};img.onerror=rej;img.src=URL.createObjectURL(file);});}
+$('photo').onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f||busy)return;let u;try{u=await shrink(f);}catch{add('sys err','Fotoğraf açılamadı.');return;}const im=document.createElement('img');im.className='thumb';im.src=u;log.appendChild(im);log.scrollTop=log.scrollHeight;if(dc&&dc.readyState==='open')sendImage(u);else{pendingImage=u;if(!pc)await start();}};
 function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';add('msg you',t);if(dc&&dc.readyState==='open')sendText(t);else{pendingText=t;if(!pc)await start();}};
 
@@ -96,7 +101,7 @@ async function start(){
   stream.getTracks().forEach(t=>pc.addTrack(t,stream));
   dc=pc.createDataChannel('oai-events');
   dc.onmessage=e=>{try{onEvent(JSON.parse(e.data));}catch(err){console.error(err);}};
-  dc.onopen=()=>{if(pendingText){const t=pendingText;pendingText=null;sendText(t);}else send({type:'response.create',response:{instructions:'Oğuzhan Bey\'i tek kısa cümleyle selamla, ör. "Buyrun Oğuzhan Bey, dinliyorum."'}});};
+  dc.onopen=()=>{if(pendingImage){const u=pendingImage;pendingImage=null;sendImage(u);}else if(pendingText){const t=pendingText;pendingText=null;sendText(t);}else send({type:'response.create',response:{instructions:'Önce bugun_ozet aracını çağır. Sonra Oğuzhan Bey\'i saate uygun selamla (günaydın / iyi akşamlar) ve günün en önemli bir iki şeyini TEK cümleyle söyle (geciken iş, bugünkü çekim). Önemli bir şey yoksa sadece "Buyrun Oğuzhan Bey, dinliyorum" de.'}});};
   pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc?.connectionState))stop('Bağlantı koptu. Yeniden başlatmak için dokunun.');};
   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
   const a=await fetch('https://api.openai.com/v1/realtime/calls',{method:'POST',body:offer.sdp,headers:{Authorization:'Bearer '+s.key,'Content-Type':'application/sdp'}});
