@@ -74,7 +74,7 @@ body.live #livebar{display:flex}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
-<div id="menu"><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
+<div id="menu"><button id="whoBtn" type="button">👤 Kullanan: Oğuzhan</button><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Rapor</button><button data-q="sharing"><span>📸</span>Paylaşım</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
@@ -126,7 +126,7 @@ async function quick(kind){if(QA[kind])return setMode(MODE===kind?null:kind);set
 
 function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('modeX').onclick=()=>setMode(null);
-$('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';if(MODE){const q=QA[MODE];setMode(null);add('msg you',q.t+': '+t);await textCall('__text',{text:q.p+t});return;}add('msg you',t);if(conv){logTurn('user',t);conv.sendUserMessage(t);}else if(dc&&dc.readyState==='open')sendText(t);else await textCall('__text',{text:t});};
+$('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';if(MODE){const q=QA[MODE];setMode(null);add('msg you',q.t+': '+t);await textCall('__text',{text:q.p+t,who:WHO()});return;}add('msg you',t);if(conv){logTurn('user',t);conv.sendUserMessage(t);}else if(dc&&dc.readyState==='open')sendText(t);else await textCall('__text',{text:t,who:WHO()});};
 
 // ElevenLabs voice: natural Turkish voice; same tools and panel as before.
 let conv=null;
@@ -153,7 +153,7 @@ async function start(withMic=true){
  const pin=store.get();if(!pin){askPin();return;}
  busy=true;mic.classList.add('busy');setStatus('Bağlanıyor…');
  try{
-  const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin,voice:voiceSel.value})});
+  const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin,voice:voiceSel.value,who:WHO()})});
   const s=await r.json().catch(()=>({}));
   if(r.status===401){store.del();add('sys err',s.error||'Şifre yanlış.');busy=false;mic.classList.remove('busy');askPin();return;}
   if(!r.ok)throw Error(s.error||('Hata '+r.status));
@@ -222,6 +222,10 @@ async function onEvent(ev){
 for(const [c,t] of hist()){if(c==='card'){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+t));log.appendChild(d);}else addRaw(c,t);}log.scrollTop=log.scrollHeight;
 $('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';$('menu').classList.remove('open');};
 document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick(b.dataset.q);});
+// Who uses this phone: the owner (default) or Berkay; Eyşan greets and addresses them by name.
+function WHO(){try{return localStorage.getItem('eysan_who')==='berkay'?'berkay':'oguzhan'}catch{return 'oguzhan'}}
+function showWho(){$('whoBtn').textContent='👤 Kullanan: '+(WHO()==='berkay'?'Berkay':'Oğuzhan')+' (değiştir)';}
+$('whoBtn').onclick=e=>{e.stopPropagation();try{localStorage.setItem('eysan_who',WHO()==='berkay'?'oguzhan':'berkay')}catch{};showWho();if(pc||conv)stop('Kullanıcı değişti, mikrofona yeniden dokunun.');};showWho();
 const syncChat=()=>document.body.classList.toggle('chatting',log.children.length>0);new MutationObserver(syncChat).observe(log,{childList:true});syncChat();
 new MutationObserver(()=>document.body.classList.toggle('live',mic.classList.contains('live'))).observe(mic,{attributes:true,attributeFilter:['class']});
 $('liveStop').onclick=()=>stop();
