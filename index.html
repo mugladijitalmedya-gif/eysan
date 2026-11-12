@@ -89,7 +89,7 @@ function card(text){keep('card',text);const d=document.createElement('div');d.cl
 function setStatus(t){statusEl.textContent=t;}
 function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('pin').focus();}
 function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';}
-$('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();start();};
+$('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();setStatus('Konuşmak için mikrofona dokunun');};
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
 $('forget').onclick=()=>{store.del();stop();askPin();};
 const voiceSel=$('voice');try{const v=localStorage.getItem('eysan_voice');if(v)voiceSel.value=v;}catch{}
@@ -214,6 +214,8 @@ for(const [c,t] of hist()){if(c==='card'){const d=document.createElement('div');
 $('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';};
 document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick(b.dataset.q);});
 window.addEventListener('pagehide',()=>{if(pc||conv)stop();});
+// Leaving the app ends the call, so no minutes or credits are spent in the background.
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(pc||conv))stop('Uygulamadan çıkınca konuşma kapandı.');});
 if(!store.get())askPin();
 </script>
 </body>
