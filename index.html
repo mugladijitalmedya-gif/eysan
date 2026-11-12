@@ -40,6 +40,9 @@ header p{margin:0;color:var(--muted);font-size:13px}
 #pinbox{display:none;flex-direction:column;gap:10px;align-items:center;margin:auto 0;padding:24px 0}
 #pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:200px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
 #pinbox button{font-size:16px;padding:12px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600}
+#textbar{display:flex;gap:8px;width:100%}
+#txt{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:22px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+#textbar button{border:0;border-radius:22px;padding:0 16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px}
 #forget{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer}
 </style>
 </head>
@@ -48,6 +51,7 @@ header p{margin:0;color:var(--muted);font-size:13px}
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="bottom">
+ <form id="textbar"><input id="txt" placeholder="Yazarak da sorabilirsiniz…" autocomplete="off" enterkeyhint="send"><button>Gönder</button></form>
  <div id="status">Konuşmak için dokunun</div>
  <button id="mic" aria-label="Konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button>
  <div id="timer"></div>
@@ -58,7 +62,7 @@ header p{margin:0;color:var(--muted);font-size:13px}
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
 const $=id=>document.getElementById(id);
 const log=$('log'),statusEl=$('status'),mic=$('mic'),timerEl=$('timer');
-let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false;
+let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false,pendingText=null;
 const store={get(){try{return localStorage.getItem('eysan_pin')}catch{return null}},set(v){try{localStorage.setItem('eysan_pin',v)}catch{}},del(){try{localStorage.removeItem('eysan_pin')}catch{}}};
 function add(cls,text){const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
 function card(text){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
@@ -69,6 +73,8 @@ $('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
 $('forget').onclick=()=>{store.del();stop();askPin();};
 mic.onclick=()=>{if(busy)return;pc?stop():start();};
+function sendText(t){send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
+$('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';add('msg you',t);if(dc&&dc.readyState==='open')sendText(t);else{pendingText=t;if(!pc)await start();}};
 
 async function start(){
  const pin=store.get();if(!pin){askPin();return;}
@@ -85,8 +91,8 @@ async function start(){
   stream.getTracks().forEach(t=>pc.addTrack(t,stream));
   dc=pc.createDataChannel('oai-events');
   dc.onmessage=e=>{try{onEvent(JSON.parse(e.data));}catch(err){console.error(err);}};
-  dc.onopen=()=>{send({type:'response.create',response:{instructions:'Oğuzhan Bey\'i tek kısa cümleyle selamla, ör. "Buyrun Oğuzhan Bey, dinliyorum."'}});};
-  pc.onconnectionstatechange=()=>{if(['failed','disconnected','closed'].includes(pc?.connectionState))stop('Bağlantı koptu.');};
+  dc.onopen=()=>{if(pendingText){const t=pendingText;pendingText=null;sendText(t);}else send({type:'response.create',response:{instructions:'Oğuzhan Bey\'i tek kısa cümleyle selamla, ör. "Buyrun Oğuzhan Bey, dinliyorum."'}});};
+  pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc?.connectionState))stop('Bağlantı koptu. Yeniden başlatmak için dokunun.');};
   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
   const a=await fetch('https://api.openai.com/v1/realtime/calls',{method:'POST',body:offer.sdp,headers:{Authorization:'Bearer '+s.key,'Content-Type':'application/sdp'}});
   if(!a.ok)throw Error('Ses bağlantısı kurulamadı ('+a.status+')');
