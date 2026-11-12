@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Eyşan</title>
+<meta name="theme-color" content="#0f1714">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eyşan">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg">
+<style>
+:root{--bg:#0f1714;--panel:#17221e;--line:#24332d;--text:#eef4f1;--muted:#8fa69c;--accent:#3ddc97;--accent-ink:#06261a;--warn:#ffb454;--err:#ff6b6b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;gap:12px;padding:14px 0 10px}
+header img{width:44px;height:44px;border-radius:50%}
+header h1{font-size:18px;margin:0}
+header p{margin:0;color:var(--muted);font-size:13px}
+#log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0 16px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-wrap:break-word}
+.eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+.you{background:#21463a;align-self:flex-end;border-bottom-right-radius:4px}
+.card{align-self:stretch;background:#13201b;border:1px solid #2d5545;border-radius:14px;padding:12px 14px;white-space:pre-wrap;font-size:15px}
+.card b{color:var(--accent)}
+.sys{align-self:center;color:var(--muted);font-size:13px;text-align:center}
+.sys.err{color:var(--err)}
+#bottom{padding:12px 0 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+#status{color:var(--muted);font-size:14px;min-height:20px}
+#mic{width:96px;height:96px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(61,220,151,.5);transition:transform .15s}
+#mic:active{transform:scale(.96)}
+#mic svg{width:40px;height:40px}
+#mic.live{background:var(--err);color:#fff;animation:pulse 1.6s infinite}
+#mic.busy{opacity:.6}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,107,.45)}70%{box-shadow:0 0 0 22px rgba(255,107,107,0)}100%{box-shadow:0 0 0 0 rgba(255,107,107,0)}}
+#timer{color:var(--muted);font-size:12px}
+#pinbox{display:none;flex-direction:column;gap:10px;align-items:center;margin:auto 0;padding:24px 0}
+#pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:200px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+#pinbox button{font-size:16px;padding:12px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600}
+#forget{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<header><img src="icon.svg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div></header>
+<div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
+<div id="log"></div>
+<div id="bottom">
+ <div id="status">Konuşmak için dokunun</div>
+ <button id="mic" aria-label="Konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button>
+ <div id="timer"></div>
+ <button id="forget">Şifreyi unut</button>
+</div>
+<audio id="speaker" autoplay playsinline></audio>
+<script>
+const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
+const $=id=>document.getElementById(id);
+const log=$('log'),statusEl=$('status'),mic=$('mic'),timerEl=$('timer');
+let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false;
+const store={get(){try{return localStorage.getItem('eysan_pin')}catch{return null}},set(v){try{localStorage.setItem('eysan_pin',v)}catch{}},del(){try{localStorage.removeItem('eysan_pin')}catch{}}};
+function add(cls,text){const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function card(text){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
+function setStatus(t){statusEl.textContent=t;}
+function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('pin').focus();}
+function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';}
+$('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();start();};
+$('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
+$('forget').onclick=()=>{store.del();stop();askPin();};
+mic.onclick=()=>{if(busy)return;pc?stop():start();};
+
+async function start(){
+ const pin=store.get();if(!pin){askPin();return;}
+ busy=true;mic.classList.add('busy');setStatus('Bağlanıyor…');
+ try{
+  const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin})});
+  const s=await r.json().catch(()=>({}));
+  if(r.status===401){store.del();add('sys err',s.error||'Şifre yanlış.');busy=false;mic.classList.remove('busy');askPin();return;}
+  if(!r.ok)throw Error(s.error||('Hata '+r.status));
+  token=s.token;
+  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  pc=new RTCPeerConnection();
+  pc.ontrack=e=>{$('speaker').srcObject=e.streams[0];};
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+  dc=pc.createDataChannel('oai-events');
+  dc.onmessage=e=>{try{onEvent(JSON.parse(e.data));}catch(err){console.error(err);}};
+  dc.onopen=()=>{send({type:'response.create',response:{instructions:'Oğuzhan Bey\'i tek kısa cümleyle selamla, ör. "Buyrun Oğuzhan Bey, dinliyorum."'}});};
+  pc.onconnectionstatechange=()=>{if(['failed','disconnected','closed'].includes(pc?.connectionState))stop('Bağlantı koptu.');};
+  const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+  const a=await fetch('https://api.openai.com/v1/realtime/calls',{method:'POST',body:offer.sdp,headers:{Authorization:'Bearer '+s.key,'Content-Type':'application/sdp'}});
+  if(!a.ok)throw Error('Ses bağlantısı kurulamadı ('+a.status+')');
+  await pc.setRemoteDescription({type:'answer',sdp:await a.text()});
+  endAt=Date.now()+s.minutes*60e3;tick=setInterval(()=>{const left=Math.max(0,endAt-Date.now());timerEl.textContent='Kalan süre '+Math.floor(left/60e3)+':'+String(Math.floor(left/1e3)%60).padStart(2,'0');if(!left)stop('Konuşma süresi doldu. Yeniden başlatmak için dokunun.');},1000);
+  mic.classList.add('live');setStatus('Dinliyorum…');
+ }catch(e){add('sys err',String(e.message||e));stop();}
+ busy=false;mic.classList.remove('busy');
+}
+function stop(note){
+ clearInterval(tick);tick=null;timerEl.textContent='';
+ try{dc&&dc.close();}catch{}try{pc&&pc.close();}catch{}stream&&stream.getTracks().forEach(t=>t.stop());
+ pc=dc=stream=null;mic.classList.remove('live');setStatus('Konuşmak için dokunun');if(note)add('sys',note);
+}
+function send(o){if(dc&&dc.readyState==='open')dc.send(JSON.stringify(o));}
+const LABELS={bugun_ozet:'Bugünün özetine bakıyorum',paylasim_kontrol:'Instagram paylaşımlarına bakıyorum',panel_bilgisi:'Panele bakıyorum',taslak_cekim:'Çekim taslağı hazırlıyorum',taslak_gorev:'Görev taslağı hazırlıyorum',taslak_isletme:'İşletme taslağı hazırlıyorum',onayla:'Panele ekliyorum',vazgec:'Vazgeçiyorum'};
+async function onEvent(ev){
+ switch(ev.type){
+  case 'input_audio_buffer.speech_started':setStatus('Dinliyorum…');break;
+  case 'output_audio_buffer.started':setStatus('Eyşan konuşuyor…');break;
+  case 'output_audio_buffer.stopped':setStatus('Dinliyorum…');break;
+  case 'conversation.item.input_audio_transcription.completed':if(ev.transcript)add('msg you',ev.transcript.trim());break;
+  case 'response.output_audio_transcript.done':case 'response.audio_transcript.done':if(ev.transcript)add('msg eysan',ev.transcript.trim());break;
+  case 'response.done':{
+   const calls=(ev.response?.output||[]).filter(o=>o.type==='function_call');
+   if(!calls.length)break;
+   for(const c of calls){
+    add('sys','🔧 '+(LABELS[c.name]||c.name)+'…');
+    let args={};try{args=JSON.parse(c.arguments||'{}');}catch{}
+    let result;
+    try{
+     const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,name:c.name,args})});
+     result=await r.json();
+     if(r.status===401){stop('Oturum süresi doldu, yeniden başlatın.');return;}
+    }catch(e){result={hata:'Panele ulaşılamadı: '+String(e.message||e)};}
+    if(result.onizleme)card(result.onizleme);
+    if(c.name==='onayla'&&result.sonuc)add('sys',result.sonuc);
+    send({type:'conversation.item.create',item:{type:'function_call_output',call_id:c.call_id,output:JSON.stringify(result)}});
+   }
+   send({type:'response.create'});
+   break;}
+  case 'error':add('sys err',ev.error?.message||'Bir hata oldu');break;
+ }
+}
+if(!store.get())askPin();
+</script>
+</body>
+</html>
