@@ -64,7 +64,7 @@ header div{flex:1}
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
 const $=id=>document.getElementById(id);
 const log=$('log'),statusEl=$('status'),mic=$('mic'),timerEl=$('timer');
-let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false,pendingText=null;
+let pc=null,dc=null,stream=null,token=null,endAt=0,tick=null,busy=false,pendingText=null,sessionId=null,startedAt=0;
 const store={get(){try{return localStorage.getItem('eysan_pin')}catch{return null}},set(v){try{localStorage.setItem('eysan_pin',v)}catch{}},del(){try{localStorage.removeItem('eysan_pin')}catch{}}};
 function add(cls,text){const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
 function card(text){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
@@ -88,7 +88,8 @@ async function start(){
   const s=await r.json().catch(()=>({}));
   if(r.status===401){store.del();add('sys err',s.error||'Şifre yanlış.');busy=false;mic.classList.remove('busy');askPin();return;}
   if(!r.ok)throw Error(s.error||('Hata '+r.status));
-  token=s.token;
+  token=s.token;sessionId=s.session_id||null;startedAt=Date.now();
+  if(typeof s.left_minutes==='number')add('sys','Bugün kalan konuşma süresi: '+(s.left_minutes+Math.floor(s.minutes))+' dakika');
   stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
   pc=new RTCPeerConnection();
   pc.ontrack=e=>{$('speaker').srcObject=e.streams[0];};
@@ -108,6 +109,7 @@ async function start(){
 }
 function stop(note){
  clearInterval(tick);tick=null;timerEl.textContent='';
+ if(sessionId&&startedAt){const body=JSON.stringify({token,name:'__end',args:{session_id:sessionId,seconds:Math.round((Date.now()-startedAt)/1000)}});try{if(!navigator.sendBeacon(API+'voice-tool',new Blob([body],{type:'text/plain'})))fetch(API+'voice-tool',{method:'POST',body,keepalive:true});}catch{}sessionId=null;startedAt=0;}
  try{dc&&dc.close();}catch{}try{pc&&pc.close();}catch{}stream&&stream.getTracks().forEach(t=>t.stop());
  pc=dc=stream=null;mic.classList.remove('live');setStatus('Konuşmak için dokunun');if(note)add('sys',note);
 }
@@ -141,6 +143,7 @@ async function onEvent(ev){
   case 'error':add('sys err',ev.error?.message||'Bir hata oldu');break;
  }
 }
+window.addEventListener('pagehide',()=>{if(pc)stop();});
 if(!store.get())askPin();
 </script>
 </body>
