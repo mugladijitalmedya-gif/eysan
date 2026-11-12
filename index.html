@@ -20,6 +20,8 @@ header{display:flex;align-items:center;gap:12px;padding:14px 0 10px}
 header img{width:44px;height:44px;border-radius:50%}
 header h1{font-size:18px;margin:0}
 header p{margin:0;color:var(--muted);font-size:13px}
+header div{flex:1}
+#voice{font-size:14px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
 #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0 16px}
 .msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;word-wrap:break-word}
 .eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
@@ -47,7 +49,7 @@ header p{margin:0;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
-<header><img src="icon.svg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div></header>
+<header><img src="icon.svg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div><select id="voice" aria-label="Ses"><option value="marin">Ses: Marin</option><option value="coral">Ses: Coral</option><option value="shimmer">Ses: Shimmer</option><option value="sage">Ses: Sage</option><option value="cedar">Ses: Cedar (erkek)</option><option value="ash">Ses: Ash (erkek)</option></select></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="bottom">
@@ -72,6 +74,8 @@ function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('
 $('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();start();};
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
 $('forget').onclick=()=>{store.del();stop();askPin();};
+const voiceSel=$('voice');try{const v=localStorage.getItem('eysan_voice');if(v)voiceSel.value=v;}catch{}
+voiceSel.onchange=()=>{try{localStorage.setItem('eysan_voice',voiceSel.value)}catch{};if(pc){stop('Ses değişti, yeni sesle konuşmak için mikrofona dokunun.');}};
 mic.onclick=()=>{if(busy)return;pc?stop():start();};
 function sendText(t){send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';add('msg you',t);if(dc&&dc.readyState==='open')sendText(t);else{pendingText=t;if(!pc)await start();}};
@@ -80,7 +84,7 @@ async function start(){
  const pin=store.get();if(!pin){askPin();return;}
  busy=true;mic.classList.add('busy');setStatus('Bağlanıyor…');
  try{
-  const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin})});
+  const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin,voice:voiceSel.value})});
   const s=await r.json().catch(()=>({}));
   if(r.status===401){store.del();add('sys err',s.error||'Şifre yanlış.');busy=false;mic.classList.remove('busy');askPin();return;}
   if(!r.ok)throw Error(s.error||('Hata '+r.status));
