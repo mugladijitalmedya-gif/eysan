@@ -47,12 +47,25 @@ header div{flex:1}
 #textbar button{border:0;border-radius:22px;padding:0 16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px}
 #photoBtn{display:grid;place-items:center;width:46px;border-radius:22px;background:var(--panel);border:1px solid var(--line);font-size:20px;cursor:pointer}
 .thumb{align-self:flex-end;max-width:60%;border-radius:12px;border:1px solid var(--line)}
+#qa{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+#qa::-webkit-scrollbar{display:none}
+#qa button{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:18px;padding:8px 12px;font-size:14px;white-space:nowrap}
+#sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);align-items:flex-end;z-index:10}
+.sheetBox{background:var(--bg);width:100%;max-height:88vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sheetHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sheetHead button{background:none;border:0;color:var(--muted);font-size:22px}
+.fld{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:13px;color:var(--muted)}
+.fld input,.fld select,.fld textarea{font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);width:100%}
+.team{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:4px;padding:6px 10px;border:1px solid var(--line);border-radius:16px;color:var(--text);font-size:14px}
+.go{width:100%;border:0;border-radius:12px;padding:14px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px;margin-top:6px}
 #forget{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer}
 </style>
 </head>
 <body>
 <header><img src="eysan.jpg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div><select id="voice" aria-label="Ses"><option value="marin">Ses: Marin</option><option value="coral">Ses: Coral</option><option value="shimmer">Ses: Shimmer</option><option value="sage">Ses: Sage</option><option value="cedar">Ses: Cedar (erkek)</option><option value="ash">Ses: Ash (erkek)</option></select></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
+<div id="qa"><button data-q="task">📝 Görev</button><button data-q="shoot">🎥 Çekim</button><button data-q="todo">📋 Yapılacak</button><button data-q="report">📊 Rapor</button><button data-q="sharing">📸 Paylaşım</button><button data-q="people">👥 Kim ne yapıyor</button><button data-q="claude">🤖 Claude'a iş</button><button data-q="reminder">⏰ Hatırlatma</button><button data-q="business">🏢 İşletme</button></div>
 <div id="log"></div>
 <div id="bottom">
  <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Yazarak da sorabilirsiniz…" autocomplete="off" enterkeyhint="send"><button>Gönder</button></form>
@@ -61,6 +74,7 @@ header div{flex:1}
  <div id="timer"></div>
  <div style="display:flex;gap:16px"><button id="clearlog" style="background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer">Geçmişi temizle</button><button id="forget">Şifreyi unut</button></div>
 </div>
+<div id="sheet"><div class="sheetBox"><div class="sheetHead"><b id="sheetTitle"></b><button id="sheetX" aria-label="Kapat">✕</button></div><div id="sheetBody"></div></div></div>
 <audio id="speaker" autoplay playsinline></audio>
 <script>
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
@@ -89,6 +103,45 @@ let tTok=null,tExp=0;
 async function textToken(){if(tTok&&tExp>Date.now())return tTok;const pin=store.get();if(!pin){askPin();throw Error('pin');}const r=await fetch(API+'voice-session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin,textOnly:true})});const s=await r.json().catch(()=>({}));if(r.status===401){store.del();askPin();throw Error(s.error||'Şifre yanlış');}if(!r.ok)throw Error(s.error||('Hata '+r.status));tTok=s.token;tExp=Date.now()+11*3600e3;return tTok;}
 function reply(x){const d=add('msg eysan',x.text);if(x.buttons&&x.buttons.length){const row=document.createElement('div');row.style.cssText='display:flex;gap:8px;margin-top:8px';for(const b of x.buttons){const bt=document.createElement('button');bt.textContent=b.text;bt.style.cssText='border:0;border-radius:10px;padding:8px 12px;font-weight:600;background:'+(b.data.startsWith('pa')?'var(--accent)':'var(--line)')+';color:'+(b.data.startsWith('pa')?'var(--accent-ink)':'var(--text)');bt.onclick=async()=>{row.remove();add('msg you',b.text);await textCall('__btn',{data:b.data});};row.appendChild(bt);}d.appendChild(row);}}
 async function textCall(name,args){busy=true;setStatus('Eyşan yazıyor…');try{const t=await textToken();const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:t,name,args})});const j=await r.json().catch(()=>({}));if(r.status===401){tTok=null;throw Error('Oturum yenilendi, tekrar gönderin.');}for(const x of j.replies||[])reply(x);if(!(j.replies||[]).length)add('sys','(cevap yok)');}catch(e){if(String(e.message)!=='pin')add('sys err',String(e.message||e));}busy=false;setStatus('Konuşmak için mikrofona dokunun, yazmak için kutuyu kullanın');}
+// Quick actions: forms that send structured data, replies (with Ekle/Vazgeç) come back into the chat.
+let META=null;
+async function meta(){if(META)return META;const t=await textToken();const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:t,name:'__meta'})});META=await r.json();return META;}
+const QA={
+ task:{t:'📝 Görev aç',f:[['business_id','İşletme','biz'],['title','Görev','text','ör. 3 post hazırla'],['type','Tür','sel',['Post','Reels','Grafik','Story','Reklam','Özel']],['quantity','Adet','num'],['people','Kime','team'],['date','Teslim','date'],['urgency','Aciliyet','sel',[['normal','Normal'],['high','Yüksek'],['urgent','Acil']]],['notes','Not','area']]},
+ shoot:{t:'🎥 Çekim ekle',f:[['business_id','İşletme','biz'],['title','Çekim adı','text','ör. Sonbahar menü çekimi'],['shoot_kind','Tür','sel',['Reels çekimi','İşletme çekimi','Ürün çekimi','Etkinlik çekimi']],['date','Tarih','date'],['time','Saat','time'],['people','Ekip','team'],['location','Yer','text'],['notes','Not','area']]},
+ todo:{t:'📋 Yapılacak ekle',f:[['title','İş','text'],['people','Kime','team'],['date','Ne zamana','date'],['urgency','Aciliyet','sel',[['normal','Normal'],['high','Yüksek'],['urgent','Acil']]],['business_id','İşletme (isteğe bağlı)','biz'],['notes','Not','area']]},
+ business:{t:'🏢 İşletme ekle',f:[['name','İşletme adı','text'],['category','Kategori','text','ör. Restoran / Kafe'],['instagram','Instagram','text','kullanıcı adı'],['posts','Aylık post','num'],['reels','Aylık Reels','num'],['stories','Aylık story','num']]},
+ claude:{t:"🤖 Claude'a iş",f:[['business_id','İşletme (isteğe bağlı)','biz'],['title','Ne yapılsın?','area','ör. Günün menüsü videosu: mercimek, tavuk sote, pilav'],['date','Ne zamana','date'],['notes','Ek not','text']]},
+ reminder:{t:'⏰ Hatırlatma',f:[['title','Neyi hatırlatayım?','text'],['date','Gün','date'],['time','Saat','time'],['repeat','Tekrar','sel',[['','Tekrar yok'],['daily','Her gün'],['weekdays','Hafta içi her gün'],['weekly','Her hafta'],['monthly','Her ay']]]]}
+};
+function el(tag,attrs={},kids=[]){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs))k==='text'?e.textContent=v:e.setAttribute(k,v);for(const c of kids)e.appendChild(c);return e;}
+async function openForm(kind){
+ const q=QA[kind];const sheet=$('sheet'),body=$('sheetBody');$('sheetTitle').textContent=q.t;body.textContent='Yükleniyor…';sheet.style.display='flex';
+ let m;try{m=await meta();}catch(e){body.textContent=String(e.message||e);return;}
+ body.textContent='';const today=new Date(Date.now()+3*3600e3).toISOString().slice(0,10);
+ for(const [k,label,type,opt] of q.f){
+  const wrap=el('label',{class:'fld'},[el('span',{text:label})]);let inp;
+  if(type==='biz'){inp=el('select',{name:k});inp.appendChild(el('option',{value:'',text:'— seçin —'}));for(const b of m.businesses||[])inp.appendChild(el('option',{value:String(b.id),text:b.name}));}
+  else if(type==='sel'){inp=el('select',{name:k});for(const o of opt){const [v,t]=Array.isArray(o)?o:[o,o];inp.appendChild(el('option',{value:v,text:t}));}}
+  else if(type==='team'){inp=el('div',{class:'team','data-name':k});for(const n of m.team||[]){const c=el('label',{class:'chip'},[el('input',{type:'checkbox',value:n}),el('span',{text:n.split(' ')[0]})]);inp.appendChild(c);}}
+  else if(type==='area')inp=el('textarea',{name:k,rows:'3',placeholder:opt||''});
+  else inp=el('input',{name:k,type:type==='num'?'number':type,placeholder:opt||'',...(type==='date'?{min:today}:{}),...(type==='num'?{min:'0'}:{})});
+  wrap.appendChild(inp);body.appendChild(wrap);
+ }
+ const send=el('button',{class:'go',text:'Gönder'});body.appendChild(send);
+ send.onclick=async()=>{
+  const args={kind};
+  for(const x of body.querySelectorAll('[name]'))if(x.value!=='')args[x.name]=x.type==='number'?Number(x.value):x.value;
+  for(const t of body.querySelectorAll('.team'))args[t.dataset.name]=[...t.querySelectorAll('input:checked')].map(i=>i.value);
+  if((kind==='task'||kind==='shoot')&&!args.business_id){alert('İşletme seçin');return;}
+  if(kind==='shoot'&&!args.date){alert('Tarih seçin');return;}
+  if(kind==='business'&&!args.name){alert('İşletme adını yazın');return;}
+  if(['task','todo','claude','reminder'].includes(kind)&&!args.title){alert('Boş bırakmayın');return;}
+  sheet.style.display='none';add('msg you',q.t+(args.title?': '+args.title:args.name?': '+args.name:''));await textCall('__draft',args);
+ };
+}
+async function quick(kind){if(QA[kind])return openForm(kind);const label={report:'📊 Bugünün raporu',sharing:'📸 Paylaşım kontrolü',people:'👥 Kim ne yapıyor'}[kind];add('msg you',label);await textCall('__draft',{kind});}
+
 function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';add('msg you',t);if(dc&&dc.readyState==='open')sendText(t);else await textCall('__text',{text:t});};
 
@@ -158,6 +211,9 @@ async function onEvent(ev){
 }
 for(const [c,t] of hist()){if(c==='card'){const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+t));log.appendChild(d);}else addRaw(c,t);}log.scrollTop=log.scrollHeight;
 $('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';};
+document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick(b.dataset.q);});
+$('sheetX').onclick=()=>{$('sheet').style.display='none';};
+$('sheet').onclick=e=>{if(e.target.id==='sheet')$('sheet').style.display='none';};
 window.addEventListener('pagehide',()=>{if(pc)stop();});
 if(!store.get())askPin();
 </script>
