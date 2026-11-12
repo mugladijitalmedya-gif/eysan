@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eyşan">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="eysan.jpg">
 <link rel="icon" href="icon.svg">
 <style>
 :root{--bg:#0f1714;--panel:#17221e;--line:#24332d;--text:#eef4f1;--muted:#8fa69c;--accent:#3ddc97;--accent-ink:#06261a;--warn:#ffb454;--err:#ff6b6b}
@@ -49,7 +49,7 @@ header div{flex:1}
 </style>
 </head>
 <body>
-<header><img src="icon.svg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div><select id="voice" aria-label="Ses"><option value="marin">Ses: Marin</option><option value="coral">Ses: Coral</option><option value="shimmer">Ses: Shimmer</option><option value="sage">Ses: Sage</option><option value="cedar">Ses: Cedar (erkek)</option><option value="ash">Ses: Ash (erkek)</option></select></header>
+<header><img src="eysan.jpg" alt=""><div><h1>Asistanım Eyşan</h1><p>Muğla Dijital Medya</p></div><select id="voice" aria-label="Ses"><option value="marin">Ses: Marin</option><option value="coral">Ses: Coral</option><option value="shimmer">Ses: Shimmer</option><option value="sage">Ses: Sage</option><option value="cedar">Ses: Cedar (erkek)</option><option value="ash">Ses: Ash (erkek)</option></select></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="bottom">
@@ -77,7 +77,7 @@ $('forget').onclick=()=>{store.del();stop();askPin();};
 const voiceSel=$('voice');try{const v=localStorage.getItem('eysan_voice');if(v)voiceSel.value=v;}catch{}
 voiceSel.onchange=()=>{try{localStorage.setItem('eysan_voice',voiceSel.value)}catch{};if(pc){stop('Ses değişti, yeni sesle konuşmak için mikrofona dokunun.');}};
 mic.onclick=()=>{if(busy)return;pc?stop():start();};
-function sendText(t){send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
+function sendText(t){logTurn('user',t);send({type:'conversation.item.create',item:{type:'message',role:'user',content:[{type:'input_text',text:t}]}});send({type:'response.create'});}
 $('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim();if(!t||busy)return;$('txt').value='';add('msg you',t);if(dc&&dc.readyState==='open')sendText(t);else{pendingText=t;if(!pc)await start();}};
 
 async function start(){
@@ -114,14 +114,15 @@ function stop(note){
  pc=dc=stream=null;mic.classList.remove('live');setStatus('Konuşmak için dokunun');if(note)add('sys',note);
 }
 function send(o){if(dc&&dc.readyState==='open')dc.send(JSON.stringify(o));}
-const LABELS={bugun_ozet:'Bugünün özetine bakıyorum',paylasim_kontrol:'Instagram paylaşımlarına bakıyorum',panel_bilgisi:'Panele bakıyorum',taslak_cekim:'Çekim taslağı hazırlıyorum',taslak_gorev:'Görev taslağı hazırlıyorum',taslak_isletme:'İşletme taslağı hazırlıyorum',onayla:'Panele ekliyorum',vazgec:'Vazgeçiyorum'};
+function logTurn(role,text){if(!token||!text)return;fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,name:'__log',args:{role,text}})}).catch(()=>{});}
+const LABELS={hatirla:'Hafızaya yazıyorum',claude_isi:"Claude'a iş kaydediyorum",bugun_ozet:'Bugünün özetine bakıyorum',paylasim_kontrol:'Instagram paylaşımlarına bakıyorum',panel_bilgisi:'Panele bakıyorum',taslak_cekim:'Çekim taslağı hazırlıyorum',taslak_gorev:'Görev taslağı hazırlıyorum',taslak_isletme:'İşletme taslağı hazırlıyorum',onayla:'Panele ekliyorum',vazgec:'Vazgeçiyorum'};
 async function onEvent(ev){
  switch(ev.type){
   case 'input_audio_buffer.speech_started':setStatus('Dinliyorum…');break;
   case 'output_audio_buffer.started':setStatus('Eyşan konuşuyor…');break;
   case 'output_audio_buffer.stopped':setStatus('Dinliyorum…');break;
-  case 'conversation.item.input_audio_transcription.completed':if(ev.transcript)add('msg you',ev.transcript.trim());break;
-  case 'response.output_audio_transcript.done':case 'response.audio_transcript.done':if(ev.transcript)add('msg eysan',ev.transcript.trim());break;
+  case 'conversation.item.input_audio_transcription.completed':if(ev.transcript){add('msg you',ev.transcript.trim());logTurn('user',ev.transcript.trim());}break;
+  case 'response.output_audio_transcript.done':case 'response.audio_transcript.done':if(ev.transcript){add('msg eysan',ev.transcript.trim());logTurn('assistant',ev.transcript.trim());}break;
   case 'response.done':{
    const calls=(ev.response?.output||[]).filter(o=>o.type==='function_call');
    if(!calls.length)break;
