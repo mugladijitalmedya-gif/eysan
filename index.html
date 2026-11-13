@@ -146,7 +146,7 @@ async function startEleven(s){
   signedUrl:s.signed_url,connectionType:'websocket',
   overrides:{agent:{prompt:{prompt:s.prompt},firstMessage:s.first_message,language:'tr'}},
   clientTools:tools,
-  onMessage:m=>{const t=String(m?.message||'').trim();if(!t)return;const u=(m.role||m.source)==='user';add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
+  onMessage:m=>{const t=String(m?.message||'').trim();if(!t||/^[.…\s]*$/.test(t))return;const u=(m.role||m.source)==='user';add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
   onModeChange:m=>{if(m?.mode==='speaking'){if(conv&&!micMuted)muteMic(true);setStatus('Eyşan konuşuyor…');}else setStatus(micMuted?'🎙️ Konuşmak için mikrofona dokunun':'Dinliyorum…');},
   onDisconnect:()=>{if(conv){conv=null;stop('Konuşma bitti. Yeniden başlatmak için dokunun.');}},
   onError:e=>add('sys err',String(e?.message||e||'Ses hatası'))
