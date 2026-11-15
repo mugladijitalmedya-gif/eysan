@@ -131,7 +131,9 @@ $('textbar').onsubmit=async e=>{e.preventDefault();const t=$('txt').value.trim()
 
 // ElevenLabs voice: natural Turkish voice; same tools and panel as before.
 // Push-to-talk: the mic is muted until Oğuzhan Bey taps it, and mutes again when Eyşan answers, so background voices are not heard.
-let conv=null,micMuted=false;
+// Mic opens by itself whenever Eyşan finishes talking; it is closed while she speaks (so she doesn't hear herself or the room),
+// and a tap closes it to say "I'm done" when background voices would keep the turn open.
+let conv=null,micMuted=false,agentTalking=false;
 function muteMic(on){if(!conv)return;try{conv.setMicMuted(on);}catch{}micMuted=on;mic.classList.toggle('hold',on);setStatus(on?'🎙️ Konuşmak için mikrofona dokunun':'🔴 Dinliyorum, bitince mikrofona tekrar dokunun');$('livebar').querySelector('.lt').textContent=on?'Sesli konuşma açık':'Konuşun, bitince 🎙️ dokunun';}
 function loadEleven(){if(window.ElevenLabsClient)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.32.1/dist/lib.iife.js';sc.onload=res;sc.onerror=()=>rej(Error('Ses kütüphanesi yüklenemedi'));document.head.appendChild(sc);});}
 async function startEleven(s){
@@ -147,7 +149,7 @@ async function startEleven(s){
   overrides:{agent:{prompt:{prompt:s.prompt},firstMessage:s.first_message,language:'tr'}},
   clientTools:tools,
   onMessage:m=>{const t=String(m?.message||'').trim();if(!t||/^[.…\s]*$/.test(t))return;const u=(m.role||m.source)==='user';add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
-  onModeChange:m=>{if(m?.mode==='speaking'){if(conv&&!micMuted)muteMic(true);setStatus('Eyşan konuşuyor…');}else setStatus(micMuted?'🎙️ Konuşmak için mikrofona dokunun':'🔴 Dinliyorum, bitince mikrofona tekrar dokunun');},
+  onModeChange:m=>{if(m?.mode==='speaking'){agentTalking=true;if(conv&&!micMuted)muteMic(true);setStatus('Eyşan konuşuyor…');}else if(agentTalking){agentTalking=false;muteMic(false);}else setStatus(micMuted?'🎙️ Konuşmak için mikrofona dokunun':'🔴 Dinliyorum, bitince mikrofona tekrar dokunun');},
   onDisconnect:()=>{if(conv){conv=null;stop('Konuşma bitti. Yeniden başlatmak için dokunun.');}},
   onError:e=>add('sys err',String(e?.message||e||'Ses hatası'))
  });
@@ -165,7 +167,7 @@ async function start(withMic=true){
   if(s.provider==='eleven'){
    await startEleven(s);micOn=true;
    endAt=Date.now()+s.minutes*60e3;tick=setInterval(()=>{const left=Math.max(0,endAt-Date.now());timerEl.textContent='Kalan süre '+Math.floor(left/60e3)+':'+String(Math.floor(left/1e3)%60).padStart(2,'0');if(!left)stop('Konuşma süresi doldu. Yeniden başlatmak için dokunun.');},1000);
-   mic.classList.add('live');muteMic(true);busy=false;mic.classList.remove('busy');return;
+   mic.classList.add('live');muteMic(false);busy=false;mic.classList.remove('busy');return;
   }
   pc=new RTCPeerConnection();
   pc.ontrack=e=>{$('speaker').srcObject=e.streams[0];};
@@ -188,7 +190,7 @@ function stop(note){
  clearInterval(tick);tick=null;timerEl.textContent='';
  if(sessionId&&startedAt){const body=JSON.stringify({token,name:'__end',args:{session_id:sessionId,seconds:Math.round((Date.now()-startedAt)/1000)}});try{if(!navigator.sendBeacon(API+'voice-tool',new Blob([body],{type:'text/plain'})))fetch(API+'voice-tool',{method:'POST',body,keepalive:true});}catch{}sessionId=null;startedAt=0;}
  if(conv){const c=conv;conv=null;c.endSession().catch(()=>{});}
- micMuted=false;mic.classList.remove('hold');
+ micMuted=false;agentTalking=false;mic.classList.remove('hold');
  try{dc&&dc.close();}catch{}try{pc&&pc.close();}catch{}stream&&stream.getTracks().forEach(t=>t.stop());
  pc=dc=stream=null;micOn=false;mic.classList.remove('live');setStatus('Konuşmak için dokunun');if(note)add('sys',note);
 }
