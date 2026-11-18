@@ -199,6 +199,17 @@ body.bizOn #bizSheet{display:flex}
 #bizSheet .rrow{display:flex;gap:8px;margin-top:8px}
 #bizSheet .rrow a,#bizSheet .rrow button{flex:1;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px;font-size:14px;text-decoration:none;cursor:pointer}
 #dash .grid>.dcard{min-width:0}#dash .topw{max-width:100%}
+
+#bizSheet .tf label{display:block;color:var(--muted);font-size:12px;margin:12px 0 5px;letter-spacing:.04em}
+#bizSheet .tf select,#bizSheet .tf input,#bizSheet .tf textarea{width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px;font-family:inherit;min-height:0}
+#bizSheet .tf textarea{min-height:60px}
+#bizSheet .tf .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+#bizSheet .tf .chips button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer}
+#bizSheet .tf .chips button.on{background:#4ade80;color:#05210f;border-color:#4ade80;font-weight:700}
+#bizSheet .tf .row2{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+#bizSheet .tfGo{width:100%;margin-top:16px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#05210f;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;cursor:pointer}
+#bizSheet .tfGo:disabled{opacity:.6}
+#bizSheet #tfMsg.err{color:#ff8a9a;font-size:13.5px;margin-top:10px}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -213,7 +224,7 @@ body.bizOn #bizSheet{display:flex}
 </div>
 <div id="orb"><button id="orbBack" type="button" aria-label="Geri">‹</button><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
 <div id="dash"><div class="dw">
-<div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
+<div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dTask" type="button">📝 Görev</button><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
 <div class="kpis" id="dKpi"></div>
 <div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button></div>
 <div class="grid">
@@ -412,9 +423,10 @@ async function dCall(name,args){const t=await textToken();const r=await fetch(AP
 function dashShow(on){document.body.classList.toggle('dashOn',on);if(on&&Date.now()-DZ.at>60e3)loadDash();}
 async function loadDash(){
  $('dDate').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'})+' · '+(WHO()==='Berkay'?'İyi çalışmalar Berkay Bey':'İyi çalışmalar Oğuzhan Bey');
+ if(!DZ.data){try{const c=JSON.parse(localStorage.getItem('eysan_dash')||'null');if(c&&c.v){DZ.data=c.v;renderDash();}}catch{}}
  if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Yükleniyor…</div>';
  $('dRefresh').textContent='⏳';
- try{DZ.data=await dCall('__dash',{});DZ.at=Date.now();renderDash();}
+ try{DZ.data=await dCall('__dash',{});DZ.at=Date.now();renderDash();try{localStorage.setItem('eysan_dash',JSON.stringify({v:DZ.data}));}catch{}}
  catch(e){if(String(e.message)==='pin'){document.body.classList.remove('dashOn');return;}if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Panel yüklenemedi: '+dEsc(e.message||e)+'</div>';}
  finally{$('dRefresh').textContent='🔄';}
 }
@@ -500,12 +512,13 @@ function openPerson(name){
   +(mine.length?grp('late','🔴 Geciken')+grp('soon','🟠 Bugün / yarın')+grp('other','🟢 Diğer'):'<div class="empty">Açık işi yok.</div>')
   +'<div class="sec">✅ Bu hafta bitirdikleri ('+done.length+')</div>'+(done.length?done.slice(0,40).map(t=>'<div class="tk">'+dEsc(t.title)+'<small>'+dEsc(t.biz)+' · '+new Date(t.at).toLocaleDateString('tr-TR',{day:'numeric',month:'short',timeZone:'Europe/Istanbul'})+'</small></div>').join(''):'<div class="empty">Bu hafta bitirdiği iş görünmüyor.</div>');
  $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+ document.querySelector('#bizBox .bh').insertAdjacentHTML('afterend','<div class="acts" style="grid-template-columns:1fr"><button type="button" class="pri" id="pGive">📝 Görev ver</button></div>');$('pGive').onclick=()=>taskForm({person:name});
  document.body.classList.add('bizOn');
 }
 function dBizActs(r){
  const bh=document.querySelector('#bizBox .bh');if(!bh)return;
  bh.insertAdjacentHTML('afterend','<div class="acts"><button type="button" data-a="task">📝 Görev</button><button type="button" data-a="shoot">🎥 Çekim</button><button type="button" data-a="reminder">⏰ Hatırlat</button><button type="button" data-a="report" class="pri">📊 Rapor</button></div><div id="bizRep"></div>');
- document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
+ document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}if(a==='task'){taskForm({business:r.id});return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
 }
 function dReport(r){
  const ig=r.ig;if(!ig){$('bizRep').innerHTML='<div class="note">Instagram hesabı bağlı olmadığı için rapor hazırlanamıyor.</div>';return;}
@@ -526,6 +539,49 @@ function dReport(r){
 }
 $('dAgenda').onclick=e=>{const v=e.target.closest('[data-v]');if(v){DZ.view=v.dataset.v;renderDash();}};
 $('dWork').onclick=e=>{const p=e.target.closest('[data-p]');if(p)openPerson(p.dataset.p);};
+
+// 📝 Task form: business + people + what to do; opens straight in the panel's Görevler list.
+let TOPTS=null;
+async function taskForm(pre){
+ pre=pre||{};
+ document.body.classList.add('bizOn');$('bizBox').innerHTML='<div class="empty">Yükleniyor…</div>';
+ try{TOPTS=TOPTS||await dCall('__taskopts',{});}catch(e){$('bizBox').innerHTML='<div class="empty">Açılamadı: '+dEsc(e.message||e)+'</div>';return;}
+ const o=TOPTS,add=n=>dDay(Date.now()+n*86400e3);
+ const dayName=n=>new Date(Date.now()+n*86400e3).toLocaleDateString('tr-TR',{weekday:'long',timeZone:'Europe/Istanbul'});
+ const fi=[2,3,4,5,6].find(n=>dayName(n)==='Cuma');
+ const low=s=>String(s||'').toLocaleLowerCase('tr-TR');
+ const types=o.types&&o.types.length?o.types:['Post','Hikaye','Reels','Video'];
+ $('bizBox').innerHTML='<div class="bh"><span class="ph">📝</span><div><h3>Yeni görev</h3><p>Panelde Görevler\'e açılır, seçilen kişiye bildirim gider</p></div><button type="button" id="bizX" aria-label="Kapat">✕</button></div>'
+  +'<form id="tf" class="tf">'
+  +'<label>İşletme</label><select id="tfBiz"><option value="">Seçin…</option>'+o.businesses.map(b=>'<option value="'+b.id+'"'+(String(b.id)===String(pre.business||'')?' selected':'')+'>'+dEsc(b.name)+'</option>').join('')+'</select>'
+  +'<label>Kim yapsın</label><div class="chips" id="tfWho">'+o.users.map(u=>'<button type="button" data-e="'+dEsc(u.email)+'" class="'+(pre.person&&low(u.name)===low(pre.person)?'on':'')+'">'+dEsc(dName(u.name))+'</button>').join('')+'</div>'
+  +'<label>Ne yapılacak</label><input id="tfTitle" placeholder="ör. 3 hikaye tasarımı" autocomplete="off">'
+  +'<div class="row2"><div><label>Tür</label><select id="tfType">'+types.map(t=>'<option'+(t==='Post'?' selected':'')+'>'+dEsc(t)+'</option>').join('')+'</select></div><div><label>Adet</label><input id="tfQty" type="number" min="1" max="100" value="1"></div></div>'
+  +'<label>Teslim</label><div class="chips" id="tfDue"><button type="button" data-d="'+add(0)+'">Bugün</button><button type="button" data-d="'+add(1)+'" class="on">Yarın</button>'+(fi?'<button type="button" data-d="'+add(fi)+'">Cuma</button>':'')+'<button type="button" data-d="'+add(7)+'">1 hafta</button></div><input id="tfDate" type="date" value="'+add(1)+'">'
+  +'<label>Öncelik</label><div class="chips" id="tfUrg"><button type="button" data-u="normal" class="on">Normal</button><button type="button" data-u="high">Yüksek</button><button type="button" data-u="urgent">Acil</button></div>'
+  +'<label>Not (isteğe bağlı)</label><textarea id="tfNotes" rows="2"></textarea>'
+  +'<div id="tfMsg"></div><button class="tfGo" type="submit">Görevi aç</button></form>';
+ $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+ $('tfWho').onclick=e=>{const b=e.target.closest('[data-e]');if(b)b.classList.toggle('on');};
+ $('tfDue').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;$('tfDue').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('tfDate').value=b.dataset.d;};
+ $('tfDate').oninput=()=>$('tfDue').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.d===$('tfDate').value));
+ $('tfUrg').onclick=e=>{const b=e.target.closest('[data-u]');if(b)$('tfUrg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));};
+ if(!pre.business)$('tfBiz').focus();else $('tfTitle').focus();
+ $('tf').onsubmit=async e=>{
+  e.preventDefault();const msg=$('tfMsg');const emails=[...$('tfWho').querySelectorAll('.on')].map(b=>b.dataset.e);
+  if(!$('tfBiz').value||!$('tfTitle').value.trim()||!emails.length){msg.className='err';msg.textContent='İşletme, ne yapılacağı ve en az bir kişi seçilmeli.';return;}
+  const go=document.querySelector('#tf .tfGo');go.disabled=true;go.textContent='Açılıyor…';
+  try{
+   const r=await dCall('__task',{business:Number($('tfBiz').value),emails,title:$('tfTitle').value.trim(),type:$('tfType').value,quantity:Number($('tfQty').value)||1,due_date:$('tfDate').value||null,urgency:$('tfUrg').querySelector('.on')?.dataset.u||'normal',notes:$('tfNotes').value,who:WHO()});
+   $('bizBox').innerHTML='<div class="bh"><span class="ph">✅</span><div><h3>Görev açıldı</h3><p>'+dEsc(r.msg||'')+'</p></div><button type="button" id="bizX" aria-label="Kapat">✕</button></div><div class="acts" style="grid-template-columns:1fr 1fr"><button type="button" id="tfAgain" class="pri">+ Yeni görev</button><button type="button" id="tfClose">Kapat</button></div>';
+   $('bizX').onclick=$('tfClose').onclick=()=>document.body.classList.remove('bizOn');
+   $('tfAgain').onclick=()=>taskForm({business:pre.business});
+   DZ.at=0;loadDash();
+  }catch(err){msg.className='err';msg.textContent=String(err.message||err);go.disabled=false;go.textContent='Görevi aç';}
+ };
+}
+$('qa').addEventListener('click',e=>{const b=e.target.closest('[data-q="task"]');if(b){e.stopPropagation();e.preventDefault();taskForm({});}},true);
+$('dTask').onclick=()=>taskForm({});
 </script>
 </body>
 </html>
