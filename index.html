@@ -89,9 +89,98 @@ body.orbOn:not(.orbHide) #orb{display:flex}
 #pinbox p{color:var(--muted);margin:0}
 #pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:210px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
 #pinbox button{font-size:16px;padding:12px 32px;border-radius:14px;border:0;background:var(--grad);color:#fff;font-weight:700}
+#dash{display:none;position:fixed;inset:0;z-index:14;overflow-y:auto;-webkit-overflow-scrolling:touch;background:radial-gradient(90% 40% at 50% -5%,rgba(74,222,128,.14),transparent 60%),linear-gradient(rgba(74,222,128,.04) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(74,222,128,.04) 1px,transparent 1px) 0 0/28px 28px,var(--bg)}
+body.dashOn #dash{display:block}
+#dash .dw{max-width:1280px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 96px)}
+#dash .top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+#dash .top img{width:42px;height:42px;border-radius:50%;box-shadow:0 0 0 2px rgba(74,222,128,.55)}
+#dash .top h1{margin:0;font-size:19px}#dash .top p{margin:0;color:var(--muted);font-size:13px}
+#dash .sp{flex:1}
+#dash .chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:8px 12px;font-size:13.5px;cursor:pointer}
+#dash .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+#dash .kpi{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px 12px 16px;position:relative;overflow:hidden;text-align:left;color:var(--text);font:inherit;cursor:pointer}
+#dash .kpi b{font-size:28px;display:block;line-height:1.1}#dash .kpi span{color:var(--muted);font-size:12.5px}
+#dash .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#4ade80}
+#dash .kpi.r::after{background:#ff5d73}#dash .kpi.o::after{background:#ffb454}#dash .kpi.b::after{background:#4f8bff}
+#dash .kpi.r b{color:#ff8a9a}#dash .kpi.o b{color:#ffc77a}
+#dash .grid{display:grid;grid-template-columns:1fr 1.2fr 1.5fr;gap:14px;align-items:start}
+#dash .dcard{background:rgba(13,28,21,.92);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+#dash .dcard h2{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:8px}
+#dash .dcard h2 small{margin-left:auto;color:var(--muted);font-weight:400;font-size:12px}
+#dash .ev{display:flex;gap:12px;padding:9px 6px;border-top:1px solid #16301f}
+#dash .ev:first-of-type{border-top:0}
+#dash .ev time{width:46px;flex:0 0 auto;color:#7cf0a8;font-weight:700;font-variant-numeric:tabular-nums}
+#dash .ev .t{min-width:0}#dash .ev .t b{display:block;font-size:14px;font-weight:600}#dash .ev .t span{color:var(--muted);font-size:12.5px}
+#dash .ev .ic{margin-left:auto;font-size:16px}
+#dash .ev.past{opacity:.5}
+#dash .ev.next{background:linear-gradient(90deg,rgba(74,222,128,.13),transparent);border-radius:10px}
+#dash .ev.next time{color:#fff}
+#dash .empty{color:var(--muted);font-size:13.5px;padding:6px 2px}
+#dash .pp{display:grid;grid-template-columns:96px 1fr 30px;align-items:center;gap:10px;padding:6px 0}
+#dash .pp .n{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dash .pp .c{text-align:right;font-weight:700;font-size:13.5px}
+#dash .bar{height:10px;border-radius:999px;background:#12261d;overflow:hidden;display:flex;min-width:8px}
+#dash .bar i{display:block;height:100%}#dash .bar .l{background:#ff5d73}#dash .bar .t{background:#ffb454}#dash .bar .o{background:#4ade80}
+#dash .legend{display:flex;gap:12px;color:var(--muted);font-size:11.5px;margin:2px 0 6px}#dash .legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+#dash .sub{margin-top:10px;border-top:1px solid #16301f;padding-top:8px}
+#dash .sub h3{font-size:13.5px;margin:0 0 4px}
+#dash .li{display:flex;gap:8px;padding:6px 0;font-size:13.5px}#dash .li .d{color:#ff8a9a;font-weight:700;width:46px;flex:0 0 auto}#dash .li .d.o{color:#ffc77a}#dash .li span{color:var(--muted)}
+#dash .filt{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+#dash .filt button{border:1px solid var(--line);background:#0f2219;color:var(--muted);border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer}
+#dash .filt button.on{background:#4ade80;color:#05210f;border-color:#4ade80;font-weight:700}
+#dash .biz{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+#dash .bz{background:#0f2219;border:1px solid var(--line);border-radius:14px;padding:10px 12px;position:relative;text-align:left;color:var(--text);font:inherit;cursor:pointer;display:flex;gap:10px;align-items:flex-start;min-width:0}
+#dash .bz img,#dash .bz .ph{width:38px;height:38px;border-radius:50%;flex:0 0 auto;object-fit:cover;background:#12261d;display:grid;place-items:center;font-size:16px}
+#dash .bz .in{min-width:0;flex:1}
+#dash .bz b{font-size:13.5px;display:block;padding-right:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dash .bz span{color:var(--muted);font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dash .bz .dot{position:absolute;top:12px;right:10px;width:9px;height:9px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80}
+#dash .bz.y .dot{background:#ffb454;box-shadow:0 0 8px #ffb454}#dash .bz.r .dot{background:#ff5d73;box-shadow:0 0 8px #ff5d73}#dash .bz.n .dot{background:#4b5f55;box-shadow:none}
+#dash .bz.r{border-color:rgba(255,93,115,.4)}
+#dash .tg{display:inline-block!important;margin:5px 4px 0 0;font-size:11px!important;background:#12261d;border-radius:999px;padding:1px 8px;color:#cfeedd!important}
+#dash .tg.r{background:rgba(255,93,115,.18);color:#ff9aa8!important}
+#dash .up{color:#7cf0a8}#dash .down{color:#ff8a9a}
+#dash .tabs{display:none}
+#dashFab{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom) + 20px);z-index:15;display:none;align-items:center;gap:10px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#05210f;border:0;border-radius:999px;padding:8px 18px 8px 8px;font-weight:800;font-size:15px;box-shadow:0 10px 30px rgba(74,222,128,.35);cursor:pointer}
+body.dashOn #dashFab{display:flex}
+#dashFab img{width:36px;height:36px;border-radius:50%}
+#dashBtn{background:var(--panel);border:1px solid var(--line);color:var(--text);height:36px;border-radius:12px;font-size:14px;padding:0 10px;margin-left:auto}
+#bizSheet{display:none;position:fixed;inset:0;z-index:16;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center}
+body.bizOn #bizSheet{display:flex}
+#bizSheet .bx{background:var(--bg);width:100%;max-width:760px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;border-top:1px solid rgba(74,222,128,.35);padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+#bizSheet .bh{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+#bizSheet .bh img,#bizSheet .bh .ph{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#12261d;display:grid;place-items:center;font-size:24px}
+#bizSheet .bh h3{margin:0;font-size:18px}#bizSheet .bh p{margin:2px 0 0;color:var(--muted);font-size:13px}#bizSheet .bh a{color:var(--accent)}
+#bizSheet .bh button{margin-left:auto;background:none;border:0;color:var(--muted);font-size:24px;cursor:pointer}
+#bizSheet .st{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+#bizSheet .st div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+#bizSheet .st b{display:block;font-size:18px}#bizSheet .st span{color:var(--muted);font-size:11.5px}
+#bizSheet .sec{margin:14px 0 6px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+#bizSheet svg{width:100%;height:90px;display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+#bizSheet .note{color:var(--muted);font-size:13px;background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+#bizSheet .posts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#bizSheet .po{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#12261d;display:block}
+#bizSheet .po img{width:100%;height:100%;object-fit:cover;display:block}
+#bizSheet .po span{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;font-size:11px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.75));display:flex;justify-content:space-between}
+#bizSheet .po i{position:absolute;top:4px;right:6px;font-style:normal;font-size:12px}
+#bizSheet .tk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:6px;font-size:14px}
+#bizSheet .tk small{display:block;color:var(--muted);font-size:12px}
+#bizSheet .tk.late{border-color:rgba(255,93,115,.5)}
+@media (max-width:900px){
+ #dash .dw{padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 96px)}
+ #dash .kpis{grid-template-columns:repeat(3,1fr);gap:8px}
+ #dash .kpi{padding:9px 10px 9px 13px;border-radius:14px}#dash .kpi b{font-size:22px}#dash .kpi span{font-size:11.5px}
+ #dash .tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px;position:sticky;top:0;z-index:2}
+ #dash .tabs button{flex:1;border:0;background:none;color:var(--muted);padding:9px 0;border-radius:10px;font-weight:700;font-size:13.5px}
+ #dash .tabs button.on{background:#4ade80;color:#05210f}
+ #dash .grid{grid-template-columns:1fr}
+ #dash .grid>.dcard:not(.show){display:none}
+ #dash .top .chip.hm{display:none}
+ #bizSheet .posts{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:420px){#dash .biz{grid-template-columns:1fr}#bizSheet .st{grid-template-columns:repeat(2,1fr)}}
 </style>
 <body>
-<header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
+<header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
 <div id="menu"><button id="whoBtn" type="button">👤 Kullanan: Oğuzhan</button><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
 <div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
@@ -102,6 +191,17 @@ body.orbOn:not(.orbHide) #orb{display:flex}
  <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Eyşan'a yazın…" autocomplete="off" enterkeyhint="send"><button id="mic" type="button" aria-label="Sesli konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="send" aria-label="Gönder"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button></form>
 </div>
 <div id="orb"><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
+<div id="dash"><div class="dw">
+<div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
+<div class="kpis" id="dKpi"></div>
+<div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button></div>
+<div class="grid">
+<div class="dcard show" id="dAgenda"></div>
+<div class="dcard" id="dWork"></div>
+<div class="dcard" id="dBiz"></div>
+</div></div></div>
+<button id="dashFab" type="button"><img src="eysan.jpg" alt="">Eyşan</button>
+<div id="bizSheet"><div class="bx" id="bizBox"></div></div>
 <audio id="speaker" autoplay playsinline></audio>
 <script>
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
@@ -273,6 +373,83 @@ window.addEventListener('pagehide',()=>{if(pc||conv)stop();});
 // Leaving the app ends the call, so no minutes or credits are spent in the background.
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(pc||conv))stop('Uygulamadan çıkınca konuşma kapandı.');});
 if(!store.get())askPin();
+
+// 📊 Panel: today's agenda, work by person, and every business with its Instagram numbers.
+const DZ={data:null,at:0,filter:'all',tab:0};
+const dEsc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dDay=ts=>new Date(ts).toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'});
+const dHM=ts=>new Date(ts).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Istanbul'});
+const dNum=n=>n==null?'—':Number(n).toLocaleString('tr-TR');
+const dDays=ts=>ts?Math.round((Date.parse(dDay(Date.now()))-Date.parse(dDay(ts)))/86400e3):null;
+const dAgo=ts=>{const d=dDays(ts);return d==null?'paylaşım yok':d<=0?'bugün':d===1?'dün':d+' gün önce';};
+const dShortDate=s=>s?s.slice(8,10)+'.'+s.slice(5,7):'';
+const dName=n=>String(n||'—').replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toLocaleUpperCase('tr-TR'));
+function dState(b){if(b.ads)return 'n';if(!b.ig)return 'n';const d=dDays(b.ig.last);return d==null||d>7?'r':d>3?'y':'g';}
+async function dCall(name,args){const t=await textToken();const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:t,name,args})});if(r.status===401){tTok=null;throw Error('Oturum yenilendi, tekrar deneyin.');}const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||('Hata '+r.status));return j;}
+function dashShow(on){document.body.classList.toggle('dashOn',on);if(on&&Date.now()-DZ.at>60e3)loadDash();}
+async function loadDash(){
+ $('dDate').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'})+' · '+(WHO()==='Berkay'?'İyi çalışmalar Berkay Bey':'İyi çalışmalar Oğuzhan Bey');
+ if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Yükleniyor…</div>';
+ $('dRefresh').textContent='⏳';
+ try{DZ.data=await dCall('__dash',{});DZ.at=Date.now();renderDash();}
+ catch(e){if(String(e.message)==='pin'){document.body.classList.remove('dashOn');return;}if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Panel yüklenemedi: '+dEsc(e.message||e)+'</div>';}
+ finally{$('dRefresh').textContent='🔄';}
+}
+function renderDash(){
+ const d=DZ.data,k=d.kpi;
+ $('dKpi').innerHTML=[['r',k.late,'Geciken iş','late'],['o',k.dueToday,'Bugün teslim','work'],['',k.open,'Açık iş','work'],['b',k.shoots,'Bugün çekim','agenda'],['r',k.noPost7,'7+ gün paylaşım yok','nopost']].map(x=>'<button class="kpi '+x[0]+'" data-go="'+x[3]+'" type="button"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>').join('');
+ // Agenda
+ const now=Date.now();let nextDone=false;
+ $('dAgenda').innerHTML='<h2>🗓️ Bugünün ajandası<small>'+d.agenda.length+' kalem</small></h2>'+(d.agenda.length?d.agenda.map(a=>{const t=Date.parse(a.at);let cls='';if(t<now-30*60e3)cls=' past';else if(!nextDone){cls=' next';nextDone=true;}return '<div class="ev'+cls+'"><time>'+dHM(a.at)+'</time><div class="t"><b>'+dEsc(a.title)+'</b><span>'+dEsc(a.sub)+'</span></div><span class="ic">'+(a.kind==='shoot'?'🎥':'⏰')+'</span></div>';}).join(''):'<div class="empty">Bugün çekim veya hatırlatma yok.</div>')
+  +(d.dueToday.length?'<div class="sub"><h3>📅 Bugün teslim ('+d.dueToday.length+')</h3>'+d.dueToday.slice(0,8).map(t=>'<div class="li"><span class="d o">bugün</span><div>'+dEsc(t.title)+'<br><span>'+dEsc(t.biz)+' · '+dEsc(dName(t.who))+'</span></div></div>').join('')+(d.dueToday.length>8?'<div class="empty">+'+(d.dueToday.length-8)+' iş daha</div>':'')+'</div>':'');
+ // Work and team
+ const max=Math.max(1,...d.people.map(p=>p.late+p.soon+p.other));
+ $('dWork').innerHTML='<h2>👥 İşler ve ekip<small>'+k.open+' açık iş</small></h2><div class="legend"><span><i style="background:#ff5d73"></i>Geciken</span><span><i style="background:#ffb454"></i>Bugün/yarın</span><span><i style="background:#4ade80"></i>Diğer</span></div>'
+  +(d.people.length?d.people.map(p=>{const t=p.late+p.soon+p.other;return '<div class="pp"><span class="n" title="'+dEsc(p.name)+'">'+dEsc(dName(p.name))+'</span><div class="bar" style="width:'+Math.round(t/max*100)+'%"><i class="l" style="width:'+p.late/t*100+'%"></i><i class="t" style="width:'+p.soon/t*100+'%"></i><i class="o" style="width:'+p.other/t*100+'%"></i></div><span class="c">'+t+'</span></div>';}).join(''):'<div class="empty">Açık iş yok.</div>')
+  +'<div class="sub" id="dLate"><h3>🔴 Gecikenler ('+d.late.length+')</h3>'+(d.late.length?d.late.map(l=>'<div class="li"><span class="d">'+dShortDate(l.due)+'</span><div>'+dEsc(l.title)+'<br><span>'+dEsc(l.biz)+' · '+dEsc(dName(l.who))+'</span></div></div>').join(''):'<div class="empty">Geciken iş yok 👏</div>')+'</div>';
+ renderBiz();
+}
+function renderBiz(){
+ const d=DZ.data,rank={r:0,y:1,g:2,n:3};
+ let list=d.businesses.map(b=>({...b,st:dState(b)}));
+ const F={all:['Tümü',()=>true],nopost:['Paylaşım yok',b=>b.st==='r'],work:['İşi olan',b=>b.open>0],late:['Geciken',b=>b.late>0]};
+ const shown=list.filter(F[DZ.filter][1]).sort((a,b)=>rank[a.st]-rank[b.st]||a.name.localeCompare(b.name,'tr'));
+ $('dBiz').innerHTML='<h2>🏢 Müşteriler<small>'+(d.igDay?'Instagram: '+dShortDate(d.igDay):'')+'</small></h2><div class="filt">'+Object.entries(F).map(([key,[label,fn]])=>'<button type="button" data-f="'+key+'" class="'+(DZ.filter===key?'on':'')+'">'+label+' '+list.filter(fn).length+'</button>').join('')+'</div>'
+  +'<div class="biz">'+(shown.length?shown.map(b=>{const ig=b.ig;const pic=ig&&ig.pic?'<img src="'+dEsc(ig.pic)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<span class=ph>🏢</span>\'">':'<span class="ph">🏢</span>';
+   const l1=b.ads?'Reklam/paylaşım takibi yok':ig?'📸 '+dAgo(ig.last)+' · '+dNum(ig.followers)+' takipçi':'Instagram bağlı değil';
+   const l2=ig?(ig.d7!=null?'<span class="'+(ig.d7>=0?'up':'down')+'">'+(ig.d7>=0?'+':'')+ig.d7+'</span> bu hafta · ':'')+ig.posts30+' paylaşım / 30 gün':(b.owner?dName(b.owner):'');
+   return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
+}
+function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
+async function openBiz(id){
+ const b=DZ.data?.businesses.find(x=>String(x.id)===String(id));
+ $('bizBox').innerHTML='<div class="empty">Yükleniyor…</div>';document.body.classList.add('bizOn');
+ let r;try{r=await dCall('__biz',{id:Number(id)});}catch(e){$('bizBox').innerHTML='<div class="empty">Açılamadı: '+dEsc(e.message||e)+'</div>';return;}
+ const ig=r.ig,media=ig?.media||[];
+ const likes=media.map(m=>m.l).filter(x=>x!=null),avgL=likes.length?Math.round(likes.reduce((a,c)=>a+c,0)/likes.length):null;
+ const p30=media.filter(m=>Date.now()-Date.parse(m.t)<30*86400e3).length;
+ const h=r.history||[];let chart;
+ if(h.length>=2){const v=h.map(x=>x.followers),mn=Math.min(...v),mx=Math.max(...v),W=600,H=90,pad=8;const pts=v.map((y,i)=>[pad+i*(W-2*pad)/(v.length-1),H-pad-(mx===mn?.5:(y-mn)/(mx-mn))*(H-2*pad)]);chart='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><polyline fill="none" stroke="#4ade80" stroke-width="2.5" vector-effect="non-scaling-stroke" points="'+pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ')+'"/></svg><div class="empty">'+dShortDate(h[0].day)+': '+dNum(v[0])+' → '+dShortDate(h[h.length-1].day)+': '+dNum(v[v.length-1])+' ('+(v[v.length-1]-v[0]>=0?'+':'')+(v[v.length-1]-v[0])+')</div>';}
+ else chart='<div class="note">Takipçi grafiği her sabah alınan kayıtlarla birkaç gün içinde oluşacak.</div>';
+ const pic=ig?.pic?'<img src="'+dEsc(ig.pic)+'" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<span class=ph>🏢</span>\'">':'<span class="ph">🏢</span>';
+ $('bizBox').innerHTML='<div class="bh">'+pic+'<div><h3>'+dEsc(r.name)+'</h3><p>'+(ig?'<a href="https://instagram.com/'+dEsc(ig.username)+'" target="_blank" rel="noopener">@'+dEsc(ig.username)+'</a> · ':'')+(r.owner?'👤 '+dEsc(dName(r.owner)):'')+'</p></div><button type="button" id="bizX" aria-label="Kapat">✕</button></div>'
+  +(ig?'<div class="st"><div><b>'+dNum(ig.followers)+'</b><span>takipçi</span></div><div><b>'+dNum(ig.posts)+'</b><span>toplam paylaşım</span></div><div><b>'+p30+'</b><span>son 30 gün</span></div><div><b>'+dNum(avgL)+'</b><span>ort. beğeni</span></div></div>'
+   +'<div class="sec">Takipçi</div>'+chart
+   +'<div class="sec">Son paylaşımlar · '+dAgo(media.length?Math.max(...media.map(m=>Date.parse(m.t))):null)+'</div><div class="posts">'+media.slice(0,12).map(m=>'<a class="po" href="'+dEsc(m.u)+'" target="_blank" rel="noopener" title="'+dEsc(m.cap)+'">'+(m.img?'<img src="'+dEsc(m.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'')+(m.k==='VIDEO'?'<i>🎬</i>':m.k==='CAROUSEL_ALBUM'?'<i>🗂️</i>':'')+'<span><em>'+dShortDate(dDay(m.t))+'</em><em>❤ '+dNum(m.l)+' 💬 '+dNum(m.c)+'</em></span></a>').join('')+'</div>'
+  :'<div class="note">Bu işletmenin Instagram hesabı panele bağlı değil.</div>')
+  +'<div class="sec">Açık işler ('+r.tasks.length+')</div>'+(r.tasks.length?r.tasks.map(t=>'<div class="tk'+(t.late?' late':'')+'">'+dEsc(t.title)+'<small>'+dEsc(dName(t.who))+(t.due?' · teslim '+dShortDate(t.due):'')+(t.late?' · gecikti':'')+'</small></div>').join(''):'<div class="empty">Açık iş yok.</div>');
+ $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+}
+$('dKpi').onclick=e=>{const g=e.target.closest('[data-go]')?.dataset.go;if(!g)return;if(g==='nopost'){DZ.filter='nopost';renderBiz();dTab(2);$('dBiz').scrollIntoView({behavior:'smooth',block:'start'});}else if(g==='agenda')dTab(0),$('dAgenda').scrollIntoView({behavior:'smooth',block:'start'});else{dTab(1);(g==='late'?$('dLate'):$('dWork'))?.scrollIntoView({behavior:'smooth',block:'start'});}};
+$('dTabs').onclick=e=>{const b=e.target.closest('button');if(b)dTab(Number(b.dataset.t));};
+$('dBiz').onclick=e=>{const f=e.target.closest('[data-f]');if(f){DZ.filter=f.dataset.f;renderBiz();return;}const b=e.target.closest('[data-id]');if(b)openBiz(b.dataset.id);};
+$('bizSheet').onclick=e=>{if(e.target.id==='bizSheet')document.body.classList.remove('bizOn');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('bizOn');});
+$('dRefresh').onclick=()=>loadDash();
+$('dChat').onclick=$('dashFab').onclick=()=>dashShow(false);
+$('dashBtn').onclick=()=>dashShow(true);
+setInterval(()=>{if(document.body.classList.contains('dashOn')&&!document.hidden)loadDash();},5*60e3);
+if(store.get())dashShow(true);
 </script>
 </body>
 </html>
