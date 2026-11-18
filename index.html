@@ -29,7 +29,7 @@ header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 #voice{display:none!important}
 #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 0 10px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 #log:empty::before{content:"";width:96px;height:96px;border-radius:50%;background:url(eysan.jpg) center/cover;margin:auto auto 10px;box-shadow:0 0 0 3px rgba(74,222,128,.6),0 0 40px rgba(74,222,128,.45)}
-#log:empty::after{content:"Size nasıl yardımcı olayım, Oğuzhan Bey?";text-align:center;color:var(--muted);margin:0 auto 18px;font-size:15px}
+#log:empty::after{content:var(--hello,"Size nasıl yardımcı olayım, Oğuzhan Bey?");text-align:center;color:var(--muted);margin:0 auto 18px;font-size:15px}
 .msg{max-width:86%;padding:9px 13px;border-radius:18px;white-space:pre-wrap;word-wrap:break-word;font-size:15.5px}
 .eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:6px}
 .you{background:var(--grad);color:#05210f;font-weight:500;align-self:flex-end;border-bottom-right-radius:6px}
@@ -210,11 +210,16 @@ body.bizOn #bizSheet{display:flex}
 #bizSheet .tfGo{width:100%;margin-top:16px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#05210f;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;cursor:pointer}
 #bizSheet .tfGo:disabled{opacity:.6}
 #bizSheet #tfMsg.err{color:#ff8a9a;font-size:13.5px;margin-top:10px}
+
+#pinWho{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#pinWho button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}
+#pinWho button.on{background:#4ade80;color:#05210f;border-color:#4ade80;font-weight:700}
+#dash .tg.o{background:rgba(255,180,84,.18);color:#ffc77a!important}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
 <div id="menu"><button id="whoBtn" type="button">👤 Kullanan: Oğuzhan</button><button id="clearlog" type="button">🧹 Geçmişi temizle</button><button id="forget" type="button">🔒 Şifreyi unut</button></div></header>
-<div id="pinbox"><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
+<div id="pinbox"><p>Kim giriş yapıyor?</p><div id="pinWho"><button type="button" data-w="oguzhan">Oğuzhan</button><button type="button" data-w="berkay">Berkay</button><button type="button" data-w="rasit">Raşit</button></div><p>Eyşan şifrenizi girin</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button id="pinok">Giriş</button></div>
 <div id="log"></div>
 <div id="qa"><button data-q="task"><span>📝</span>Görev</button><button data-q="shoot"><span>🎥</span>Çekim</button><button data-q="todo"><span>📋</span>Yapılacak</button><button data-q="report"><span>📊</span>Kiraz</button><button data-q="sharing"><span>📸</span>Defne</button><button data-q="people"><span>👥</span>Ekip</button><button data-q="claude"><span>🤖</span>Claude'a iş</button><button data-q="reminder"><span>⏰</span>Hatırlat</button><button data-q="business"><span>🏢</span>İşletme</button></div>
 <div id="bottom">
@@ -250,7 +255,7 @@ function setStatus(t){statusEl.textContent=t.replace(/^Konuşmak için.*$/,'Çev
 function orbWho(){try{const ai=agentTalking,you=!ai&&!micMuted&&mic.classList.contains('live');const a=document.getElementById('pillAi'),y=document.getElementById('pillYou'),m=document.getElementById('orbMic');if(!a)return;a.classList.toggle('on',ai);y.classList.toggle('on',you);m.classList.toggle('on',you);}catch{}}
 function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('qa').style.display='none';$('pin').focus();}
 function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';$('qa').style.display='';}
-$('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();setStatus('Konuşmak için mikrofona dokunun');};
+$('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();try{dashShow(true);}catch{}setStatus('Konuşmak için mikrofona dokunun');};
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinok').click();};
 $('forget').onclick=()=>{store.del();stop();askPin();};
 const voiceSel=$('voice');try{const v=localStorage.getItem('eysan_voice');if(v)voiceSel.value=v;}catch{}
@@ -380,9 +385,10 @@ for(const [c,t] of hist()){if(c==='card'){const d=document.createElement('div');
 $('clearlog').onclick=()=>{try{localStorage.removeItem('eysan_log')}catch{};log.textContent='';$('menu').classList.remove('open');};
 document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick(b.dataset.q);});
 // Who uses this phone: the owner (default) or Berkay; Eyşan greets and addresses them by name.
-function WHO(){try{return localStorage.getItem('eysan_who')==='berkay'?'berkay':'oguzhan'}catch{return 'oguzhan'}}
-function showWho(){$('whoBtn').textContent='👤 Kullanan: '+(WHO()==='berkay'?'Berkay':'Oğuzhan')+' (değiştir)';}
-$('whoBtn').onclick=e=>{e.stopPropagation();try{localStorage.setItem('eysan_who',WHO()==='berkay'?'oguzhan':'berkay')}catch{};showWho();if(pc||conv)stop('Kullanıcı değişti, mikrofona yeniden dokunun.');};showWho();
+const WHO_NAMES={oguzhan:'Oğuzhan',berkay:'Berkay',rasit:'Raşit'};
+function WHO(){try{const w=localStorage.getItem('eysan_who');return WHO_NAMES[w]?w:'oguzhan'}catch{return 'oguzhan'}}
+function showWho(){const n=WHO_NAMES[WHO()];$('whoBtn').textContent='👤 Kullanan: '+n+' (değiştir)';document.documentElement.style.setProperty('--hello','"Size nasıl yardımcı olayım, '+n+' Bey?"');document.querySelectorAll('#pinWho button').forEach(b=>b.classList.toggle('on',b.dataset.w===WHO()));const dd=document.getElementById('dDate');if(dd)dd.textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'})+' · İyi çalışmalar '+n+' Bey';}
+$('whoBtn').onclick=e=>{e.stopPropagation();try{localStorage.setItem('eysan_who',{oguzhan:'berkay',berkay:'rasit',rasit:'oguzhan'}[WHO()])}catch{};showWho();if(pc||conv)stop('Kullanıcı değişti, mikrofona yeniden dokunun.');};showWho();
 // Voice screen: a dotted sphere that breathes with Eyşan's voice (and yours while you talk).
 const ORB={raf:0,pts:[],t:0,v:0};
 function orbInit(){if(ORB.pts.length)return;const N=560;for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),th=i*2.399963;ORB.pts.push([Math.cos(th)*r,y,Math.sin(th)*r,Math.random()<.13]);}}
@@ -422,7 +428,7 @@ function dState(b){if(b.ads)return 'n';if(!b.ig)return 'n';const d=dDays(b.ig.la
 async function dCall(name,args){const t=await textToken();const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:t,name,args})});if(r.status===401){tTok=null;throw Error('Oturum yenilendi, tekrar deneyin.');}const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||('Hata '+r.status));return j;}
 function dashShow(on){document.body.classList.toggle('dashOn',on);if(on&&Date.now()-DZ.at>60e3)loadDash();}
 async function loadDash(){
- $('dDate').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'})+' · '+(WHO()==='Berkay'?'İyi çalışmalar Berkay Bey':'İyi çalışmalar Oğuzhan Bey');
+ $('dDate').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'})+' · '+'İyi çalışmalar '+WHO_NAMES[WHO()]+' Bey';
  if(!DZ.data){try{const c=JSON.parse(localStorage.getItem('eysan_dash')||'null');if(c&&c.v){DZ.data=c.v;renderDash();}}catch{}}
  if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Yükleniyor…</div>';
  $('dRefresh').textContent='⏳';
@@ -448,13 +454,13 @@ function renderDash(){
 function renderBiz(){
  const d=DZ.data,rank={r:0,y:1,g:2,n:3};
  let list=d.businesses.map(b=>({...b,st:dState(b)}));
- const F={all:['Tümü',()=>true],nopost:['Paylaşım yok',b=>b.st==='r'],work:['İşi olan',b=>b.open>0],late:['Geciken',b=>b.late>0]};
+ const F={all:['Tümü',()=>true],nopost:['Paylaşım yok',b=>b.st==='r'],work:['İşi olan',b=>b.open>0],late:['Geciken',b=>b.late>0],plan:['Plan eksik',b=>!!b.plan&&(b.plan.stories+b.plan.other)>0]};
  const shown=list.filter(F[DZ.filter][1]).sort((a,b)=>rank[a.st]-rank[b.st]||a.name.localeCompare(b.name,'tr'));
  $('dBiz').innerHTML='<h2>🏢 Müşteriler<small>'+(d.igDay?'Instagram: '+dShortDate(d.igDay):'')+'</small></h2>'+dTopHtml(d)+'<div class="filt">'+Object.entries(F).map(([key,[label,fn]])=>'<button type="button" data-f="'+key+'" class="'+(DZ.filter===key?'on':'')+'">'+label+' '+list.filter(fn).length+'</button>').join('')+'</div>'
   +'<div class="biz">'+(shown.length?shown.map(b=>{const ig=b.ig;const pic=ig&&ig.pic?'<img src="'+dEsc(ig.pic)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<span class=ph>🏢</span>\'">':'<span class="ph">🏢</span>';
    const l1=b.ads?'Reklam/paylaşım takibi yok':ig?'📸 '+dAgo(ig.last)+' · '+dNum(ig.followers)+' takipçi':'Instagram bağlı değil';
    const l2=ig?(ig.d7!=null?'<span class="'+(ig.d7>=0?'up':'down')+'">'+(ig.d7>=0?'+':'')+ig.d7+'</span> bu hafta · ':'')+ig.posts30+' paylaşım / 30 gün':(b.owner?dName(b.owner):'');
-   return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
+   return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+(b.plan?'<span class="tg'+(b.plan.late?' r':b.plan.urgent?' o':'')+'">Plan '+b.plan.done+'/'+b.plan.total+'</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
 }
 function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
 async function openBiz(id){
@@ -519,6 +525,7 @@ function dBizActs(r){
  const bh=document.querySelector('#bizBox .bh');if(!bh)return;
  bh.insertAdjacentHTML('afterend','<div class="acts"><button type="button" data-a="task">📝 Görev</button><button type="button" data-a="shoot">🎥 Çekim</button><button type="button" data-a="reminder">⏰ Hatırlat</button><button type="button" data-a="report" class="pri">📊 Rapor</button></div><div id="bizRep"></div>');
  document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}if(a==='task'){taskForm({business:r.id});return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
+ dPlanBlock(r);
 }
 function dReport(r){
  const ig=r.ig;if(!ig){$('bizRep').innerHTML='<div class="note">Instagram hesabı bağlı olmadığı için rapor hazırlanamıyor.</div>';return;}
@@ -582,6 +589,18 @@ async function taskForm(pre){
 }
 $('qa').addEventListener('click',e=>{const b=e.target.closest('[data-q="task"]');if(b){e.stopPropagation();e.preventDefault();taskForm({});}},true);
 $('dTask').onclick=()=>taskForm({});
+
+// Monthly plan block on the business sheet, and who is signing in.
+function dPlanBlock(r){
+ const bp=DZ.data?.businesses.find(x=>String(x.id)===String(r.id))?.plan;if(!bp)return;
+ const TR={Story:'hikaye',Post:'post',Reels:'reels',Carousel:'carousel'};
+ const lt=Object.entries(bp.left||{}).sort((a,b)=>a[0]==='Story'?-1:b[0]==='Story'?1:0).map(([k,n])=>n+' '+(TR[k]||String(k).toLowerCase())).join(', ');
+ const acts=document.querySelector('#bizBox .acts');if(!acts)return;
+ acts.insertAdjacentHTML('afterend','<div class="sec">Aylık plan · '+bp.done+'/'+bp.total+'</div><div class="tk'+(bp.late?' late':'')+'">'+(lt?lt+' kaldı':'Bu ayın işleri tamam ✅')+'<small>Hikayeler ayın 20\'sine, diğer işler 25\'ine kadar bitmeli</small></div>'+(lt?'<div class="acts" style="grid-template-columns:1fr"><button type="button" id="mwGo">📝 Kalanlar için sorumluya görev aç</button></div>':''));
+ if(lt)$('mwGo').onclick=async()=>{const b=$('mwGo');b.disabled=true;b.textContent='Açılıyor…';try{const x=await dCall('__mwtask',{id:r.id});b.textContent=x.msg||'✅ Görev açıldı';DZ.at=0;loadDash();}catch(e){b.textContent='⚠️ '+(e.message||e);b.disabled=false;}};
+}
+$('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{localStorage.setItem('eysan_who',b.dataset.w)}catch{};showWho();$('pin').focus();};
+showWho();
 </script>
 </body>
 </html>
