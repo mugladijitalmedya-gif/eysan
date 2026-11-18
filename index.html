@@ -179,6 +179,25 @@ body.bizOn #bizSheet{display:flex}
  #bizSheet .posts{grid-template-columns:repeat(3,1fr)}
 }
 @media (max-width:420px){#dash .biz{grid-template-columns:1fr}#bizSheet .st{grid-template-columns:repeat(2,1fr)}}
+
+#dash .seg{margin-left:auto;display:flex;background:#0f2219;border:1px solid var(--line);border-radius:10px;padding:2px}
+#dash .seg button{border:0;background:none;color:var(--muted);font-size:12px;padding:4px 10px;border-radius:8px;cursor:pointer;font-weight:600}
+#dash .seg button.on{background:#4ade80;color:#05210f}
+#dash .wd{margin:12px 0 2px;font-size:12.5px;color:#7cf0a8;font-weight:700;text-transform:capitalize}
+#dash .pp{cursor:pointer;border-radius:8px}#dash .pp:hover .n{color:#7cf0a8}
+#dash .h3s{font-size:13px;margin:0 0 6px;color:var(--muted);font-weight:600}
+#dash .topw{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:thin}
+#dash .tp{flex:0 0 112px;text-decoration:none;color:var(--text)}
+#dash .tp .im{position:relative;width:112px;height:112px;border-radius:12px;overflow:hidden;background:#12261d;display:block}
+#dash .tp img{width:100%;height:100%;object-fit:cover;display:block}
+#dash .tp .im span{position:absolute;left:0;right:0;bottom:0;font-size:11px;padding:12px 6px 4px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff}
+#dash .tp b{display:block;font-size:11.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+#bizSheet .acts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+#bizSheet .acts button{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:9px 4px;font-size:13px;cursor:pointer}
+#bizSheet .acts button.pri{background:#4ade80;color:#05210f;border-color:#4ade80;font-weight:700}
+#bizSheet textarea{width:100%;min-height:260px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px;font-family:inherit;font-size:13.5px;line-height:1.45}
+#bizSheet .rrow{display:flex;gap:8px;margin-top:8px}
+#bizSheet .rrow a,#bizSheet .rrow button{flex:1;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px;font-size:14px;text-decoration:none;cursor:pointer}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -403,13 +422,14 @@ function renderDash(){
  $('dKpi').innerHTML=[['r',k.late,'Geciken iş','late'],['o',k.dueToday,'Bugün teslim','work'],['',k.open,'Açık iş','work'],['b',k.shoots,'Bugün çekim','agenda'],['r',d.businesses.filter(b=>dState(b)==='r').length,'7+ gün paylaşım yok','nopost']].map(x=>'<button class="kpi '+x[0]+'" data-go="'+x[3]+'" type="button"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>').join('');
  // Agenda
  const now=Date.now();let nextDone=false;
- $('dAgenda').innerHTML='<h2>🗓️ Bugünün ajandası<small>'+d.agenda.length+' kalem</small></h2>'+(d.agenda.length?d.agenda.map(a=>{const t=Date.parse(a.at);let cls='';if(t<now-30*60e3)cls=' past';else if(!nextDone){cls=' next';nextDone=true;}return '<div class="ev'+cls+'"><time>'+dHM(a.at)+'</time><div class="t"><b>'+dEsc(a.title)+'</b><span>'+dEsc(a.sub)+'</span></div><span class="ic">'+(a.kind==='shoot'?'🎥':'⏰')+'</span></div>';}).join(''):'<div class="empty">Bugün çekim veya hatırlatma yok.</div>')
+ $('dAgenda').innerHTML=dAgHead(d)+(d.agenda.length?d.agenda.map(a=>{const t=Date.parse(a.at);let cls='';if(t<now-30*60e3)cls=' past';else if(!nextDone){cls=' next';nextDone=true;}return '<div class="ev'+cls+'"><time>'+dHM(a.at)+'</time><div class="t"><b>'+dEsc(a.title)+'</b><span>'+dEsc(a.sub)+'</span></div><span class="ic">'+(a.kind==='shoot'?'🎥':'⏰')+'</span></div>';}).join(''):'<div class="empty">Bugün çekim veya hatırlatma yok.</div>')
   +(d.dueToday.length?'<div class="sub"><h3>📅 Bugün teslim ('+d.dueToday.length+')</h3>'+d.dueToday.slice(0,8).map(t=>'<div class="li"><span class="d o">bugün</span><div>'+dEsc(t.title)+'<br><span>'+dEsc(t.biz)+' · '+dEsc(dName(t.who))+'</span></div></div>').join('')+(d.dueToday.length>8?'<div class="empty">+'+(d.dueToday.length-8)+' iş daha</div>':'')+'</div>':'');
  // Work and team
  const max=Math.max(1,...d.people.map(p=>p.late+p.soon+p.other));
  $('dWork').innerHTML='<h2>👥 İşler ve ekip<small>'+k.open+' açık iş</small></h2><div class="legend"><span><i style="background:#ff5d73"></i>Geciken</span><span><i style="background:#ffb454"></i>Bugün/yarın</span><span><i style="background:#4ade80"></i>Diğer</span></div>'
-  +(d.people.length?d.people.map(p=>{const t=p.late+p.soon+p.other;return '<div class="pp"><span class="n" title="'+dEsc(p.name)+'">'+dEsc(dName(p.name))+'</span><div class="bar" style="width:'+Math.round(t/max*100)+'%"><i class="l" style="width:'+p.late/t*100+'%"></i><i class="t" style="width:'+p.soon/t*100+'%"></i><i class="o" style="width:'+p.other/t*100+'%"></i></div><span class="c">'+t+'</span></div>';}).join(''):'<div class="empty">Açık iş yok.</div>')
+  +(d.people.length?d.people.map(p=>{const t=p.late+p.soon+p.other;return '<div class="pp" data-p="'+dEsc(p.name)+'"><span class="n" title="'+dEsc(p.name)+'">'+dEsc(dName(p.name))+'</span><div class="bar" style="width:'+Math.round(t/max*100)+'%"><i class="l" style="width:'+p.late/t*100+'%"></i><i class="t" style="width:'+p.soon/t*100+'%"></i><i class="o" style="width:'+p.other/t*100+'%"></i></div><span class="c">'+t+'</span></div>';}).join(''):'<div class="empty">Açık iş yok.</div>')
   +'<div class="sub" id="dLate"><h3>🔴 Gecikenler ('+d.late.length+')</h3>'+(d.late.length?d.late.map(l=>'<div class="li"><span class="d">'+dShortDate(l.due)+'</span><div>'+dEsc(l.title)+'<br><span>'+dEsc(l.biz)+' · '+dEsc(dName(l.who))+'</span></div></div>').join(''):'<div class="empty">Geciken iş yok 👏</div>')+'</div>';
+ if(DZ.view==='week')$('dAgenda').innerHTML=dWeekHtml(d);
  renderBiz();
 }
 function renderBiz(){
@@ -417,7 +437,7 @@ function renderBiz(){
  let list=d.businesses.map(b=>({...b,st:dState(b)}));
  const F={all:['Tümü',()=>true],nopost:['Paylaşım yok',b=>b.st==='r'],work:['İşi olan',b=>b.open>0],late:['Geciken',b=>b.late>0]};
  const shown=list.filter(F[DZ.filter][1]).sort((a,b)=>rank[a.st]-rank[b.st]||a.name.localeCompare(b.name,'tr'));
- $('dBiz').innerHTML='<h2>🏢 Müşteriler<small>'+(d.igDay?'Instagram: '+dShortDate(d.igDay):'')+'</small></h2><div class="filt">'+Object.entries(F).map(([key,[label,fn]])=>'<button type="button" data-f="'+key+'" class="'+(DZ.filter===key?'on':'')+'">'+label+' '+list.filter(fn).length+'</button>').join('')+'</div>'
+ $('dBiz').innerHTML='<h2>🏢 Müşteriler<small>'+(d.igDay?'Instagram: '+dShortDate(d.igDay):'')+'</small></h2>'+dTopHtml(d)+'<div class="filt">'+Object.entries(F).map(([key,[label,fn]])=>'<button type="button" data-f="'+key+'" class="'+(DZ.filter===key?'on':'')+'">'+label+' '+list.filter(fn).length+'</button>').join('')+'</div>'
   +'<div class="biz">'+(shown.length?shown.map(b=>{const ig=b.ig;const pic=ig&&ig.pic?'<img src="'+dEsc(ig.pic)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<span class=ph>🏢</span>\'">':'<span class="ph">🏢</span>';
    const l1=b.ads?'Reklam/paylaşım takibi yok':ig?'📸 '+dAgo(ig.last)+' · '+dNum(ig.followers)+' takipçi':'Instagram bağlı değil';
    const l2=ig?(ig.d7!=null?'<span class="'+(ig.d7>=0?'up':'down')+'">'+(ig.d7>=0?'+':'')+ig.d7+'</span> bu hafta · ':'')+ig.posts30+' paylaşım / 30 gün':(b.owner?dName(b.owner):'');
@@ -442,6 +462,7 @@ async function openBiz(id){
   :'<div class="note">Bu işletmenin Instagram hesabı panele bağlı değil.</div>')
   +'<div class="sec">Açık işler ('+r.tasks.length+')</div>'+(r.tasks.length?r.tasks.map(t=>'<div class="tk'+(t.late?' late':'')+'">'+dEsc(t.title)+'<small>'+dEsc(dName(t.who))+(t.due?' · teslim '+dShortDate(t.due):'')+(t.late?' · gecikti':'')+'</small></div>').join(''):'<div class="empty">Açık iş yok.</div>');
  $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+ dBizActs(r);
 }
 $('dKpi').onclick=e=>{const g=e.target.closest('[data-go]')?.dataset.go;if(!g)return;if(g==='nopost'){DZ.filter='nopost';renderBiz();dTab(2);$('dBiz').scrollIntoView({behavior:'smooth',block:'start'});}else if(g==='agenda')dTab(0),$('dAgenda').scrollIntoView({behavior:'smooth',block:'start'});else{dTab(1);(g==='late'?$('dLate'):$('dWork'))?.scrollIntoView({behavior:'smooth',block:'start'});}};
 $('dTabs').onclick=e=>{const b=e.target.closest('button');if(b)dTab(Number(b.dataset.t));};
@@ -453,6 +474,57 @@ $('dChat').onclick=$('dashFab').onclick=()=>dashShow(false);
 $('dashBtn').onclick=()=>dashShow(true);
 setInterval(()=>{if(document.body.classList.contains('dashOn')&&!document.hidden)loadDash();},5*60e3);
 if(store.get())dashShow(true);
+
+// Panel extras: week view, best posts, person sheet, business actions and the monthly report.
+function dAgHead(d){return '<h2>🗓️ Ajanda<span class="seg"><button type="button" data-v="day" class="'+(DZ.view==='week'?'':'on')+'">Bugün</button><button type="button" data-v="week" class="'+(DZ.view==='week'?'on':'')+'">Bu hafta</button></span></h2>';}
+function dWeekHtml(d){
+ let out=dAgHead(d);
+ if(!d.week||!d.week.length)return out+'<div class="empty">Bu hafta çekim veya teslim yok.</div>';
+ let last='';
+ for(const w of d.week){
+  if(w.day!==last){last=w.day;const ts=Date.parse(w.day+'T12:00:00+03:00'),dd=dDays(ts);out+='<div class="wd">'+(dd===0?'Bugün':dd===-1?'Yarın':new Date(ts).toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Istanbul'}))+'</div>';}
+  out+='<div class="ev"><time>'+(w.at?dHM(w.at):'—')+'</time><div class="t"><b>'+dEsc(w.title)+'</b><span>'+dEsc(w.sub)+'</span></div><span class="ic">'+(w.kind==='shoot'?'🎥':'📌')+'</span></div>';
+ }
+ return out;
+}
+function dTopHtml(d){
+ if(!d.top||!d.top.length)return '';
+ return '<div class="h3s">🏆 Son 30 günün en çok beğenilenleri</div><div class="topw">'+d.top.map(m=>'<a class="tp" href="'+dEsc(m.u)+'" target="_blank" rel="noopener" title="'+dEsc(m.cap)+'"><span class="im">'+(m.img?'<img src="'+dEsc(m.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'')+'<span>❤ '+dNum(m.l)+' 💬 '+dNum(m.c)+'</span></span><b>'+dEsc(m.biz)+'</b></a>').join('')+'</div>';
+}
+function openPerson(name){
+ const d=DZ.data,has=t=>String(t.who||'').split(', ').includes(name);
+ const mine=(d.tasks||[]).filter(has),done=(d.doneWeek||[]).filter(has).sort((a,b)=>b.at-a.at);
+ const grp=(st,title)=>{const l=mine.filter(t=>t.st===st);return l.length?'<div class="sec">'+title+' ('+l.length+')</div>'+l.map(t=>'<div class="tk'+(st==='late'?' late':'')+'">'+dEsc(t.title)+'<small>'+dEsc(t.biz)+(t.due?' · teslim '+dShortDate(t.due):'')+'</small></div>').join(''):'';};
+ $('bizBox').innerHTML='<div class="bh"><span class="ph">👤</span><div><h3>'+dEsc(dName(name))+'</h3><p>'+mine.length+' açık iş · bu hafta '+done.length+' iş bitirdi</p></div><button type="button" id="bizX" aria-label="Kapat">✕</button></div>'
+  +(mine.length?grp('late','🔴 Geciken')+grp('soon','🟠 Bugün / yarın')+grp('other','🟢 Diğer'):'<div class="empty">Açık işi yok.</div>')
+  +'<div class="sec">✅ Bu hafta bitirdikleri ('+done.length+')</div>'+(done.length?done.slice(0,40).map(t=>'<div class="tk">'+dEsc(t.title)+'<small>'+dEsc(t.biz)+' · '+new Date(t.at).toLocaleDateString('tr-TR',{day:'numeric',month:'short',timeZone:'Europe/Istanbul'})+'</small></div>').join(''):'<div class="empty">Bu hafta bitirdiği iş görünmüyor.</div>');
+ $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+ document.body.classList.add('bizOn');
+}
+function dBizActs(r){
+ const bh=document.querySelector('#bizBox .bh');if(!bh)return;
+ bh.insertAdjacentHTML('afterend','<div class="acts"><button type="button" data-a="task">📝 Görev</button><button type="button" data-a="shoot">🎥 Çekim</button><button type="button" data-a="reminder">⏰ Hatırlat</button><button type="button" data-a="report" class="pri">📊 Rapor</button></div><div id="bizRep"></div>');
+ document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
+}
+function dReport(r){
+ const ig=r.ig;if(!ig){$('bizRep').innerHTML='<div class="note">Instagram hesabı bağlı olmadığı için rapor hazırlanamıyor.</div>';return;}
+ const now=Date.now(),m30=(ig.media||[]).filter(m=>now-Date.parse(m.t)<30*86400e3);
+ const L=m30.reduce((a,m)=>a+(m.l||0),0),C=m30.reduce((a,m)=>a+(m.c||0),0);
+ const h=r.history||[],first=h.find(x=>now-Date.parse(x.day)<=31*86400e3),diff=first&&h.length>1?ig.followers-first.followers:null;
+ const best=[...m30].sort((a,b)=>((b.l||0)+(b.c||0)*3)-((a.l||0)+(a.c||0)*3)).slice(0,3);
+ const ay=new Date().toLocaleDateString('tr-TR',{month:'long',year:'numeric',timeZone:'Europe/Istanbul'});
+ const kind=k=>k==='VIDEO'?'Reels/Video':k==='CAROUSEL_ALBUM'?'Kaydırmalı':'Gönderi';
+ const t=['📊 '+r.name+' · Instagram Özeti ('+ay+')','','👥 Takipçi: '+dNum(ig.followers)+(diff!=null?' ('+(diff>=0?'+':'')+dNum(diff)+' bu dönemde)':''),'📸 Son 30 günde '+m30.length+' paylaşım','❤️ Toplam '+dNum(L)+' beğeni · 💬 '+dNum(C)+' yorum'+(m30.length?' · paylaşım başına ortalama '+dNum(Math.round(L/m30.length))+' beğeni':'')];
+ if(best.length){t.push('','🏆 En çok ilgi gören paylaşımlar:');best.forEach((m,i)=>t.push((i+1)+'. '+dShortDate(dDay(m.t))+' · '+kind(m.k)+' · ❤ '+dNum(m.l)+' 💬 '+dNum(m.c)+'\n   '+m.u));}
+ t.push('','Muğla Dijital Medya');
+ $('bizRep').innerHTML='<div class="sec">Rapor · düzenleyebilirsiniz</div><textarea id="repTxt"></textarea><div class="rrow"><button type="button" id="repCopy">📋 Kopyala</button><a id="repWa" target="_blank" rel="noopener">💬 WhatsApp</a></div>';
+ $('repTxt').value=t.join('\n');
+ const wa=()=>{$('repWa').href='https://wa.me/?text='+encodeURIComponent($('repTxt').value);};wa();$('repTxt').oninput=wa;
+ $('repCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('repTxt').value);}catch{$('repTxt').select();document.execCommand('copy');}$('repCopy').textContent='✅ Kopyalandı';};
+ $('bizRep').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('dAgenda').onclick=e=>{const v=e.target.closest('[data-v]');if(v){DZ.view=v.dataset.v;renderDash();}};
+$('dWork').onclick=e=>{const p=e.target.closest('[data-p]');if(p)openPerson(p.dataset.p);};
 </script>
 </body>
 </html>
