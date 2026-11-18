@@ -215,6 +215,19 @@ body.bizOn #bizSheet{display:flex}
 #pinWho button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}
 #pinWho button.on{background:#4ade80;color:#05210f;border-color:#4ade80;font-weight:700}
 #dash .tg.o{background:rgba(255,180,84,.18);color:#ffc77a!important}
+
+#dash .sumcard{background:linear-gradient(135deg,rgba(74,222,128,.12),rgba(13,28,21,.92));border:1px solid rgba(74,222,128,.35);border-radius:18px;padding:12px 16px;margin-bottom:14px}
+#dash .sumcard:empty{display:none}
+#dash .sumcard .sh{display:flex;align-items:center;gap:8px;margin-bottom:6px}#dash .sumcard .sh img{width:24px;height:24px;border-radius:50%}#dash .sumcard .sh b{font-size:14px}
+#dash .sumcard .sl{font-size:14px;padding:3px 0;color:#dff7e8}
+#dash .mini,#bizSheet .mini{border:1px solid var(--line);background:#0f2219;color:var(--text);border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:auto;flex:0 0 auto;align-self:center}
+#bizSheet .sec .mini{margin-left:8px;text-transform:none;letter-spacing:0}
+#bizSheet .splist{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:50vh;overflow:auto}
+#bizSheet .spi{display:flex;gap:8px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13.5px;cursor:pointer}
+#bizSheet .spi input{width:18px;height:18px;margin-top:2px;accent-color:#4ade80;flex:0 0 auto}
+#bizSheet .spi small{display:block;color:var(--muted);font-size:11.5px}
+#bizSheet .tk a{color:var(--accent)}
+@media (max-width:420px){#bizSheet .splist{grid-template-columns:1fr}}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -230,7 +243,7 @@ body.bizOn #bizSheet{display:flex}
 <div id="orb"><button id="orbBack" type="button" aria-label="Geri">‹</button><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
 <div id="dash"><div class="dw">
 <div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dTask" type="button">📝 Görev</button><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
-<div class="kpis" id="dKpi"></div>
+<div class="sumcard" id="dSum"></div><div class="kpis" id="dKpi"></div>
 <div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button></div>
 <div class="grid">
 <div class="dcard show" id="dAgenda"></div>
@@ -449,6 +462,8 @@ function renderDash(){
   +(d.people.length?d.people.map(p=>{const t=p.late+p.soon+p.other;return '<div class="pp" data-p="'+dEsc(p.name)+'"><span class="n" title="'+dEsc(p.name)+'">'+dEsc(dName(p.name))+'</span><div class="bar" style="width:'+Math.round(t/max*100)+'%"><i class="l" style="width:'+p.late/t*100+'%"></i><i class="t" style="width:'+p.soon/t*100+'%"></i><i class="o" style="width:'+p.other/t*100+'%"></i></div><span class="c">'+t+'</span></div>';}).join(''):'<div class="empty">Açık iş yok.</div>')
   +'<div class="sub" id="dLate"><h3>🔴 Gecikenler ('+d.late.length+')</h3>'+(d.late.length?d.late.map(l=>'<div class="li"><span class="d">'+dShortDate(l.due)+'</span><div>'+dEsc(l.title)+'<br><span>'+dEsc(l.biz)+' · '+dEsc(dName(l.who))+'</span></div></div>').join(''):'<div class="empty">Geciken iş yok 👏</div>')+'</div>';
  if(DZ.view==='week')$('dAgenda').innerHTML=dWeekHtml(d);
+ $('dAgenda').insertAdjacentHTML('beforeend',dSpecialHtml(d));
+ try{dSummary(d);}catch(e){}
  renderBiz();
 }
 function renderBiz(){
@@ -526,6 +541,7 @@ function dBizActs(r){
  bh.insertAdjacentHTML('afterend','<div class="acts"><button type="button" data-a="task">📝 Görev</button><button type="button" data-a="shoot">🎥 Çekim</button><button type="button" data-a="reminder">⏰ Hatırlat</button><button type="button" data-a="report" class="pri">📊 Rapor</button></div><div id="bizRep"></div>');
  document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}if(a==='task'){taskForm({business:r.id});return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
  dPlanBlock(r);
+ dInfoBlock(r);
 }
 function dReport(r){
  const ig=r.ig;if(!ig){$('bizRep').innerHTML='<div class="note">Instagram hesabı bağlı olmadığı için rapor hazırlanamıyor.</div>';return;}
@@ -603,7 +619,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795023004989';
+const BUILD='1795025353143';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -616,6 +632,60 @@ async function checkUpdate(){
 setTimeout(checkUpdate,3000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});
 setInterval(()=>{if(!document.hidden)checkUpdate();},10*60e3);
+
+// Morning summary, special days, and customer info on the business sheet.
+function dSummary(d){
+ const L=[],now=Date.now();
+ const sh=d.agenda.filter(a=>a.kind==='shoot'),nx=sh.find(a=>Date.parse(a.at)>now-30*60e3);
+ if(sh.length)L.push('🎥 Bugün '+sh.length+' çekim var'+(nx?', sıradaki '+dHM(nx.at)+' · '+nx.title:'')+'.');
+ if(d.late.length){const w=d.people.slice().sort((a,b)=>b.late-a.late)[0];L.push('🔴 '+d.late.length+' iş gecikmiş'+(w&&w.late?' (en çok: '+dName(w.name)+', '+w.late+')':'')+'.');}
+ else L.push('✅ Geciken iş yok.');
+ if(d.dueToday.length)L.push('📅 Bugün teslim edilecek '+d.dueToday.length+' iş var.');
+ const q=d.businesses.filter(b=>!b.ads&&b.ig&&b.ig.last).map(b=>({b,days:dDays(b.ig.last)})).sort((a,b)=>b.days-a.days)[0];
+ if(q&&q.days>7)L.push('📸 '+q.b.name+' '+q.days+' gündür paylaşım yapmadı.');
+ const day=Number(dDay(now).slice(8,10));
+ const st=d.businesses.filter(b=>b.plan&&b.plan.stories>0),ot=d.businesses.filter(b=>b.plan&&b.plan.other>0);
+ if(day>=12&&day<=20&&st.length)L.push('🗓️ '+st.length+' işletmede hikaye eksik, son gün ayın 20\'si.');
+ else if(day>=18&&day<=25&&ot.length)L.push('🗓️ '+ot.length+' işletmede aylık plan eksik, son gün ayın 25\'i.');
+ const sp=(d.special||[]).find(s=>dDays(Date.parse(s.day+'T12:00:00+03:00'))>=-7);
+ if(sp){const n=-dDays(Date.parse(sp.day+'T12:00:00+03:00'));L.push('🎉 '+(n===0?'Bugün':n===1?'Yarın':n+' gün sonra')+' '+sp.name+'.');}
+ $('dSum').innerHTML='<div class="sh"><img src="eysan.jpg" alt=""><b>Eyşan\'dan özet</b></div>'+L.slice(0,6).map(x=>'<div class="sl">'+dEsc(x)+'</div>').join('');
+}
+function dSpecialHtml(d){
+ const l=(d.special||[]).slice(0,5);if(!l.length)return '';
+ return '<div class="sub"><h3>🎉 Yaklaşan özel günler</h3>'+l.map(s=>{const n=-dDays(Date.parse(s.day+'T12:00:00+03:00'));return '<div class="li"><span class="d o">'+dShortDate(s.day)+'</span><div style="flex:1">'+dEsc(s.name)+'<br><span>'+(n===0?'bugün':n===1?'yarın':n+' gün sonra')+'</span></div><button type="button" class="mini" data-sd="'+s.day+'">Görev aç</button></div>';}).join('')+'</div>';
+}
+function spSheet(day){
+ const d=DZ.data,s=(d.special||[]).find(x=>x.day===day);if(!s)return;
+ const list=d.businesses.filter(b=>b.owner).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+ $('bizBox').innerHTML='<div class="bh"><span class="ph">🎉</span><div><h3>'+dEsc(s.name)+'</h3><p>'+dShortDate(s.day)+' · seçilen işletmelerin sorumlusuna bir gün öncesine teslimli görev açılır</p></div><button type="button" id="bizX" aria-label="Kapat">✕</button></div>'
+  +'<div style="display:flex;gap:6px;margin-bottom:8px"><button type="button" class="mini" id="spAll" style="margin-left:0">Tümünü seç</button><button type="button" class="mini" id="spNone" style="margin-left:0">Hiçbiri</button></div>'
+  +'<div class="splist">'+list.map(b=>'<label class="spi"><input type="checkbox" value="'+b.id+'"'+(b.ads?'':' checked')+'><span>'+dEsc(b.name)+'<small>'+dEsc(dName(b.owner))+'</small></span></label>').join('')+'</div>'
+  +(d.businesses.some(b=>!b.owner)?'<div class="empty">Sorumlusu tanımlı olmayan işletmeler listede yok.</div>':'')
+  +'<div id="spMsg"></div><button class="tfGo" id="spGo" type="button"></button>';
+ const cnt=()=>{const n=document.querySelectorAll('.splist input:checked').length;$('spGo').textContent='Seçilenlere görev aç ('+n+')';$('spGo').disabled=!n;};cnt();
+ document.querySelector('.splist').onchange=cnt;
+ $('spAll').onclick=()=>{document.querySelectorAll('.splist input').forEach(i=>i.checked=true);cnt();};
+ $('spNone').onclick=()=>{document.querySelectorAll('.splist input').forEach(i=>i.checked=false);cnt();};
+ $('bizX').onclick=()=>document.body.classList.remove('bizOn');
+ $('spGo').onclick=async()=>{const ids=[...document.querySelectorAll('.splist input:checked')].map(i=>Number(i.value));const b=$('spGo');b.disabled=true;b.textContent='Açılıyor…';
+  try{const r=await dCall('__special',{day,ids});$('spMsg').innerHTML='<div class="tk">'+dEsc(r.msg)+'</div>';b.textContent='✅ Görevler açıldı';DZ.at=0;loadDash();}
+  catch(e){$('spMsg').innerHTML='<div class="tk late">'+dEsc(e.message||e)+'</div>';cnt();}};
+ document.body.classList.add('bizOn');
+}
+function dInfoBlock(r){
+ const box=$('bizRep');if(!box)return;const i=r.info||{};
+ const view=()=>'<div class="sec">📇 Müşteri bilgileri <button type="button" class="mini" id="infEdit">Düzenle</button></div>'+(i.contact||i.phone||i.notes?'<div class="tk">'+(i.contact?'👤 '+dEsc(i.contact)+'<br>':'')+(i.phone?'📞 <a href="tel:'+dEsc(String(i.phone).replace(/[^\d+]/g,''))+'">'+dEsc(i.phone)+'</a><br>':'')+(i.notes?'<small style="white-space:pre-wrap;color:var(--text)">📌 '+dEsc(i.notes)+'</small>':'')+'</div>':'<div class="empty">Henüz bilgi yok. Yetkili kişi, telefon ve özel istekleri ekleyin; Eyşan görev açarken notları göreve ekler.</div>');
+ box.insertAdjacentHTML('beforebegin','<div id="infBox">'+view()+'</div>');
+ const bind=()=>{$('infEdit').onclick=()=>{
+  $('infBox').innerHTML='<div class="sec">📇 Müşteri bilgileri</div><form class="tf" id="infF"><label>Yetkili kişi</label><input id="infC" value="'+dEsc(i.contact||'')+'"><label>Telefon</label><input id="infP" inputmode="tel" value="'+dEsc(i.phone||'')+'"><label>Notlar / özel istekler</label><textarea id="infN" rows="4" placeholder="ör. logo sol altta olsun, pazartesi paylaşım yapılmasın">'+dEsc(i.notes||'')+'</textarea><button class="tfGo" type="submit">Kaydet</button></form>';
+  $('infF').onsubmit=async e=>{e.preventDefault();const go=document.querySelector('#infF .tfGo');go.disabled=true;go.textContent='Kaydediliyor…';
+   try{const x=await dCall('__bizinfo',{id:r.id,contact:$('infC').value,phone:$('infP').value,notes:$('infN').value});Object.assign(i,x.info||{});r.info=i;$('infBox').innerHTML=view();bind();}
+   catch(err){go.disabled=false;go.textContent='⚠️ '+(err.message||err)+' · tekrar dene';}};
+ };};
+ bind();
+}
+$('dAgenda').addEventListener('click',e=>{const s=e.target.closest('[data-sd]');if(s)spSheet(s.dataset.sd);});
 </script>
 </body>
 </html>
