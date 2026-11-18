@@ -624,7 +624,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795027306245';
+const BUILD='1795027376203';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -696,7 +696,7 @@ $('dAgenda').addEventListener('click',e=>{const s=e.target.closest('[data-sd]');
 const dFold=s=>String(s||'').toLocaleLowerCase('tr-TR').replace(/[çğıöşü]/g,c=>({'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u'}[c])).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 function ekranFind(list,name,key){
  key=key||'name';const q=dFold(name);if(!q)return null;let best=null,score=0;
- for(const x of list||[]){const n=dFold(x[key]);const s=n===q?100:n.startsWith(q)?80:n.includes(q)?60:q.split(' ').filter(w=>w.length>2&&n.includes(w)).length*20;if(s>score){score=s;best=x;}}
+ for(const x of list||[]){const n=dFold(x[key]);const ns=n.replace(/ /g,''),qs=q.replace(/ /g,'');const s=n===q?100:n.startsWith(q)?80:n.includes(q)?60:ns.includes(qs)?55:q.split(' ').filter(w=>w.length>2&&n.includes(w)).length*20;if(s>score){score=s;best=x;}}
  return score>=20?best:null;
 }
 function ekranGoster(){document.body.classList.add('orbHide');}
