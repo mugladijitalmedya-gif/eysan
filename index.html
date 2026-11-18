@@ -601,6 +601,21 @@ function dPlanBlock(r){
 }
 $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{localStorage.setItem('eysan_who',b.dataset.w)}catch{};showWho();$('pin').focus();};
 showWho();
+
+// Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
+const BUILD='1795023004989';
+async function checkUpdate(){
+ try{
+  if(conv||pc)return;
+  if(document.body.classList.contains('bizOn')||($('txt')&&$('txt').value.trim()))return;
+  const t=await fetch(location.pathname+'?x='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');
+  const m=t.match(/const BUILD='(\d+)'/);
+  if(m&&m[1]!==BUILD&&Number(m[1])>Number(BUILD))location.replace(location.pathname+'?v='+m[1]);
+ }catch{}
+}
+setTimeout(checkUpdate,3000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});
+setInterval(()=>{if(!document.hidden)checkUpdate();},10*60e3);
 </script>
 </body>
 </html>
