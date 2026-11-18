@@ -624,13 +624,14 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795027376203';
+const BUILD='1795027549287';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
   if(document.body.classList.contains('bizOn')||($('txt')&&$('txt').value.trim()))return;
   const t=await fetch(location.pathname+'?x='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');
   const m=t.match(/const BUILD='(\d+)'/);
+  if(m&&m[1]!==BUILD&&Number(m[1])>Number(BUILD)){try{const k='eysan_upd_'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');}catch{return;}}
   if(m&&m[1]!==BUILD&&Number(m[1])>Number(BUILD))location.replace(location.pathname+'?v='+m[1]);
  }catch{}
 }
