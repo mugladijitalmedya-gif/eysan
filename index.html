@@ -228,6 +228,11 @@ body.bizOn #bizSheet{display:flex}
 #bizSheet .spi small{display:block;color:var(--muted);font-size:11.5px}
 #bizSheet .tk a{color:var(--accent)}
 @media (max-width:420px){#bizSheet .splist{grid-template-columns:1fr}}
+
+#orbPill{display:none;position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:50%;transform:translateX(-50%);z-index:19;gap:6px;background:rgba(6,17,12,.92);border:1px solid rgba(74,222,128,.5);border-radius:999px;padding:5px;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+body.orbOn.orbHide #orbPill{display:flex}
+#orbPill button{border:0;border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;cursor:pointer;background:#12261d;color:#ecfbf2}
+#orbPill #opMic{background:#4ade80;color:#05210f}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -240,7 +245,7 @@ body.bizOn #bizSheet{display:flex}
  <div id="livebar"><i class="dot"></i><span class="lt">Sesli konuşma açık</span><span id="timer"></span><button id="liveStop" type="button">Bitir</button></div>
  <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Eyşan'a yazın…" autocomplete="off" enterkeyhint="send"><button id="mic" type="button" aria-label="Sesli konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="send" aria-label="Gönder"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button></form>
 </div>
-<div id="orb"><button id="orbBack" type="button" aria-label="Geri">‹</button><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
+<div id="orbPill"><button id="opMic" type="button">🎤 Mikrofon</button><button id="opBack" type="button">Konuşmaya dön</button></div><div id="orb"><button id="orbBack" type="button" aria-label="Geri">‹</button><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
 <div id="dash"><div class="dw">
 <div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dTask" type="button">📝 Görev</button><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
 <div class="sumcard" id="dSum"></div><div class="kpis" id="dKpi"></div>
@@ -308,7 +313,7 @@ function loadEleven(){if(window.ElevenLabsClient)return Promise.resolve();return
 async function startEleven(s){
  await loadEleven();
  const tools={};
- for(const n of s.tools||[])tools[n]=async params=>{
+ for(const n of s.tools||[])tools[n]=SCREEN_TOOLS[n]?async params=>{add('sys','🖥️ '+n.replace(/_/g,' '));try{return String(await SCREEN_TOOLS[n](params||{}));}catch(e){return 'Ekranda yapılamadı: '+String(e.message||e);}}:async params=>{
   add('sys','🔧 '+(LABELS[n]||n)+'…');
   try{const r=await fetch(API+'voice-tool',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,name:n,args:params||{}})});const res=await r.json();if(r.status===401){setTimeout(()=>stop('Oturum süresi doldu, yeniden başlatın.'),0);return 'Oturum süresi doldu.';}if(res.onizleme)card(res.onizleme);if(n==='onayla'&&res.sonuc)add('sys',res.sonuc);return JSON.stringify(res);}
   catch(e){return JSON.stringify({hata:'Panele ulaşılamadı: '+String(e.message||e)});}
@@ -619,7 +624,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795025353143';
+const BUILD='1795027306245';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -686,6 +691,60 @@ function dInfoBlock(r){
  bind();
 }
 $('dAgenda').addEventListener('click',e=>{const s=e.target.closest('[data-sd]');if(s)spSheet(s.dataset.sd);});
+
+// Voice → screen: these tools run on this page, so the person sees what Eyşan does while they talk.
+const dFold=s=>String(s||'').toLocaleLowerCase('tr-TR').replace(/[çğıöşü]/g,c=>({'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u'}[c])).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function ekranFind(list,name,key){
+ key=key||'name';const q=dFold(name);if(!q)return null;let best=null,score=0;
+ for(const x of list||[]){const n=dFold(x[key]);const s=n===q?100:n.startsWith(q)?80:n.includes(q)?60:q.split(' ').filter(w=>w.length>2&&n.includes(w)).length*20;if(s>score){score=s;best=x;}}
+ return score>=20?best:null;
+}
+function ekranGoster(){document.body.classList.add('orbHide');}
+async function ekranHazir(){if(!DZ.data)await loadDash();document.body.classList.remove('bizOn');dashShow(true);}
+const SCREEN_TOOLS={
+ ekran_ac:async p=>{
+  ekranGoster();const w=p.neresi,ad=p.ad||'';
+  if(w==='sohbet'){document.body.classList.remove('bizOn');dashShow(false);return 'Sohbet ekranı açıldı.';}
+  await ekranHazir();
+  if(w==='bugun'||w==='panel'){DZ.view='day';renderDash();dTab(0);return 'Panel açıldı.';}
+  if(w==='hafta'){DZ.view='week';renderDash();dTab(0);return 'Haftalık takvim açıldı.';}
+  if(w==='isler'){dTab(1);return 'İşler açıldı.';}
+  if(w==='musteriler'){dTab(2);return 'Müşteriler açıldı.';}
+  if(w==='isletme'){const b=ekranFind(DZ.data.businesses,ad);if(!b)return 'Bu isimde işletme bulamadım: '+ad;await openBiz(b.id);return b.name+' sayfası açıldı.'+(b.plan?' Aylık plan '+b.plan.done+'/'+b.plan.total+'.':'')+(b.late?' '+b.late+' geciken işi var.':'');}
+  if(w==='kisi'){const x=ekranFind(DZ.data.people,ad);if(!x)return 'Bu isimde kişi bulamadım: '+ad;openPerson(x.name);return dName(x.name)+': '+(x.late+x.soon+x.other)+' açık iş, '+x.late+' geciken. Ekranda açıldı.';}
+  if(w==='ozel_gun'){const s=ekranFind(DZ.data.special||[],ad)||(DZ.data.special||[])[0];if(!s)return 'Yaklaşan özel gün yok.';spSheet(s.day);return s.name+' için işletme listesi ekranda. Onay verirse ekranda_onayla.';}
+  return 'Bu ekranı bilmiyorum.';
+ },
+ gorev_formu:async p=>{
+  ekranGoster();await ekranHazir();await taskForm({});const o=TOPTS;if(!o)return 'Form açılamadı.';
+  const b=ekranFind(o.businesses,p.isletme);if(b)$('tfBiz').value=String(b.id);
+  const names=Array.isArray(p.kisiler)?p.kisiler:String(p.kisiler||'').split(',');const picked=[];
+  for(const n of names){const u=ekranFind(o.users,n);if(!u)continue;const btn=[...document.querySelectorAll('#tfWho [data-e]')].find(x=>x.dataset.e===u.email);if(btn&&!btn.classList.contains('on')){btn.classList.add('on');picked.push(dName(u.name));}}
+  if(p.is)$('tfTitle').value=p.is;
+  if(p.tur){const opt=[...$('tfType').options].find(x=>dFold(x.value)===dFold(p.tur));if(opt)$('tfType').value=opt.value;}
+  if(p.adet)$('tfQty').value=Math.max(1,Number(p.adet)||1);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(p.teslim||'')){$('tfDate').value=p.teslim;$('tfDate').oninput();}
+  if(p.oncelik)$('tfUrg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.u===p.oncelik));
+  const miss=[!b&&'işletme',!picked.length&&'kişi',!p.is&&'yapılacak iş'].filter(Boolean);
+  return 'Form ekranda: '+(b?b.name:'işletme yok')+' · '+(picked.join(', ')||'kişi yok')+' · '+(p.is||'')+' · teslim '+$('tfDate').value+(miss.length?'. Eksik: '+miss.join(', ')+', sor.':'. Onay verirse ekranda_onayla çağır.');
+ },
+ ekranda_onayla:async()=>{
+  if(!document.body.classList.contains('bizOn'))return 'Ekranda onaylanacak bir şey yok.';
+  const btn=document.querySelector('#bizBox .tfGo:not([disabled])')||document.querySelector('#mwGo:not([disabled])');
+  if(!btn)return 'Ekranda onaylanacak bir düğme yok.';
+  btn.click();
+  for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,500));if(!document.body.contains(btn)||!/Açılıyor|Kaydediliyor/.test(btn.textContent))break;}
+  await new Promise(r=>setTimeout(r,300));
+  return $('bizBox').innerText.replace(/\s+/g,' ').slice(0,300);
+ },
+ rapor_hazirla:async p=>{
+  ekranGoster();await ekranHazir();const b=ekranFind(DZ.data.businesses,p.isletme);if(!b)return 'İşletme bulunamadı: '+(p.isletme||'');
+  await openBiz(b.id);const r=document.querySelector('#bizBox [data-a=report]');if(r)r.click();
+  return ($('repTxt')&&$('repTxt').value)||'Rapor hazırlanamadı (Instagram bağlı olmayabilir).';
+ }
+};
+$('opMic').onclick=()=>mic.click();
+$('opBack').onclick=()=>document.body.classList.remove('orbHide');
 </script>
 </body>
 </html>
