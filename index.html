@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Eyşan</title>
-<meta name="theme-color" content="#090c13">
+<meta name="theme-color" content="#06110c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eyşan">
@@ -12,12 +12,12 @@
 <link rel="apple-touch-icon" href="eysan.jpg">
 <link rel="icon" href="icon.svg">
 <style>
-:root{--bg:#090c13;--panel:#121827;--panel2:#18203a;--line:#232c44;--text:#eef2fb;--muted:#8d98b3;--accent:#6f7cff;--accent2:#22d3ee;--grad:linear-gradient(135deg,#7b61ff 0%,#4f8bff 55%,#22d3ee 100%);--accent-ink:#ffffff;--warn:#ffb454;--err:#ff6b81;--ok:#34d399}
+:root{--bg:#06110c;--panel:#0d1c15;--panel2:#12261d;--line:#1d3a2c;--text:#ecfbf2;--muted:#86a897;--accent:#4ade80;--accent2:#4f8bff;--grad:linear-gradient(135deg,#4ade80 0%,#22c55e 100%);--accent-ink:#05210f;--warn:#ffb454;--err:#ff5d73;--ok:#4ade80}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg)}
-body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);background:radial-gradient(120% 60% at 50% -10%,rgba(111,124,255,.22),transparent 60%),radial-gradient(80% 40% at 100% 100%,rgba(34,211,238,.10),transparent 60%),var(--bg);background-attachment:fixed;overflow:hidden}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);background:radial-gradient(90% 45% at 50% -5%,rgba(74,222,128,.16),transparent 60%),linear-gradient(rgba(74,222,128,.045) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(74,222,128,.045) 1px,transparent 1px) 0 0/28px 28px,var(--bg);background-attachment:fixed;overflow:hidden}
 header{display:flex;align-items:center;gap:10px;padding:10px 0 8px;position:relative}
-header img{width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 2px rgba(111,124,255,.55),0 0 18px rgba(111,124,255,.35)}
+header img{width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 2px rgba(74,222,128,.55),0 0 18px rgba(74,222,128,.35)}
 header .who{flex:1;min-width:0}
 header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 #status{margin:0;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -28,12 +28,12 @@ header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 #menu button:active{background:var(--line)}
 #voice{display:none!important}
 #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 0 10px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
-#log:empty::before{content:"";width:96px;height:96px;border-radius:50%;background:url(eysan.jpg) center/cover;margin:auto auto 10px;box-shadow:0 0 0 3px rgba(111,124,255,.6),0 0 40px rgba(111,124,255,.45)}
+#log:empty::before{content:"";width:96px;height:96px;border-radius:50%;background:url(eysan.jpg) center/cover;margin:auto auto 10px;box-shadow:0 0 0 3px rgba(74,222,128,.6),0 0 40px rgba(74,222,128,.45)}
 #log:empty::after{content:"Size nasıl yardımcı olayım, Oğuzhan Bey?";text-align:center;color:var(--muted);margin:0 auto 18px;font-size:15px}
 .msg{max-width:86%;padding:9px 13px;border-radius:18px;white-space:pre-wrap;word-wrap:break-word;font-size:15.5px}
 .eysan{background:var(--panel);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:6px}
-.you{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
-.card{align-self:stretch;background:rgba(111,124,255,.08);border:1px solid rgba(111,124,255,.35);border-radius:16px;padding:12px 14px;white-space:pre-wrap;font-size:15px}
+.you{background:var(--grad);color:#05210f;font-weight:500;align-self:flex-end;border-bottom-right-radius:6px}
+.card{align-self:stretch;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.35);border-radius:16px;padding:12px 14px;white-space:pre-wrap;font-size:15px}
 .card b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .sys{align-self:center;color:var(--muted);font-size:12.5px;text-align:center;padding:2px 8px}
 .sys.err{color:var(--err)}
@@ -66,8 +66,25 @@ body.live #livebar{display:flex}
 #mic.live.hold{background:var(--panel2);color:var(--text);animation:none;box-shadow:0 0 0 2px var(--err) inset}
 #mic.busy{opacity:.55}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,129,.5)}70%{box-shadow:0 0 0 12px rgba(255,107,129,0)}100%{box-shadow:0 0 0 0 rgba(255,107,129,0)}}
-#send{width:42px;height:42px;flex:0 0 auto;border:0;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center}
+#send{width:42px;height:42px;flex:0 0 auto;border:0;border-radius:50%;background:var(--grad);color:#05210f;display:grid;place-items:center}
 #send svg{width:20px;height:20px}
+#orb{display:none;position:fixed;inset:0;z-index:20;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 26px);background:radial-gradient(60% 40% at 50% 42%,rgba(74,222,128,.16),transparent 70%),linear-gradient(rgba(74,222,128,.07) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(74,222,128,.07) 1px,transparent 1px) 0 0/28px 28px,#06110c}
+body.orbOn:not(.orbHide) #orb{display:flex}
+.pill{display:flex;padding:5px;border-radius:999px;border:1px solid rgba(124,240,168,.35);background:rgba(10,30,20,.75);box-shadow:0 0 28px rgba(74,222,128,.22)}
+.pill span{padding:10px 26px;border-radius:999px;font-weight:700;font-size:17px;color:#5f8a73;transition:all .25s}
+.pill span.on{background:#4ade80;color:#05210f;box-shadow:0 0 26px rgba(74,222,128,.6)}
+#orbWrap{position:relative;flex:1;width:100%;min-height:0;display:grid;place-items:center}
+#orbWrap::before{content:"";position:absolute;width:min(78vw,60vh);aspect-ratio:1;border-radius:50%;border:1.5px solid rgba(74,222,128,.45);box-shadow:0 0 30px rgba(74,222,128,.18),inset 0 0 30px rgba(74,222,128,.08)}
+#orbCanvas{width:100%;height:100%;display:block}
+#orbText{font-size:21px;font-weight:700;text-align:center;line-height:1.35;max-width:94%;min-height:2.7em;color:#fff;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#orbText.ai{color:#7cf0a8}
+#orbStatus{color:#86a897;font-size:14px;margin:8px 0 18px;text-align:center}
+.orbBtns{display:flex;gap:16px;align-items:center}
+.orbBtns button{border-radius:999px;height:62px;min-width:62px;font-size:22px;background:rgba(124,240,168,.10);color:#e9fff1;border:1px solid rgba(124,240,168,.35);display:grid;place-items:center}
+.orbBtns svg{width:26px;height:26px}
+#orbMic.on{background:#4ade80;color:#05210f;animation:orbp 1.6s infinite}
+#orbEnd{background:#ff5d73;border-color:#ff5d73;font-size:16px;font-weight:700;padding:0 28px}
+@keyframes orbp{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}70%{box-shadow:0 0 0 18px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
 #pinbox{display:none;flex-direction:column;gap:12px;align-items:center;margin:auto 0;padding:24px 0}
 #pinbox p{color:var(--muted);margin:0}
 #pinbox input{font-size:24px;letter-spacing:6px;text-align:center;width:210px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
@@ -84,6 +101,7 @@ body.live #livebar{display:flex}
  <div id="livebar"><i class="dot"></i><span class="lt">Sesli konuşma açık</span><span id="timer"></span><button id="liveStop" type="button">Bitir</button></div>
  <form id="textbar"><label id="photoBtn" aria-label="Fotoğraf gönder">📷<input id="photo" type="file" accept="image/*" hidden></label><input id="txt" placeholder="Eyşan'a yazın…" autocomplete="off" enterkeyhint="send"><button id="mic" type="button" aria-label="Sesli konuş"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="send" aria-label="Gönder"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button></form>
 </div>
+<div id="orb"><div class="pill"><span id="pillYou">Siz</span><span id="pillAi">Eyşan</span></div><div id="orbWrap"><canvas id="orbCanvas"></canvas></div><div id="orbText"></div><div id="orbStatus"></div><div class="orbBtns"><button id="orbChat" type="button" aria-label="Yazışmayı göster">💬</button><button id="orbMic" type="button" aria-label="Mikrofon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button><button id="orbEnd" type="button">Bitir</button></div></div>
 <audio id="speaker" autoplay playsinline></audio>
 <script>
 const API='https://vxxybonajctticjoyqdi.supabase.co/functions/v1/tablo-orders/';
@@ -96,7 +114,8 @@ function hist(){try{return JSON.parse(localStorage.getItem('eysan_log')||'[]')}c
 function keep(cls,text){if(!/^(msg|card)/.test(cls))return;try{const h=hist();h.push([cls,text]);localStorage.setItem('eysan_log',JSON.stringify(h.slice(-120)))}catch{}}
 function add(cls,text){keep(cls,text);return addRaw(cls,text);}
 function card(text){keep('card',text);const d=document.createElement('div');d.className='card';const b=document.createElement('b');b.textContent='Taslak';d.appendChild(b);d.appendChild(document.createTextNode('\n'+text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
-function setStatus(t){statusEl.textContent=t.replace(/^Konuşmak için.*$/,'Çevrimiçi');}
+function setStatus(t){statusEl.textContent=t.replace(/^Konuşmak için.*$/,'Çevrimiçi');const o=document.getElementById('orbStatus');if(o)o.textContent=t;orbWho();}
+function orbWho(){try{const ai=agentTalking,you=!ai&&!micMuted&&mic.classList.contains('live');const a=document.getElementById('pillAi'),y=document.getElementById('pillYou'),m=document.getElementById('orbMic');if(!a)return;a.classList.toggle('on',ai);y.classList.toggle('on',you);m.classList.toggle('on',you);}catch{}}
 function askPin(){$('pinbox').style.display='flex';log.style.display='none';$('bottom').style.display='none';$('qa').style.display='none';$('pin').focus();}
 function hidePin(){$('pinbox').style.display='none';log.style.display='flex';$('bottom').style.display='flex';$('qa').style.display='';}
 $('pinok').onclick=()=>{const v=$('pin').value.trim();if(v.length<4)return;store.set(v);hidePin();setStatus('Konuşmak için mikrofona dokunun');};
@@ -148,7 +167,7 @@ async function startEleven(s){
   signedUrl:s.signed_url,connectionType:'websocket',
   overrides:{agent:{prompt:{prompt:s.prompt},firstMessage:s.first_message,language:'tr'}},
   clientTools:tools,
-  onMessage:m=>{const t=String(m?.message||'').trim();if(!t||/^[.…\s]*$/.test(t))return;const u=(m.role||m.source)==='user';add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
+  onMessage:m=>{const t=String(m?.message||'').trim();if(!t||/^[.…\s]*$/.test(t))return;const u=(m.role||m.source)==='user';{const o=$('orbText');o.textContent=t.length>220?t.slice(0,217)+'…':t;o.classList.toggle('ai',!u);}add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
   onModeChange:m=>{if(m?.mode==='speaking'){agentTalking=true;if(conv&&!micMuted)muteMic(true);setStatus('Eyşan konuşuyor…');}else if(agentTalking){agentTalking=false;muteMic(false);}else setStatus(micMuted?'🎙️ Konuşmak için mikrofona dokunun':'🔴 Dinliyorum, bitince mikrofona tekrar dokunun');},
   onDisconnect:()=>{if(conv){conv=null;stop('Konuşma bitti. Yeniden başlatmak için dokunun.');}},
   onError:e=>add('sys err',String(e?.message||e||'Ses hatası'))
@@ -232,6 +251,20 @@ document.querySelectorAll('#qa button').forEach(b=>b.onclick=()=>{if(!busy)quick
 function WHO(){try{return localStorage.getItem('eysan_who')==='berkay'?'berkay':'oguzhan'}catch{return 'oguzhan'}}
 function showWho(){$('whoBtn').textContent='👤 Kullanan: '+(WHO()==='berkay'?'Berkay':'Oğuzhan')+' (değiştir)';}
 $('whoBtn').onclick=e=>{e.stopPropagation();try{localStorage.setItem('eysan_who',WHO()==='berkay'?'oguzhan':'berkay')}catch{};showWho();if(pc||conv)stop('Kullanıcı değişti, mikrofona yeniden dokunun.');};showWho();
+// Voice screen: a dotted sphere that breathes with Eyşan's voice (and yours while you talk).
+const ORB={raf:0,pts:[],t:0,v:0};
+function orbInit(){if(ORB.pts.length)return;const N=560;for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),th=i*2.399963;ORB.pts.push([Math.cos(th)*r,y,Math.sin(th)*r,Math.random()<.13]);}}
+function orbLoop(){const c=$('orbCanvas');const g=c.getContext('2d');const dpr=window.devicePixelRatio||1;const w=c.clientWidth,h=c.clientHeight;if(!w||!h){ORB.raf=requestAnimationFrame(orbLoop);return;}if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ let vol=0;try{if(conv)vol=agentTalking?conv.getOutputVolume():(micMuted?0:conv.getInputVolume());}catch{}
+ ORB.v=ORB.v*.82+Math.min(1,vol*3)*.18;ORB.t+=.005+ORB.v*.02;
+ const R=Math.min(w,h)*.34*(1+ORB.v*.16),cx=w/2,cy=h/2,ca=Math.cos(ORB.t),sa=Math.sin(ORB.t),cb=Math.cos(.4),sb=Math.sin(.4);
+ for(const [x,y,z,b] of ORB.pts){let X=x*ca+z*sa,Z=-x*sa+z*ca;const Y=y*cb-Z*sb;Z=y*sb+Z*cb;const n=1+ORB.v*.22*Math.sin(ORB.t*7+x*5+y*6)+.015*Math.sin(ORB.t*2+y*4);const d=(Z+1)/2;g.globalAlpha=.18+d*.82;g.fillStyle=b?'#4f8bff':'#7cf0a8';g.beginPath();g.arc(cx+X*R*n,cy+Y*R*n,.7+d*2.8*(1+ORB.v*.7),0,6.2832);g.fill();}
+ g.globalAlpha=1;ORB.raf=requestAnimationFrame(orbLoop);}
+function orbShow(on){const was=document.body.classList.contains('orbOn');document.body.classList.toggle('orbOn',on);if(on&&!was){document.body.classList.remove('orbHide');$('orbText').textContent='';orbInit();cancelAnimationFrame(ORB.raf);ORB.raf=requestAnimationFrame(orbLoop);}if(!on){cancelAnimationFrame(ORB.raf);}orbWho();}
+new MutationObserver(()=>orbShow(mic.classList.contains('live'))).observe(mic,{attributes:true,attributeFilter:['class']});
+$('orbMic').onclick=()=>mic.click();$('orbEnd').onclick=()=>stop();
+$('orbChat').onclick=()=>document.body.classList.add('orbHide');
+$('livebar').onclick=e=>{if(e.target.id!=='liveStop')document.body.classList.remove('orbHide');};
 const syncChat=()=>document.body.classList.toggle('chatting',log.children.length>0);new MutationObserver(syncChat).observe(log,{childList:true});syncChat();
 new MutationObserver(()=>document.body.classList.toggle('live',mic.classList.contains('live'))).observe(mic,{attributes:true,attributeFilter:['class']});
 $('liveStop').onclick=()=>stop();
