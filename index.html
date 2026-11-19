@@ -656,7 +656,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795118595658';
+const BUILD='1795119207640';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -898,7 +898,8 @@ function adsFor(bid){return (ADS.data?.accounts||[]).filter(a=>Number(a.business
 function dAdTag(b){try{const l=adsFor(b.id);if(!l.length)return '';const s=l.reduce((t,a)=>t+(a.month?.spend||0),0);return '<span class="tg'+(l.some(a=>AD_ST[a.status])?' r':'')+'">📣 '+tl(s)+'</span>';}catch{return '';}}
 function renderAds(){
  const d=ADS.data,box=$('dAds');if(!d||!box)return;
- const acc=d.accounts,sum=acc.reduce((s,a)=>s+(a.month?.spend||0),0),today=acc.reduce((s,a)=>s+(a.today||0),0);
+ // Accounts marked -1 (personal or unused) are left out of the panel.
+ const acc=d.accounts.filter(a=>Number(a.business)!==-1),sum=acc.reduce((s,a)=>s+(a.month?.spend||0),0),today=acc.reduce((s,a)=>s+(a.today||0),0);
  const tot={};for(const a of acc)for(const [k,v] of Object.entries(a.month?.results||{}))tot[k]=(tot[k]||0)+v;
  const warn=acc.filter(a=>AD_ST[a.status]);const bizName=id=>DZ.data?.businesses.find(b=>Number(b.id)===Number(id))?.name;
  const opts=(DZ.data?.businesses||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(b=>'<option value="'+b.id+'">'+dEsc(b.name)+'</option>').join('');
