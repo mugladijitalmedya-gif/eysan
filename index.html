@@ -264,6 +264,9 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .adbud{margin-top:6px}#dash .adbud .bar{width:100%;margin-bottom:3px}#dash .adbud span{color:var(--muted);font-size:11.5px}
 #dash .adm input{width:110px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px}
 
+
+/* Desktop: keep the three top cards to one screen height so the ads card sits right below; long lists scroll inside. */
+@media (min-width:901px){#dash #dAgenda,#dash #dWork,#dash #dBiz{max-height:min(78vh,820px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(124,240,168,.25) transparent}#dash #dBiz::-webkit-scrollbar,#dash #dWork::-webkit-scrollbar,#dash #dAgenda::-webkit-scrollbar{width:6px}#dash #dBiz::-webkit-scrollbar-thumb,#dash #dWork::-webkit-scrollbar-thumb,#dash #dAgenda::-webkit-scrollbar-thumb{background:rgba(124,240,168,.25);border-radius:6px}}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -657,7 +660,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795122909983';
+const BUILD='1795123291197';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
