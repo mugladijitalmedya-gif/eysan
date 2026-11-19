@@ -657,7 +657,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795122715334';
+const BUILD='1795122909983';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -908,9 +908,9 @@ function renderAds(){
   +'<div class="adk"><div><b>'+tl(sum)+'</b><span>bu ay harcama</span></div><div><b>'+tl(today)+'</b><span>bugün</span></div><div><b>'+dNum(tot.mesaj||0)+'</b><span>mesaj</span></div><div><b>'+dNum(tot.tiklama||0)+'</b><span>tıklama</span></div></div>'
   +'<div style="margin:4px 0 8px"><button type="button" class="mini" id="adsAdv" style="margin-left:0">💡 Eyşan\'dan reklam önerisi</button><div id="adsAdvBox"></div></div>'+(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(bizName(a.business)||a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
   +'<div class="adl">'+acc.map(a=>{const bn=bizName(a.business);const on=ADS.open===a.id;
-   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'+adBudgetBar(a)
+   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(a.camps.some(c=>c.daily)?' · günlük limit '+tl(a.camps.reduce((t,c)=>t+(c.daily||0),0)):'')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'+adBudgetBar(a)
     +(on?'<div class="adb">'+(a.month?'<div class="adr">👥 '+dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok')+'</div>':'')
-     +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
+     +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
      +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option><option value="-2">⭐ Emel Hazır grubu</option>'+opts+'</select></div>':'')
      +'<div class="adm">Aylık bütçe: <input type="number" inputmode="numeric" data-bud="'+a.id+'" value="'+(a.budget??'')+'" placeholder="ör. 5000"> ₺ <button type="button" class="mini" data-budsave="'+a.id+'" style="margin-left:4px">Kaydet</button></div>'+'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
  $('adsRef').onclick=e=>{e.stopPropagation();loadAds(true);};
@@ -969,10 +969,10 @@ function emelGroups(){
  const l=(ADS.data?.accounts||[]).filter(a=>Number(a.business)===-2),G=[];
  for(const a of l){
   const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fethiye/i.test(nm)?'Fethiye':null;
-  if(lab){G.push({key:a.id,name:lab,acc:a,camps:a.camps,spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});continue;}
+  if(lab){G.push({key:a.id,name:lab,acc:a,camps:a.camps,daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});continue;}
   // Main account: split active campaigns by name into massage vs beauty.
   const isM=c=>/masaj|massage|spa/i.test(c.name),mas=a.camps.filter(isM),guz=a.camps.filter(c=>!isM(c));
-  const part=(k,n,cs)=>{const r={};for(const c of cs)for(const [x,v] of Object.entries(c.results||{}))r[x]=(r[x]||0)+v;return {key:a.id+k,name:n,acc:a,camps:cs,spend:cs.reduce((s,c)=>s+(c.spend||0),0),today:null,results:r};};
+  const part=(k,n,cs)=>{const r={};for(const c of cs)for(const [x,v] of Object.entries(c.results||{}))r[x]=(r[x]||0)+v;return {key:a.id+k,name:n,acc:a,camps:cs,spend:cs.reduce((s,c)=>s+(c.spend||0),0),today:cs.reduce((s,c)=>s+(c.today||0),0),daily:cs.reduce((s,c)=>s+(c.daily||0),0),results:r};};
   G.push(part('g','Güzellik',guz),part('m','Muğla Masaj',mas));
   const rest=(a.month?.spend||0)-a.camps.reduce((s,c)=>s+(c.spend||0),0);
   if(rest>1)G.push({key:a.id+'r',name:'Ana hesap · biten kampanyalar',acc:a,camps:[],spend:rest,today:null,results:{},note:'Bu ay harcayıp şu an aktif olmayan kampanyalar.'});
@@ -988,9 +988,9 @@ function renderEmel(){
  const row=g=>{
   if(g.missing)return '<div class="ada"><div class="adh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>reklam hesabı henüz bağlı değil</span></div><div class="ads"><b>—</b></div></div></div>';
   const on=EMEL.open===g.key;
-  return '<div class="ada'+(on?' on':'')+'" data-emel="'+dEsc(g.key)+'"><div class="adh emh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>'+(g.camps.length?g.camps.length+' aktif kampanya':g.note?'geçmiş harcama':'aktif kampanya yok')+(adRes(g.results)?' · '+adRes(g.results):'')+(AD_ST[g.acc.status]?' · <em>'+AD_ST[g.acc.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(g.spend)+'</b><span>'+(g.today!=null?'bugün '+tl(g.today):'bu ay')+'</span></div></div>'
+  return '<div class="ada'+(on?' on':'')+'" data-emel="'+dEsc(g.key)+'"><div class="adh emh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>'+(g.camps.length?g.camps.length+' aktif kampanya':g.note?'geçmiş harcama':'aktif kampanya yok')+(g.daily?' · günlük limit '+tl(g.daily):'')+(adRes(g.results)?' · '+adRes(g.results):'')+(AD_ST[g.acc.status]?' · <em>'+AD_ST[g.acc.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(g.spend)+'</b><span>'+(g.today!=null?'bugün '+tl(g.today):'bu ay')+'</span></div></div>'
    +(on?'<div class="adb">'+(g.note?'<div class="adr">'+dEsc(g.note)+'</div>':'')+(g.reach?'<div class="adr">👥 '+dNum(g.reach)+' kişiye ulaştı</div>':'')
-    +(g.camps.length?g.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):(g.note?'':'<div class="empty">Şu an aktif kampanya yok.</div>'))
+    +(g.camps.length?g.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):(g.note?'':'<div class="empty">Şu an aktif kampanya yok.</div>'))
     +'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+g.acc.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';
  };
  box.insertAdjacentHTML('beforeend','<div class="sub" id="emelSub"><h3>Emel Hazır · bu ay '+tl(sum)+' · bugün '+tl(today)+'</h3>'
