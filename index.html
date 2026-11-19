@@ -263,6 +263,8 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .cw{color:#ff8a9a}#dash .cb{color:#7cf0a8}
 #dash .adbud{margin-top:6px}#dash .adbud .bar{width:100%;margin-bottom:3px}#dash .adbud span{color:var(--muted);font-size:11.5px}
 #dash .adm input{width:110px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px}
+
+#dash #dEmel{grid-column:1/-1}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -279,12 +281,13 @@ body.orbOn.orbHide #orbPill{display:flex}
 <div id="dash"><div class="dw">
 <div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dShoot" type="button">🎥 Çekim</button><button class="chip" id="dTask" type="button">📝 Görev</button><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
 <div class="sumcard" id="dSum"></div><div class="kpis" id="dKpi"></div>
-<div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button><button data-t="3" type="button">Reklam</button></div>
+<div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button><button data-t="3" type="button">Reklam</button><button data-t="4" type="button">⭐ Emel</button></div>
 <div class="grid">
 <div class="dcard show" id="dAgenda"></div>
 <div class="dcard" id="dWork"></div>
 <div class="dcard" id="dBiz"></div>
 <div class="dcard" id="dAds"></div>
+<div class="dcard" id="dEmel"></div>
 </div></div></div>
 <button id="dashFab" type="button"><img src="eysan.jpg" alt="">Eyşan</button>
 <div id="bizSheet"><div class="bx" id="bizBox"></div></div>
@@ -513,7 +516,7 @@ function renderBiz(){
    const l2=ig?(ig.d7!=null?'<span class="'+(ig.d7>=0?'up':'down')+'">'+(ig.d7>=0?'+':'')+ig.d7+'</span> bu hafta · ':'')+ig.posts30+' paylaşım / 30 gün':(b.owner?dName(b.owner):'');
    return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+dAdTag(b)+(b.plan?'<span class="tg'+(b.plan.late?' r':b.plan.urgent?' o':'')+'">Plan '+b.plan.done+'/'+b.plan.total+'</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
 }
-function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz','dAds'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
+function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz','dAds','dEmel'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
 async function openBiz(id){
  const b=DZ.data?.businesses.find(x=>String(x.id)===String(id));
  $('bizBox').innerHTML='<div class="empty">Yükleniyor…</div>';document.body.classList.add('bizOn');
@@ -656,7 +659,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795119207640';
+const BUILD='1795120609625';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -898,8 +901,8 @@ function adsFor(bid){return (ADS.data?.accounts||[]).filter(a=>Number(a.business
 function dAdTag(b){try{const l=adsFor(b.id);if(!l.length)return '';const s=l.reduce((t,a)=>t+(a.month?.spend||0),0);return '<span class="tg'+(l.some(a=>AD_ST[a.status])?' r':'')+'">📣 '+tl(s)+'</span>';}catch{return '';}}
 function renderAds(){
  const d=ADS.data,box=$('dAds');if(!d||!box)return;
- // Accounts marked -1 (personal or unused) are left out of the panel.
- const acc=d.accounts.filter(a=>Number(a.business)!==-1),sum=acc.reduce((s,a)=>s+(a.month?.spend||0),0),today=acc.reduce((s,a)=>s+(a.today||0),0);
+ // Accounts marked -1 (personal/unused) or -2 (Emel Hazır, own tab) are left out here.
+ const acc=d.accounts.filter(a=>!(Number(a.business)<0)),sum=acc.reduce((s,a)=>s+(a.month?.spend||0),0),today=acc.reduce((s,a)=>s+(a.today||0),0);
  const tot={};for(const a of acc)for(const [k,v] of Object.entries(a.month?.results||{}))tot[k]=(tot[k]||0)+v;
  const warn=acc.filter(a=>AD_ST[a.status]);const bizName=id=>DZ.data?.businesses.find(b=>Number(b.id)===Number(id))?.name;
  const opts=(DZ.data?.businesses||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(b=>'<option value="'+b.id+'">'+dEsc(b.name)+'</option>').join('');
@@ -910,7 +913,7 @@ function renderAds(){
    return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'+adBudgetBar(a)
     +(on?'<div class="adb">'+(a.month?'<div class="adr">👥 '+dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok')+'</div>':'')
      +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
-     +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option>'+opts+'</select></div>':'')
+     +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option><option value="-2">⭐ Emel Hazır grubu</option>'+opts+'</select></div>':'')
      +'<div class="adm">Aylık bütçe: <input type="number" inputmode="numeric" data-bud="'+a.id+'" value="'+(a.budget??'')+'" placeholder="ör. 5000"> ₺ <button type="button" class="mini" data-budsave="'+a.id+'" style="margin-left:4px">Kaydet</button></div>'+'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
  $('adsRef').onclick=e=>{e.stopPropagation();loadAds(true);};
  $('adsAdv').onclick=getAdsAdvice;
@@ -961,6 +964,42 @@ function adRepLines(id,t){
   if(res.tiklama)t.push('🔗 '+dNum(res.tiklama)+' tıklama · tıklama başı '+adMoney(s/res.tiklama));
  }catch(e){}
 }
+
+// ⭐ Emel Hazır: her own ad accounts (marked -2) live in a separate tab and stay out of the general ads totals.
+const EMEL={open:null};
+function emelGroups(){
+ const l=(ADS.data?.accounts||[]).filter(a=>Number(a.business)===-2),G=[];
+ for(const a of l){
+  const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fethiye/i.test(nm)?'Fethiye':null;
+  if(lab){G.push({key:a.id,name:lab,acc:a,camps:a.camps,spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});continue;}
+  // Main account: split active campaigns by name into massage vs beauty.
+  const mas=a.camps.filter(c=>/masaj|massage|spa/i.test(c.name)),guz=a.camps.filter(c=>!/masaj|massage|spa/i.test(c.name));
+  const part=(k,n,cs)=>{const r={};for(const c of cs)for(const [x,v] of Object.entries(c.results||{}))r[x]=(r[x]||0)+v;return {key:a.id+k,name:n,acc:a,camps:cs,spend:cs.reduce((s,c)=>s+(c.spend||0),0),today:null,results:r};};
+  G.push(part('g','Güzellik',guz),part('m','Muğla Masaj',mas));
+  const rest=(a.month?.spend||0)-a.camps.reduce((s,c)=>s+(c.spend||0),0);
+  if(rest>1)G.push({key:a.id+'r',name:'Ana hesap · biten kampanyalar',acc:a,camps:[],spend:rest,today:null,results:{},note:'Bu ay harcayıp şu an aktif olmayan kampanyalar.'});
+ }
+ return {l,G};
+}
+function renderEmel(){
+ const box=$('dEmel');if(!box||!ADS.data)return;
+ const {l,G}=emelGroups(),sum=l.reduce((s,a)=>s+(a.month?.spend||0),0),today=l.reduce((s,a)=>s+(a.today||0),0),tot={};
+ for(const a of l)for(const [k,v] of Object.entries(a.month?.results||{}))tot[k]=(tot[k]||0)+v;
+ const warn=l.filter(a=>AD_ST[a.status]);
+ box.innerHTML='<h2>⭐ Emel Hazır<small>'+l.length+' hesap · '+dHM(ADS.data.at)+'</small></h2>'
+  +'<div class="adk"><div><b>'+tl(sum)+'</b><span>bu ay harcama</span></div><div><b>'+tl(today)+'</b><span>bugün</span></div><div><b>'+dNum(tot.mesaj||0)+'</b><span>mesaj</span></div><div><b>'+dNum(tot.tiklama||0)+'</b><span>tıklama</span></div></div>'
+  +(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
+  +'<div class="adl">'+G.map(g=>{const on=EMEL.open===g.key;
+   return '<div class="ada'+(on?' on':'')+'" data-emel="'+dEsc(g.key)+'"><div class="adh emh"><div class="adn"><b>'+dEsc(g.name)+'</b><span>'+(g.camps.length?g.camps.length+' aktif kampanya':g.note?'geçmiş harcama':'aktif kampanya yok')+(adRes(g.results)?' · '+adRes(g.results):'')+(AD_ST[g.acc.status]?' · <em>'+AD_ST[g.acc.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(g.spend)+'</b><span>'+(g.today!=null?'bugün '+tl(g.today):'bu ay')+'</span></div></div>'
+    +(on?'<div class="adb">'+(g.note?'<div class="adr">'+dEsc(g.note)+'</div>':'')+(g.reach?'<div class="adr">👥 '+dNum(g.reach)+' kişiye ulaştı</div>':'')
+     +(g.camps.length?g.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):(g.note?'':'<div class="empty">Şu an aktif kampanya yok.</div>'))
+     +'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+g.acc.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>'
+  +(l.some(a=>/bodrum/i.test(a.name))&&l.some(a=>/fethiye/i.test(a.name))?'':'<div class="empty">Bodrum ve Fethiye hesapları davet kabul edilince Reklam sekmesine düşer; orada “⭐ Emel Hazır grubu” seçince buraya taşınır.</div>');
+}
+document.addEventListener('click',e=>{const h=e.target.closest('#dEmel .emh');if(!h)return;const k=h.parentElement.dataset.emel;EMEL.open=EMEL.open===k?null:k;renderEmel();});
+const _renderAdsBase=renderAds;
+renderAds=function(){_renderAdsBase();renderEmel();};
+if(ADS.data)renderEmel();
 </script>
 </body>
 </html>
