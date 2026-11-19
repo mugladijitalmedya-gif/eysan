@@ -259,6 +259,10 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .adm{margin:8px 0;font-size:13px}#dash .adm select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px;margin-left:6px;max-width:100%}
 #dash .adb .mini{display:inline-block;margin:6px 0 0;text-decoration:none}
 @media (max-width:900px){#dash .adl{grid-template-columns:1fr}#dash .adk{grid-template-columns:repeat(2,1fr)}}
+
+#dash .cw{color:#ff8a9a}#dash .cb{color:#7cf0a8}
+#dash .adbud{margin-top:6px}#dash .adbud .bar{width:100%;margin-bottom:3px}#dash .adbud span{color:var(--muted);font-size:11.5px}
+#dash .adm input{width:110px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -586,7 +590,7 @@ function dReport(r){
  const kind=k=>k==='VIDEO'?'Reels/Video':k==='CAROUSEL_ALBUM'?'Kaydırmalı':'Gönderi';
  const t=['📊 '+r.name+' · Instagram Özeti ('+ay+')','','👥 Takipçi: '+dNum(ig.followers)+(diff!=null?' ('+(diff>=0?'+':'')+dNum(diff)+' bu dönemde)':''),'📸 Son 30 günde '+m30.length+' paylaşım','❤️ Toplam '+dNum(L)+' beğeni · 💬 '+dNum(C)+' yorum'+(m30.length?' · paylaşım başına ortalama '+dNum(Math.round(L/m30.length))+' beğeni':'')];
  if(best.length){t.push('','🏆 En çok ilgi gören paylaşımlar:');best.forEach((m,i)=>t.push((i+1)+'. '+dShortDate(dDay(m.t))+' · '+kind(m.k)+' · ❤ '+dNum(m.l)+' 💬 '+dNum(m.c)+'\n   '+m.u));}
- t.push('','Muğla Dijital Medya');
+ adRepLines(r.id,t);t.push('','Muğla Dijital Medya');
  $('bizRep').innerHTML='<div class="sec">Rapor · düzenleyebilirsiniz</div><textarea id="repTxt"></textarea><div class="rrow"><button type="button" id="repCopy">📋 Kopyala</button><a id="repWa" target="_blank" rel="noopener">💬 WhatsApp</a></div>';
  $('repTxt').value=t.join('\n');
  const wa=()=>{$('repWa').href='https://wa.me/?text='+encodeURIComponent($('repTxt').value);};wa();$('repTxt').oninput=wa;
@@ -652,7 +656,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795118018514';
+const BUILD='1795118595658';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -847,9 +851,10 @@ function repText(it,month){
  const kind=k=>k==='VIDEO'?'Reels/Video':k==='CAROUSEL_ALBUM'?'Kaydırmalı':'Gönderi';
  const t=['📊 '+it.name+' · Instagram Özeti ('+ay+')','','👥 Takipçi: '+dNum(ig.followers)+(diff!=null&&diff!==0?' ('+(diff>0?'+':'')+dNum(diff)+' bu ay)':''),'📸 Son 30 günde '+m30.length+' paylaşım','❤️ Toplam '+dNum(L)+' beğeni · 💬 '+dNum(C)+' yorum'+(m30.length?' · paylaşım başına ortalama '+dNum(Math.round(L/m30.length))+' beğeni':'')];
  if(best.length){t.push('','🏆 En çok ilgi gören paylaşımlar:');best.forEach((m,i)=>t.push((i+1)+'. '+dShortDate(dDay(m.t))+' · '+kind(m.k)+' · ❤ '+dNum(m.l)+' 💬 '+dNum(m.c)+'\n   '+m.u));}
- t.push('','Muğla Dijital Medya');return t.join('\n');
+ adRepLines(it.id,t);t.push('','Muğla Dijital Medya');return t.join('\n');
 }
 async function reportsSheet(){
+ try{if(!ADS.data)await loadAds();}catch(e){}
  document.body.classList.add('bizOn');$('bizBox').innerHTML='<div class="empty">Raporlar hazırlanıyor…</div>';
  let x;try{x=await dCall('__reports',{});}catch(e){$('bizBox').innerHTML='<div class="empty">Açılamadı: '+dEsc(e.message||e)+'</div>';return;}
  DZ.reps=x.items.sort((a,b)=>a.name.localeCompare(b.name,'tr'));
@@ -899,14 +904,15 @@ function renderAds(){
  const opts=(DZ.data?.businesses||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(b=>'<option value="'+b.id+'">'+dEsc(b.name)+'</option>').join('');
  box.innerHTML='<h2>📣 Reklamlar<small>'+acc.length+' hesap · '+dHM(d.at)+' <button type="button" class="mini" id="adsRef" style="margin-left:6px">🔄</button></small></h2>'
   +'<div class="adk"><div><b>'+tl(sum)+'</b><span>bu ay harcama</span></div><div><b>'+tl(today)+'</b><span>bugün</span></div><div><b>'+dNum(tot.mesaj||0)+'</b><span>mesaj</span></div><div><b>'+dNum(tot.tiklama||0)+'</b><span>tıklama</span></div></div>'
-  +(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(bizName(a.business)||a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
+  +'<div style="margin:4px 0 8px"><button type="button" class="mini" id="adsAdv" style="margin-left:0">💡 Eyşan\'dan reklam önerisi</button><div id="adsAdvBox"></div></div>'+(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(bizName(a.business)||a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
   +'<div class="adl">'+acc.map(a=>{const bn=bizName(a.business);const on=ADS.open===a.id;
-   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'
+   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'+adBudgetBar(a)
     +(on?'<div class="adb">'+(a.month?'<div class="adr">👥 '+dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok')+'</div>':'')
      +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
      +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option>'+opts+'</select></div>':'')
-     +'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
+     +'<div class="adm">Aylık bütçe: <input type="number" inputmode="numeric" data-bud="'+a.id+'" value="'+(a.budget??'')+'" placeholder="ör. 5000"> ₺ <button type="button" class="mini" data-budsave="'+a.id+'" style="margin-left:4px">Kaydet</button></div>'+'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
  $('adsRef').onclick=e=>{e.stopPropagation();loadAds(true);};
+ $('adsAdv').onclick=getAdsAdvice;
 }
 document.addEventListener('click',e=>{const h=e.target.closest('#dAds .adh');if(!h)return;const id=h.parentElement.dataset.acc;ADS.open=ADS.open===id?null:id;renderAds();});
 document.addEventListener('change',async e=>{const s=e.target.closest('#dAds [data-map]');if(!s||!s.value)return;s.disabled=true;try{await dCall('__adsmap',{account_id:s.dataset.map,business_id:Number(s.value)});const a=ADS.data.accounts.find(x=>x.id===s.dataset.map);if(a)a.business=Number(s.value);renderAds();renderBiz();}catch(err){s.disabled=false;}});
@@ -915,6 +921,45 @@ function dAdsBlock(r){
  box.insertAdjacentHTML('beforebegin','<div class="sec">📣 Reklam · bu ay</div>'+l.map(a=>'<div class="tk"><b>'+tl(a.month?.spend||0)+'</b> harcama · bugün '+tl(a.today)+(AD_ST[a.status]?' · <b style="color:#ff8a9a">'+AD_ST[a.status]+'</b>':'')+'<small>'+(a.month?dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok'):'Bu ay harcama yok')+' · '+a.camps.length+' aktif kampanya</small>'+a.camps.map(c=>'<small>• '+dEsc(c.name)+' — '+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+', bu ay '+tl(c.spend)+(adRes(c.results)?', '+adRes(c.results):'')+'</small>').join('')+'</div>').join(''));
 }
 if(DZ.data&&!ADS.data)loadAds();
+
+// Ads extras: cost per result vs last month, monthly budget bar, AI advice, ads lines in client reports.
+const adMoney=n=>n<10?n.toFixed(2).replace('.',',')+' ₺':tl(n);
+function adCost(a){
+ const s=a.month?.spend||0,m=a.month?.results?.mesaj,t=a.month?.results?.tiklama;
+ const ps=a.prev?.spend||0,pm=a.prev?.results?.mesaj,pt=a.prev?.results?.tiklama;
+ let cur=null,old=null,lab='';
+ if(m){cur=s/m;old=pm?ps/pm:null;lab='mesaj';}else if(t){cur=s/t;old=pt?ps/pt:null;lab='tıklama';}
+ if(cur==null)return '';
+ const worse=old&&cur>old*1.2,better=old&&cur<old*0.85;
+ return ' · <span class="'+(worse?'cw':better?'cb':'')+'">'+lab+' başı '+adMoney(cur)+(old?' (geçen ay '+adMoney(old)+')':'')+'</span>';
+}
+function adBudgetBar(a){
+ if(!a.budget)return '';
+ const s=a.month?.spend||0,dd=Number(dDay(Date.now()).slice(8,10)),now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ const pct=Math.min(100,Math.round(s/a.budget*100)),proj=dd>1?s/(dd-1)*dim:s,bad=s>=a.budget||proj>a.budget*1.1;
+ return '<div class="adbud"><div class="bar"><i class="'+(bad?'l':'o')+'" style="width:'+pct+'%"></i></div><span>Bütçe '+tl(s)+' / '+tl(a.budget)+' (%'+pct+')'+(s>=a.budget?' · bütçe doldu':bad?' · bu hızla ay sonu ~'+tl(proj):'')+'</span></div>';
+}
+async function getAdsAdvice(){
+ const box=$('adsAdvBox');box.innerHTML='<div class="empty">Eyşan reklamları inceliyor… (15–30 sn)</div>';
+ try{const x=await dCall('__adsadvice',{});box.innerHTML=(x.tips||[]).map(t=>'<div class="tk">💡 '+dEsc(t)+'</div>').join('')||'<div class="empty">Öneri çıkmadı.</div>';}
+ catch(e){box.innerHTML='<div class="tk late">'+dEsc(e.message||e)+'</div>';}
+}
+document.addEventListener('click',async e=>{
+ const b=e.target.closest('[data-budsave]');if(!b)return;e.stopPropagation();
+ const id=b.dataset.budsave,inp=document.querySelector('[data-bud="'+id+'"]'),val=inp.value===''?null:Number(inp.value);b.textContent='…';
+ try{await dCall('__adsmap',{account_id:id,budget:val});const a=ADS.data.accounts.find(x=>x.id===id);if(a)a.budget=val;renderAds();}catch(err){b.textContent='⚠️';}
+},true);
+function adRepLines(id,t){
+ try{
+  const l=adsFor(id);const s=l.reduce((x,a)=>x+(a.month?.spend||0),0);if(!s)return;
+  const reach=l.reduce((x,a)=>x+(a.month?.reach||0),0),res={};for(const a of l)for(const [k,v] of Object.entries(a.month?.results||{}))res[k]=(res[k]||0)+v;
+  t.push('','📣 Reklam sonuçları (bu ay):');
+  t.push('💸 '+tl(s)+' reklam bütçesi kullanıldı · 👥 '+dNum(reach)+' kişiye ulaşıldı');
+  if(res.mesaj)t.push('💬 '+dNum(res.mesaj)+' mesaj geldi · mesaj başı '+adMoney(s/res.mesaj));
+  if(res.form)t.push('📝 '+dNum(res.form)+' form dolduruldu');
+  if(res.tiklama)t.push('🔗 '+dNum(res.tiklama)+' tıklama · tıklama başı '+adMoney(s/res.tiklama));
+ }catch(e){}
+}
 </script>
 </body>
 </html>
