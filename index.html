@@ -242,6 +242,23 @@ body.orbOn.orbHide #orbPill{display:flex}
 #bizSheet details.rp summary{cursor:pointer;list-style:none}
 #bizSheet details.rp[open]{border-color:rgba(74,222,128,.45)}
 @media (max-width:600px){#dash .top h1{font-size:16px}#dash .top p{font-size:11.5px}#dash .chip{padding:7px 9px;font-size:13px}}
+
+#dash #dAds{grid-column:1/-1}
+#dash .adk{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+#dash .adk div{background:#0f2219;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+#dash .adk b{display:block;font-size:18px}#dash .adk span{color:var(--muted);font-size:11.5px}
+#dash .adl{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+#dash .ada{background:#0f2219;border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+#dash .ada.on{grid-column:1/-1;border-color:rgba(74,222,128,.45)}
+#dash .adh{display:flex;gap:10px;align-items:center;cursor:pointer}
+#dash .adn{flex:1;min-width:0}#dash .adn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dash .adn span{color:var(--muted);font-size:12px}#dash .adn em{color:#ff8a9a;font-style:normal}
+#dash .ads{text-align:right;flex:0 0 auto}#dash .ads b{display:block;font-size:15px;color:#7cf0a8}#dash .ads span{color:var(--muted);font-size:11.5px}
+#dash .adb{margin-top:8px;border-top:1px solid #16301f;padding-top:8px}
+#dash .adb .tk{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13.5px}#dash .adb .tk small{display:block;color:var(--muted);font-size:12px}
+#dash .adr{font-size:13px;margin-bottom:8px;color:#cfeedd}
+#dash .adm{margin:8px 0;font-size:13px}#dash .adm select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px;margin-left:6px;max-width:100%}
+#dash .adb .mini{display:inline-block;margin:6px 0 0;text-decoration:none}
+@media (max-width:900px){#dash .adl{grid-template-columns:1fr}#dash .adk{grid-template-columns:repeat(2,1fr)}}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -258,11 +275,12 @@ body.orbOn.orbHide #orbPill{display:flex}
 <div id="dash"><div class="dw">
 <div class="top"><img src="eysan.jpg" alt=""><div><h1>Muğla Dijital Medya</h1><p id="dDate"></p></div><div class="sp"></div><button class="chip" id="dShoot" type="button">🎥 Çekim</button><button class="chip" id="dTask" type="button">📝 Görev</button><button class="chip" id="dRefresh" type="button">🔄</button><button class="chip hm" id="dChat" type="button">💬 Eyşan</button></div>
 <div class="sumcard" id="dSum"></div><div class="kpis" id="dKpi"></div>
-<div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button></div>
+<div class="tabs" id="dTabs"><button class="on" data-t="0" type="button">Bugün</button><button data-t="1" type="button">İşler</button><button data-t="2" type="button">Müşteriler</button><button data-t="3" type="button">Reklam</button></div>
 <div class="grid">
 <div class="dcard show" id="dAgenda"></div>
 <div class="dcard" id="dWork"></div>
 <div class="dcard" id="dBiz"></div>
+<div class="dcard" id="dAds"></div>
 </div></div></div>
 <button id="dashFab" type="button"><img src="eysan.jpg" alt="">Eyşan</button>
 <div id="bizSheet"><div class="bx" id="bizBox"></div></div>
@@ -459,7 +477,7 @@ async function loadDash(){
  if(!DZ.data){try{const c=JSON.parse(localStorage.getItem('eysan_dash')||'null');if(c&&c.v){DZ.data=c.v;renderDash();}}catch{}}
  if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Yükleniyor…</div>';
  $('dRefresh').textContent='⏳';
- try{DZ.data=await dCall('__dash',{});DZ.at=Date.now();renderDash();try{localStorage.setItem('eysan_dash',JSON.stringify({v:DZ.data}));}catch{}}
+ try{DZ.data=await dCall('__dash',{});DZ.at=Date.now();renderDash();try{if(!ADS.data||Date.now()-ADS.t>15*60e3)loadAds();}catch{}try{localStorage.setItem('eysan_dash',JSON.stringify({v:DZ.data}));}catch{}}
  catch(e){if(String(e.message)==='pin'){document.body.classList.remove('dashOn');return;}if(!DZ.data)$('dAgenda').innerHTML='<div class="empty">Panel yüklenemedi: '+dEsc(e.message||e)+'</div>';}
  finally{$('dRefresh').textContent='🔄';}
 }
@@ -489,9 +507,9 @@ function renderBiz(){
   +'<div class="biz">'+(shown.length?shown.map(b=>{const ig=b.ig;const pic=ig&&ig.pic?'<img src="'+dEsc(ig.pic)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<span class=ph>🏢</span>\'">':'<span class="ph">🏢</span>';
    const l1=b.ads?'Reklam/paylaşım takibi yok':ig?'📸 '+dAgo(ig.last)+' · '+dNum(ig.followers)+' takipçi':'Instagram bağlı değil';
    const l2=ig?(ig.d7!=null?'<span class="'+(ig.d7>=0?'up':'down')+'">'+(ig.d7>=0?'+':'')+ig.d7+'</span> bu hafta · ':'')+ig.posts30+' paylaşım / 30 gün':(b.owner?dName(b.owner):'');
-   return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+(b.plan?'<span class="tg'+(b.plan.late?' r':b.plan.urgent?' o':'')+'">Plan '+b.plan.done+'/'+b.plan.total+'</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
+   return '<button class="bz '+b.st+'" type="button" data-id="'+b.id+'"><span class="dot"></span>'+pic+'<div class="in"><b>'+dEsc(b.name)+'</b><span>'+l1+'</span><span>'+l2+'</span>'+(b.owner&&ig?'<span>👤 '+dEsc(dName(b.owner))+'</span>':'')+(b.late?'<span class="tg r">'+b.late+' geciken</span>':'')+(b.open?'<span class="tg">'+b.open+' açık iş</span>':'')+dAdTag(b)+(b.plan?'<span class="tg'+(b.plan.late?' r':b.plan.urgent?' o':'')+'">Plan '+b.plan.done+'/'+b.plan.total+'</span>':'')+'</div></button>';}).join(''):'<div class="empty">Bu filtrede işletme yok.</div>')+'</div>';
 }
-function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
+function dTab(i){DZ.tab=i;document.querySelectorAll('#dTabs button').forEach((b,k)=>b.classList.toggle('on',k===i));['dAgenda','dWork','dBiz','dAds'].forEach((id,k)=>$(id).classList.toggle('show',k===i));}
 async function openBiz(id){
  const b=DZ.data?.businesses.find(x=>String(x.id)===String(id));
  $('bizBox').innerHTML='<div class="empty">Yükleniyor…</div>';document.body.classList.add('bizOn');
@@ -556,6 +574,7 @@ function dBizActs(r){
  document.querySelector('#bizBox .acts').onclick=e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;if(a==='report'){dReport(r);return;}if(a==='task'){taskForm({business:r.id});return;}if(a==='shoot'){shootForm({business:r.id});return;}if(a==='msg'){msgSheet(r);return;}if(a==='ideas'){ideasBlock(r);return;}document.body.classList.remove('bizOn');dashShow(false);setMode(a);$('txt').value=r.name+' için ';$('txt').focus();};
  dPlanBlock(r);
  dInfoBlock(r);
+ try{dAdsBlock(r);}catch(e){}
 }
 function dReport(r){
  const ig=r.ig;if(!ig){$('bizRep').innerHTML='<div class="note">Instagram hesabı bağlı olmadığı için rapor hazırlanamıyor.</div>';return;}
@@ -633,7 +652,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795092062776';
+const BUILD='1795118018514';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -858,6 +877,44 @@ SCREEN_TOOLS.icerik_fikri=async p=>{
  await openBiz(b.id);const r={id:b.id,name:b.name};const ideas=await ideasBlock(r);
  return ideas.length?ideas.map((f,i)=>(i+1)+'. '+f.baslik+' ('+f.tur+'): '+f.aciklama).join('\n'):'Fikir üretilemedi.';
 };
+
+// 📣 Ads: Meta ad accounts (read-only) — this month's spend, results, active campaigns and payment warnings.
+const ADS={data:null,open:null,t:0};
+const AD_ST={1:'',2:'⛔ Devre dışı',3:'⚠️ Ödenmemiş bakiye',7:'⏳ İncelemede',9:'⚠️ Ödeme sorunu (ek süre)',100:'Kapanıyor',101:'Kapalı'};
+const tl=n=>n==null?'—':Math.round(n).toLocaleString('tr-TR')+' ₺';
+const adRes=r=>{if(!r)return '';const p=[];if(r.mesaj)p.push(dNum(r.mesaj)+' mesaj');if(r.form)p.push(dNum(r.form)+' form');if(r.tiklama)p.push(dNum(r.tiklama)+' tıklama');if(!p.length&&r.izlenme)p.push(dNum(r.izlenme)+' izlenme');return p.join(' · ');};
+async function loadAds(fresh){
+ const box=$('dAds');if(!box)return;ADS.t=Date.now();
+ if(!ADS.data)box.innerHTML='<h2>📣 Reklamlar</h2><div class="empty">Reklam hesapları okunuyor… (ilk açılışta 20–30 sn)</div>';
+ try{ADS.data=await dCall('__ads',{fresh:!!fresh});renderAds();if(DZ.data)renderBiz();}
+ catch(e){if(!ADS.data)box.innerHTML='<h2>📣 Reklamlar</h2><div class="empty">Okunamadı: '+dEsc(e.message||e)+'</div>';}
+}
+function adsFor(bid){return (ADS.data?.accounts||[]).filter(a=>Number(a.business)===Number(bid));}
+function dAdTag(b){try{const l=adsFor(b.id);if(!l.length)return '';const s=l.reduce((t,a)=>t+(a.month?.spend||0),0);return '<span class="tg'+(l.some(a=>AD_ST[a.status])?' r':'')+'">📣 '+tl(s)+'</span>';}catch{return '';}}
+function renderAds(){
+ const d=ADS.data,box=$('dAds');if(!d||!box)return;
+ const acc=d.accounts,sum=acc.reduce((s,a)=>s+(a.month?.spend||0),0),today=acc.reduce((s,a)=>s+(a.today||0),0);
+ const tot={};for(const a of acc)for(const [k,v] of Object.entries(a.month?.results||{}))tot[k]=(tot[k]||0)+v;
+ const warn=acc.filter(a=>AD_ST[a.status]);const bizName=id=>DZ.data?.businesses.find(b=>Number(b.id)===Number(id))?.name;
+ const opts=(DZ.data?.businesses||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(b=>'<option value="'+b.id+'">'+dEsc(b.name)+'</option>').join('');
+ box.innerHTML='<h2>📣 Reklamlar<small>'+acc.length+' hesap · '+dHM(d.at)+' <button type="button" class="mini" id="adsRef" style="margin-left:6px">🔄</button></small></h2>'
+  +'<div class="adk"><div><b>'+tl(sum)+'</b><span>bu ay harcama</span></div><div><b>'+tl(today)+'</b><span>bugün</span></div><div><b>'+dNum(tot.mesaj||0)+'</b><span>mesaj</span></div><div><b>'+dNum(tot.tiklama||0)+'</b><span>tıklama</span></div></div>'
+  +(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(bizName(a.business)||a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
+  +'<div class="adl">'+acc.map(a=>{const bn=bizName(a.business);const on=ADS.open===a.id;
+   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'
+    +(on?'<div class="adb">'+(a.month?'<div class="adr">👥 '+dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok')+'</div>':'')
+     +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
+     +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option>'+opts+'</select></div>':'')
+     +'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
+ $('adsRef').onclick=e=>{e.stopPropagation();loadAds(true);};
+}
+document.addEventListener('click',e=>{const h=e.target.closest('#dAds .adh');if(!h)return;const id=h.parentElement.dataset.acc;ADS.open=ADS.open===id?null:id;renderAds();});
+document.addEventListener('change',async e=>{const s=e.target.closest('#dAds [data-map]');if(!s||!s.value)return;s.disabled=true;try{await dCall('__adsmap',{account_id:s.dataset.map,business_id:Number(s.value)});const a=ADS.data.accounts.find(x=>x.id===s.dataset.map);if(a)a.business=Number(s.value);renderAds();renderBiz();}catch(err){s.disabled=false;}});
+function dAdsBlock(r){
+ const box=$('bizRep');if(!box)return;const l=adsFor(r.id);if(!l.length)return;
+ box.insertAdjacentHTML('beforebegin','<div class="sec">📣 Reklam · bu ay</div>'+l.map(a=>'<div class="tk"><b>'+tl(a.month?.spend||0)+'</b> harcama · bugün '+tl(a.today)+(AD_ST[a.status]?' · <b style="color:#ff8a9a">'+AD_ST[a.status]+'</b>':'')+'<small>'+(a.month?dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok'):'Bu ay harcama yok')+' · '+a.camps.length+' aktif kampanya</small>'+a.camps.map(c=>'<small>• '+dEsc(c.name)+' — '+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+', bu ay '+tl(c.spend)+(adRes(c.results)?', '+adRes(c.results):'')+'</small>').join('')+'</div>').join(''));
+}
+if(DZ.data&&!ADS.data)loadAds();
 </script>
 </body>
 </html>
