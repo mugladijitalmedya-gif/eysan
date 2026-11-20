@@ -287,6 +287,19 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .atx{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
 #dash .arp{margin:0 0 8px}#dash .arpTxt textarea{width:100%;box-sizing:border-box;background:#0f2219;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit;font-size:12.5px;margin:4px 0}
 #dash .arpTxt div{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+/* Desktop layout: Agenda + Work side by side, Instagram/customers full width below, ads full width at the bottom. */
+#dash .jump{display:none}
+@media (min-width:901px){
+ #dash .grid{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
+ #dash #dAgenda,#dash #dWork{max-height:560px}
+ #dash #dBiz{grid-column:1/-1;max-height:none;overflow:visible}
+ #dash #dBiz .biz{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+ #dash #dAgenda,#dash #dWork,#dash #dBiz,#dash #dAds,#dash #emelSub{scroll-margin-top:64px}
+ #dash .jump{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:4;margin:0 0 12px;padding:6px;background:rgba(8,20,14,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px}
+ #dash .jump button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:7px 12px;border-radius:10px;cursor:pointer}
+ #dash .jump button:hover{background:#12261d;color:var(--text)}
+}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -680,7 +693,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795155912017';
+const BUILD='1795171666291';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1098,6 +1111,14 @@ document.addEventListener('click',async e=>{
  b.insertAdjacentHTML('afterend','<div class="arpTxt"><textarea rows="9" readonly>'+dEsc(txt)+'</textarea><div>'+(ok?'✅ Kopyalandı · ':'')+'<a class="mini" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(txt)+'">WhatsApp ile gönder ↗</a></div></div>');
 },true);
 if(ADS.data)renderAds();
+
+// Desktop layout: a jump bar under the KPIs to reach each section quickly (phones keep their tabs).
+(function(){
+ const k=$('dKpi');if(!k||$('dJump'))return;
+ const items=[['dAgenda','📅 Ajanda'],['dWork','👥 İşler'],['dBiz','📸 Instagram · Müşteriler'],['dAds','📣 Reklamlar'],['emelSub','⭐ Emel Hazır']];
+ k.insertAdjacentHTML('afterend','<nav class="jump" id="dJump">'+items.map(([id,t])=>'<button type="button" data-j="'+id+'">'+t+'</button>').join('')+'</nav>');
+ $('dJump').addEventListener('click',e=>{const b=e.target.closest('[data-j]');if(!b)return;const t=$(b.dataset.j);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
+})();
 </script>
 </body>
 </html>
