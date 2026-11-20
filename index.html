@@ -680,7 +680,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795155700903';
+const BUILD='1795155912017';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -991,7 +991,7 @@ const EMEL={open:null};
 function emelGroups(){
  const l=(ADS.data?.accounts||[]).filter(a=>Number(a.business)===-2),G=[];
  for(const a of l){
-  const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fethiye/i.test(nm)?'Fethiye':null;
+  const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fet(h)?i(h)?ye/i.test(nm)?'Fethiye':null;
   if(lab){G.push({key:a.id,name:lab,acc:a,camps:a.camps,daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});continue;}
   // Main account: split active campaigns by name into massage vs beauty.
   const isM=c=>/masaj|massage|spa/i.test(c.name),mas=a.camps.filter(isM),guz=a.camps.filter(c=>!isM(c));
