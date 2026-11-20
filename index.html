@@ -267,6 +267,26 @@ body.orbOn.orbHide #orbPill{display:flex}
 
 /* Desktop: keep the three top cards to one screen height so the ads card sits right below; long lists scroll inside. */
 @media (min-width:901px){#dash #dAgenda,#dash #dWork,#dash #dBiz{max-height:min(78vh,820px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(124,240,168,.25) transparent}#dash #dBiz::-webkit-scrollbar,#dash #dWork::-webkit-scrollbar,#dash #dAgenda::-webkit-scrollbar{width:6px}#dash #dBiz::-webkit-scrollbar-thumb,#dash #dWork::-webkit-scrollbar-thumb,#dash #dAgenda::-webkit-scrollbar-thumb{background:rgba(124,240,168,.25);border-radius:6px}}
+
+#dash .aw h3 small{font-weight:500;color:var(--muted);font-size:11.5px;margin-left:4px}
+#dash .awk{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
+#dash .awk div{background:#0f2219;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+#dash .awk b{display:block;font-size:17px}#dash .awk span{font-size:11.5px;color:var(--muted)}
+#dash .awk em{font-style:normal;font-weight:700;margin-left:3px}#dash .awk em.up{color:#ffd166}#dash .awk em.dn{color:#8fb3a0}
+#dash .awg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+#dash .awc{background:#0f2219;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+#dash .awc h4{margin:0 0 6px;font-size:12.5px}
+#dash .awl{display:grid;grid-template-columns:16px 1fr;column-gap:6px;padding:4px 0;border-top:1px solid rgba(255,255,255,.05)}
+#dash .awl:first-of-type{border-top:0}#dash .awl span{grid-row:span 2;color:var(--muted);font-size:12px}
+#dash .awl b{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dash .awl small{font-size:11.5px;color:var(--muted)}
+#dash .atw{margin:2px 0 8px}#dash .atr svg{width:100%;height:80px;display:block;background:#0f2219;border-radius:10px}
+#dash .atr .b rect{fill:rgba(124,240,168,.45)}#dash .atr polyline{fill:none;stroke:#ffd166;stroke-width:1.6;vector-effect:non-scaling-stroke}
+#dash .atl{display:flex;gap:12px;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:4px;flex-wrap:wrap}
+#dash .atl b{margin-left:auto;color:var(--text);font-weight:600}#dash .atl i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+#dash .atl i.sp{background:rgba(124,240,168,.6)}#dash .atl i.rs{background:#ffd166}
+#dash .atx{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
+#dash .arp{margin:0 0 8px}#dash .arpTxt textarea{width:100%;box-sizing:border-box;background:#0f2219;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit;font-size:12.5px;margin:4px 0}
+#dash .arpTxt div{font-size:12px;color:var(--muted);margin-bottom:8px}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -660,7 +680,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795123291197';
+const BUILD='1795155700903';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1003,6 +1023,80 @@ function renderEmel(){
 document.addEventListener('click',e=>{const h=e.target.closest('#emelSub .adh');if(!h)return;e.stopPropagation();const k=h.parentElement.dataset.emel;if(!k)return;EMEL.open=EMEL.open===k?null:k;renderAds();},true);
 const _renderAdsBase=renderAds;
 renderAds=function(){_renderAdsBase();renderEmel();};
+if(ADS.data)renderAds();
+
+// 📊 Ads analysis on the panel: weekly scorecard at the top of the ads card, a 30-day chart and a client report inside each opened account.
+const AW={data:null,loading:false,trend:{},trendLoading:{}};
+async function loadAdsWeek(fresh){
+ if(AW.loading)return;AW.loading=true;
+ try{AW.data=await dCall('__adsweek',{fresh:!!fresh});}catch(e){AW.err=String(e.message||e);}
+ AW.loading=false;renderAds();
+}
+function awHtml(){
+ const w=AW.data;
+ if(!w)return '<div class="sub aw"><h3>📊 Haftalık karne</h3><div class="empty">'+(AW.err?'Okunamadı: '+dEsc(AW.err):'Son 7 gün hesaplanıyor…')+'</div></div>';
+ const L=w.accounts,sc=L.reduce((t,a)=>t+a.cur.spend,0),so=L.reduce((t,a)=>t+a.old.spend,0),mc=L.reduce((t,a)=>t+(a.cur.results.mesaj||0),0),mo=L.reduce((t,a)=>t+(a.old.results.mesaj||0),0);
+ const pct=(a,b)=>b?'<em class="'+(a>b?'up':'dn')+'">'+(a>=b?'+':'')+Math.round((a-b)/b*100)+'%</em>':'';
+ const dm=s=>s.slice(8,10)+'.'+s.slice(5,7);
+ const msg=L.filter(a=>a.unit&&a.unit.k==='mesaj'&&a.unit.n>=5);
+ const best=msg.slice().sort((a,b)=>a.unit.c-b.unit.c).slice(0,3),worst=msg.slice().sort((a,b)=>b.unit.c-a.unit.c).slice(0,3).filter(a=>!best.includes(a));
+ const up=L.filter(a=>a.costChange!=null&&a.costChange>=0.3).sort((a,b)=>b.costChange-a.costChange);
+ const none=L.filter(a=>a.cur.spend>=300&&!a.unit);
+ const li=(ic,a,txt)=>'<div class="awl"><span>'+ic+'</span><b>'+dEsc(a.name)+'</b><small>'+txt+'</small></div>';
+ const col=(t,rows)=>rows.length?'<div class="awc"><h4>'+t+'</h4>'+rows.join('')+'</div>':'';
+ return '<div class="sub aw"><h3>📊 Haftalık karne <small>'+dm(w.range.cur.since)+'–'+dm(w.range.cur.until)+' · geçen haftaya göre</small> <button type="button" class="mini" id="awRef">🔄</button></h3>'
+  +'<div class="awk"><div><b>'+tl(sc)+'</b><span>harcama '+pct(sc,so)+'</span></div><div><b>'+dNum(mc)+'</b><span>mesaj '+pct(mc,mo)+'</span></div><div><b>'+(mc?adMoney(L.filter(a=>a.cur.results.mesaj).reduce((t,a)=>t+a.cur.spend,0)/mc):'—')+'</b><span>ort. mesaj başı</span></div></div>'
+  +'<div class="awg">'
+  +col('🏆 En verimli',best.map(a=>li('✓',a,'mesaj başı '+adMoney(a.unit.c)+' · '+a.unit.n+' mesaj')))
+  +col('💸 En pahalı',worst.map(a=>li('!',a,'mesaj başı '+adMoney(a.unit.c)+' · '+a.unit.n+' mesaj')))
+  +col('📈 Pahalananlar',up.map(a=>li('↑',a,a.unit.k+' başı '+adMoney(a.oldUnit.c)+' → '+adMoney(a.unit.c)+' (+'+Math.round(a.costChange*100)+'%)')))
+  +col('⚠️ Harcama var, sonuç yok',none.map(a=>li('!',a,tl(a.cur.spend)+' harcandı')))
+  +'</div></div>';
+}
+async function loadTrend(id){
+ if(AW.trend[id]||AW.trendLoading[id])return;AW.trendLoading[id]=true;
+ try{AW.trend[id]=(await dCall('__adtrend',{id})).days||[];}catch(e){AW.trend[id]={err:String(e.message||e)};}
+ AW.trendLoading[id]=false;if(ADS.open===id)renderAds();
+}
+function trendSvg(days){
+ if(days.err)return '<div class="empty">Grafik okunamadı: '+dEsc(days.err)+'</div>';
+ if(!days.length)return '<div class="empty">Son 30 günde harcama yok.</div>';
+ const W=300,H=70,n=days.length,bw=W/n,ms=Math.max(...days.map(d=>d.spend),1),key=days.some(d=>d.mesaj)?'mesaj':days.some(d=>d.form)?'form':'tiklama',mr=Math.max(...days.map(d=>d[key]||0),1);
+ const bars=days.map((d,i)=>{const h=Math.max(1,d.spend/ms*(H-6));return '<rect x="'+(i*bw+1).toFixed(1)+'" y="'+(H-h).toFixed(1)+'" width="'+Math.max(1,bw-2).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1.5"><title>'+dShortDate(d.day)+': '+tl(d.spend)+(d[key]?' · '+d[key]+' '+(key==='tiklama'?'tıklama':key):'')+'</title></rect>';}).join('');
+ const pts=days.map((d,i)=>(i*bw+bw/2).toFixed(1)+','+(H-((d[key]||0)/mr)*(H-6)).toFixed(1)).join(' ');
+ const tot=days.reduce((t,d)=>t+d.spend,0),res=days.reduce((t,d)=>t+(d[key]||0),0);
+ return '<div class="atr"><div class="atl"><span><i class="sp"></i>günlük harcama</span><span><i class="rs"></i>'+(key==='tiklama'?'tıklama':key)+'</span><b>30 gün: '+tl(tot)+(res?' · '+dNum(res)+' '+(key==='tiklama'?'tıklama':key):'')+'</b></div><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><g class="b">'+bars+'</g><polyline points="'+pts+'"/></svg><div class="atx"><span>'+dShortDate(days[0].day)+'</span><span>'+dShortDate(days[n-1].day)+'</span></div></div>';
+}
+function clientReport(a){
+ const bn=DZ.data?.businesses.find(b=>Number(b.id)===Number(a.business))?.name||a.name,m=a.month||{spend:0,reach:0,results:{}},r=m.results||{},p=a.prev;
+ const mon=new Date().toLocaleDateString('tr-TR',{month:'long'});
+ const t=['📣 '+bn+' · '+mon+' reklam özeti','','💸 Harcama: '+tl(m.spend)];
+ if(m.reach)t.push('👥 Ulaşılan kişi: '+dNum(m.reach));
+ if(r.mesaj)t.push('💬 Gelen mesaj: '+dNum(r.mesaj)+' (mesaj başı '+adMoney(m.spend/r.mesaj)+')');
+ if(r.form)t.push('📝 Doldurulan form: '+dNum(r.form));
+ if(r.tiklama)t.push('🔗 Tıklama: '+dNum(r.tiklama));
+ if(p&&p.spend)t.push('','📊 Geçen ay: '+tl(p.spend)+(p.results?.mesaj?' · '+dNum(p.results.mesaj)+' mesaj':''));
+ if(a.camps.length)t.push('','Yayındaki reklamlar:',...a.camps.map(c=>'• '+c.name));
+ t.push('','Muğla Dijital Medya');return t.join('\n');
+}
+const _renderAdsAW=renderAds;
+renderAds=function(){
+ _renderAdsAW();const box=$('dAds');if(!box||!ADS.data)return;
+ const k=box.querySelector('.adk');if(k)k.insertAdjacentHTML('afterend',awHtml());
+ const r=$('awRef');if(r)r.onclick=e=>{e.stopPropagation();AW.data=null;renderAds();loadAdsWeek(true);};
+ if(!AW.data&&!AW.loading&&!AW.err)loadAdsWeek();
+ const on=ADS.open&&box.querySelector('.ada.on[data-acc="'+ADS.open+'"] .adb');
+ if(on){const id=ADS.open;
+  on.insertAdjacentHTML('afterbegin','<div class="atw">'+(AW.trend[id]?trendSvg(AW.trend[id]):'<div class="empty">Son 30 gün grafiği yükleniyor…</div>')+'</div><button type="button" class="mini arp" data-rep="'+id+'">📋 Müşteriye rapor</button>');
+  if(!AW.trend[id])loadTrend(id);}
+};
+document.addEventListener('click',async e=>{
+ const b=e.target.closest('[data-rep]');if(!b)return;e.stopPropagation();
+ const a=ADS.data.accounts.find(x=>x.id===b.dataset.rep);if(!a)return;const txt=clientReport(a);
+ let ok=false;try{await navigator.clipboard.writeText(txt);ok=true;}catch(err){}
+ const old=document.querySelector('.arpTxt');if(old)old.remove();
+ b.insertAdjacentHTML('afterend','<div class="arpTxt"><textarea rows="9" readonly>'+dEsc(txt)+'</textarea><div>'+(ok?'✅ Kopyalandı · ':'')+'<a class="mini" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(txt)+'">WhatsApp ile gönder ↗</a></div></div>');
+},true);
 if(ADS.data)renderAds();
 </script>
 </body>
