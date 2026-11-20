@@ -693,7 +693,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795171666291';
+const BUILD='1795171918950';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1002,18 +1002,13 @@ function adRepLines(id,t){
 // Emel Hazır: her ad accounts (marked -2) are listed at the bottom of the ads card as her 4 businesses, kept out of the general totals.
 const EMEL={open:null};
 function emelGroups(){
+ // One row per real account: the main account is Güzellik (whole account, ended campaigns included), plus Bodrum and Fethiye.
  const l=(ADS.data?.accounts||[]).filter(a=>Number(a.business)===-2),G=[];
  for(const a of l){
-  const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fet(h)?i(h)?ye/i.test(nm)?'Fethiye':null;
-  if(lab){G.push({key:a.id,name:lab,acc:a,camps:a.camps,daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});continue;}
-  // Main account: split active campaigns by name into massage vs beauty.
-  const isM=c=>/masaj|massage|spa/i.test(c.name),mas=a.camps.filter(isM),guz=a.camps.filter(c=>!isM(c));
-  const part=(k,n,cs)=>{const r={};for(const c of cs)for(const [x,v] of Object.entries(c.results||{}))r[x]=(r[x]||0)+v;return {key:a.id+k,name:n,acc:a,camps:cs,spend:cs.reduce((s,c)=>s+(c.spend||0),0),today:cs.reduce((s,c)=>s+(c.today||0),0),daily:cs.reduce((s,c)=>s+(c.daily||0),0),results:r};};
-  G.push(part('g','Güzellik',guz),part('m','Muğla Masaj',mas));
-  const rest=(a.month?.spend||0)-a.camps.reduce((s,c)=>s+(c.spend||0),0);
-  if(rest>1)G.push({key:a.id+'r',name:'Ana hesap · biten kampanyalar',acc:a,camps:[],spend:rest,today:null,results:{},note:'Bu ay harcayıp şu an aktif olmayan kampanyalar.'});
+  const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fet(h)?i(h)?ye/i.test(nm)?'Fethiye':'Güzellik';
+  G.push({key:a.id,name:lab,acc:a,camps:a.camps,daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});
  }
- for(const n of ['Güzellik','Muğla Masaj','Bodrum','Fethiye'])if(!G.some(g=>g.name===n))G.push({key:'x'+n,name:n,missing:true,camps:[],spend:0,results:{}});
+ const ord=['Güzellik','Fethiye','Bodrum'];G.sort((x,y)=>ord.indexOf(x.name)-ord.indexOf(y.name));
  return {l,G};
 }
 function renderEmel(){
