@@ -300,6 +300,21 @@ body.orbOn.orbHide #orbPill{display:flex}
  #dash .jump button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:7px 12px;border-radius:10px;cursor:pointer}
  #dash .jump button:hover{background:#12261d;color:var(--text)}
 }
+
+/* Team · businesses card */
+#dash #dTeam h2 small .mini{margin-left:6px}
+#dash .tmG{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+#dash .tmP{background:#0f2219;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+#dash .tmP.none{border-color:rgba(255,138,154,.45)}
+#dash .tmH{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+#dash .tmH b{font-size:14px}#dash .tmH span{font-size:12px;color:var(--muted)}
+#dash .tmL{display:flex;flex-wrap:wrap;gap:6px}
+#dash .tmC{border:1px solid var(--line);background:#12261d;color:var(--text);font:inherit;font-size:12.5px;padding:5px 9px;border-radius:999px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dash .tmC:hover{border-color:#4ade80}
+#dash .tmC.r{border-color:rgba(255,138,154,.5)}#dash .tmC em{font-style:normal;color:#ff8a9a;font-weight:700;margin-left:2px}
+#dash .tmE{display:flex;flex-direction:column;gap:3px;width:100%;font-size:12.5px}
+#dash .tmE select{background:#12261d;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:inherit;font-size:12.5px}
+@media (min-width:901px){#dash #dTeam{grid-column:1/-1;scroll-margin-top:64px}}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -693,7 +708,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795171918950';
+const BUILD='1795269841054';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -924,7 +939,7 @@ SCREEN_TOOLS.icerik_fikri=async p=>{
 const ADS={data:null,open:null,t:0};
 const AD_ST={1:'',2:'⛔ Devre dışı',3:'⚠️ Ödenmemiş bakiye',7:'⏳ İncelemede',9:'⚠️ Ödeme sorunu (ek süre)',100:'Kapanıyor',101:'Kapalı'};
 const tl=n=>n==null?'—':Math.round(n).toLocaleString('tr-TR')+' ₺';
-const adRes=r=>{if(!r)return '';const p=[];if(r.mesaj)p.push(dNum(r.mesaj)+' mesaj');if(r.form)p.push(dNum(r.form)+' form');if(r.tiklama)p.push(dNum(r.tiklama)+' tıklama');if(!p.length&&r.izlenme)p.push(dNum(r.izlenme)+' izlenme');return p.join(' · ');};
+const adRes=r=>{if(!r)return '';const p=[];if(r.mesaj)p.push(dNum(r.mesaj)+' mesaj');if(r.form)p.push(dNum(r.form)+' form');if(r.tiklama)p.push(dNum(r.tiklama)+' tıklama');if(r.profil)p.push(dNum(r.profil)+' profil ziyareti');if(!p.length&&r.izlenme)p.push(dNum(r.izlenme)+' izlenme');return p.join(' · ');};
 async function loadAds(fresh){
  const box=$('dAds');if(!box)return;ADS.t=Date.now();
  if(!ADS.data)box.innerHTML='<h2>📣 Reklamlar</h2><div class="empty">Reklam hesapları okunuyor… (ilk açılışta 20–30 sn)</div>';
@@ -944,9 +959,9 @@ function renderAds(){
   +'<div class="adk"><div><b>'+tl(sum)+'</b><span>bu ay harcama</span></div><div><b>'+tl(today)+'</b><span>bugün</span></div><div><b>'+dNum(tot.mesaj||0)+'</b><span>mesaj</span></div><div><b>'+dNum(tot.tiklama||0)+'</b><span>tıklama</span></div></div>'
   +'<div style="margin:4px 0 8px"><button type="button" class="mini" id="adsAdv" style="margin-left:0">💡 Eyşan\'dan reklam önerisi</button><div id="adsAdvBox"></div></div>'+(warn.length?'<div class="sub"><h3>⚠️ Dikkat</h3>'+warn.map(a=>'<div class="li"><span class="d">!</span><div>'+dEsc(bizName(a.business)||a.name)+'<br><span>'+AD_ST[a.status]+'</span></div></div>').join('')+'</div>':'')
   +'<div class="adl">'+acc.map(a=>{const bn=bizName(a.business);const on=ADS.open===a.id;
-   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(a.camps.some(c=>c.daily)?' · günlük limit '+tl(a.camps.reduce((t,c)=>t+(c.daily||0),0)):'')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+'</span></div></div>'+adBudgetBar(a)
+   return '<div class="ada'+(on?' on':'')+'" data-acc="'+a.id+'"><div class="adh"><div class="adn"><b>'+dEsc(bn||a.name)+'</b><span>'+(bn?dEsc(a.name)+' · ':'')+(a.camps.length?a.camps.length+' aktif kampanya':'aktif kampanya yok')+(a.camps.some(c=>c.daily)?' · günlük limit '+tl(a.camps.reduce((t,c)=>t+(c.daily||0),0)):'')+(AD_ST[a.status]?' · <em>'+AD_ST[a.status]+'</em>':'')+adCost(a)+'</span></div><div class="ads"><b>'+tl(a.month?.spend||0)+'</b><span>bugün '+tl(a.today)+(adRes(a.todayRes)?'<br>'+adRes(a.todayRes):'')+'</span></div></div>'+adBudgetBar(a)
     +(on?'<div class="adb">'+(a.month?'<div class="adr">👥 '+dNum(a.month.reach)+' kişiye ulaştı · '+(adRes(a.month.results)||'sonuç yok')+'</div>':'')
-     +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
+     +(a.camps.length?a.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+(adRes(c.todayRes)?' ('+adRes(c.todayRes)+')':'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):'<div class="empty">Şu an aktif kampanya yok.</div>')
      +(!bn?'<div class="adm">Bu hesap hangi işletmenin? <select data-map="'+a.id+'"><option value="">Seçin…</option><option value="-2">⭐ Emel Hazır grubu</option>'+opts+'</select></div>':'')
      +'<div class="adm">Aylık bütçe: <input type="number" inputmode="numeric" data-bud="'+a.id+'" value="'+(a.budget??'')+'" placeholder="ör. 5000"> ₺ <button type="button" class="mini" data-budsave="'+a.id+'" style="margin-left:4px">Kaydet</button></div>'+'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+a.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';}).join('')+'</div>';
  $('adsRef').onclick=e=>{e.stopPropagation();loadAds(true);};
@@ -1006,7 +1021,7 @@ function emelGroups(){
  const l=(ADS.data?.accounts||[]).filter(a=>Number(a.business)===-2),G=[];
  for(const a of l){
   const nm=String(a.name||''),lab=/bodrum/i.test(nm)?'Bodrum':/fet(h)?i(h)?ye/i.test(nm)?'Fethiye':'Güzellik';
-  G.push({key:a.id,name:lab,acc:a,camps:a.camps,daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});
+  G.push({key:a.id,name:lab,acc:a,camps:a.camps,todayRes:a.todayRes||{},daily:a.camps.reduce((s,c)=>s+(c.daily||0),0),spend:a.month?.spend||0,today:a.today||0,results:a.month?.results||{},reach:a.month?.reach||0});
  }
  const ord=['Güzellik','Fethiye','Bodrum'];G.sort((x,y)=>ord.indexOf(x.name)-ord.indexOf(y.name));
  return {l,G};
@@ -1019,9 +1034,9 @@ function renderEmel(){
  const row=g=>{
   if(g.missing)return '<div class="ada"><div class="adh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>reklam hesabı henüz bağlı değil</span></div><div class="ads"><b>—</b></div></div></div>';
   const on=EMEL.open===g.key;
-  return '<div class="ada'+(on?' on':'')+'" data-emel="'+dEsc(g.key)+'"><div class="adh emh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>'+(g.camps.length?g.camps.length+' aktif kampanya':g.note?'geçmiş harcama':'aktif kampanya yok')+(g.daily?' · günlük limit '+tl(g.daily):'')+(adRes(g.results)?' · '+adRes(g.results):'')+(AD_ST[g.acc.status]?' · <em>'+AD_ST[g.acc.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(g.spend)+'</b><span>'+(g.today!=null?'bugün '+tl(g.today):'bu ay')+'</span></div></div>'
+  return '<div class="ada'+(on?' on':'')+'" data-emel="'+dEsc(g.key)+'"><div class="adh emh"><div class="adn"><b>Emel Hazır · '+dEsc(g.name)+'</b><span>'+(g.camps.length?g.camps.length+' aktif kampanya':g.note?'geçmiş harcama':'aktif kampanya yok')+(g.daily?' · günlük limit '+tl(g.daily):'')+(adRes(g.results)?' · '+adRes(g.results):'')+(AD_ST[g.acc.status]?' · <em>'+AD_ST[g.acc.status]+'</em>':'')+'</span></div><div class="ads"><b>'+tl(g.spend)+'</b><span>'+(g.today!=null?'bugün '+tl(g.today)+(adRes(g.todayRes)?'<br>'+adRes(g.todayRes):''):'bu ay')+'</span></div></div>'
    +(on?'<div class="adb">'+(g.note?'<div class="adr">'+dEsc(g.note)+'</div>':'')+(g.reach?'<div class="adr">👥 '+dNum(g.reach)+' kişiye ulaştı</div>':'')
-    +(g.camps.length?g.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):(g.note?'':'<div class="empty">Şu an aktif kampanya yok.</div>'))
+    +(g.camps.length?g.camps.map(c=>'<div class="tk">'+dEsc(c.name)+'<small>'+(c.daily?'günlük '+tl(c.daily):c.total?'toplam '+tl(c.total):'')+' · bugün '+tl(c.today||0)+(adRes(c.todayRes)?' ('+adRes(c.todayRes)+')':'')+' · bu ay '+tl(c.spend)+(adRes(c.results)?' · '+adRes(c.results):'')+(c.stop?' · bitiş '+dShortDate(dDay(c.stop)):'')+'</small></div>').join(''):(g.note?'':'<div class="empty">Şu an aktif kampanya yok.</div>'))
     +'<a class="mini" target="_blank" rel="noopener" href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act='+g.acc.id+'">Reklam Yöneticisi\'nde aç ↗</a></div>':'')+'</div>';
  };
  box.insertAdjacentHTML('beforeend','<div class="sub" id="emelSub"><h3>Emel Hazır · bu ay '+tl(sum)+' · bugün '+tl(today)+'</h3>'
@@ -1083,6 +1098,7 @@ function clientReport(a){
  if(r.mesaj)t.push('💬 Gelen mesaj: '+dNum(r.mesaj)+' (mesaj başı '+adMoney(m.spend/r.mesaj)+')');
  if(r.form)t.push('📝 Doldurulan form: '+dNum(r.form));
  if(r.tiklama)t.push('🔗 Tıklama: '+dNum(r.tiklama));
+ if(r.profil)t.push('👤 Profil ziyareti: '+dNum(r.profil));
  if(p&&p.spend)t.push('','📊 Geçen ay: '+tl(p.spend)+(p.results?.mesaj?' · '+dNum(p.results.mesaj)+' mesaj':''));
  if(a.camps.length)t.push('','Yayındaki reklamlar:',...a.camps.map(c=>'• '+c.name));
  t.push('','Muğla Dijital Medya');return t.join('\n');
@@ -1114,6 +1130,42 @@ if(ADS.data)renderAds();
  k.insertAdjacentHTML('afterend','<nav class="jump" id="dJump">'+items.map(([id,t])=>'<button type="button" data-j="'+id+'">'+t+'</button>').join('')+'</nav>');
  $('dJump').addEventListener('click',e=>{const b=e.target.closest('[data-j]');if(!b)return;const t=$(b.dataset.j);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
 })();
+
+// 👥 Team · businesses: who looks after which business (e.g. Sercan → Sostat). Editable from here; saved as the business's owner.
+const TM={edit:false,users:null};
+function teamGroups(){
+ const d=DZ.data;if(!d)return [];
+ const key=n=>String(n||'').toLocaleLowerCase('tr-TR').trim(),by={};
+ for(const b of d.businesses){const k=b.owner?key(b.owner):'';(by[k]=by[k]||{name:b.owner||'',list:[]}).list.push(b);}
+ for(const p of d.people||[]){const k=key(p.name);if(!by[k])by[k]={name:p.name,list:[]};}
+ return Object.entries(by).map(([k,v])=>({k,name:v.name,list:v.list.sort((a,b)=>a.name.localeCompare(b.name,'tr'))}))
+  .sort((a,b)=>(a.k===''?1:0)-(b.k===''?1:0)||b.list.length-a.list.length||a.name.localeCompare(b.name,'tr'));
+}
+function renderTeam(){
+ let box=$('dTeam');
+ if(!box){const w=$('dWork');if(!w)return;w.insertAdjacentHTML('afterend','<div class="dcard" id="dTeam"></div>');box=$('dTeam');if(DZ.tab===1)box.classList.add('show');}
+ const G=teamGroups();if(!G.length){box.innerHTML='';return;}
+ const opts=TM.users?'<option value="">— sorumlu yok —</option>'+TM.users.map(u=>'<option value="'+dEsc(u.email)+'">'+dEsc(dName(u.name))+'</option>').join(''):'';
+ const chip=b=>TM.edit
+  ?'<label class="tmE"><span>'+dEsc(b.name)+'</span><select data-own="'+b.id+'">'+opts+'</select></label>'
+  :'<button type="button" class="tmC'+(b.late?' r':'')+'" data-tb="'+b.id+'" title="'+dEsc(b.name)+'">'+dEsc(b.name)+(b.late?' <em>'+b.late+'</em>':'')+'</button>';
+ box.innerHTML='<h2>👥 Ekip · İşletmeler<small>kim hangi işletmeye bakıyor <button type="button" class="mini" id="tmEdit">'+(TM.edit?'✓ Bitti':'✏️ Düzenle')+'</button></small></h2>'
+  +'<div class="tmG">'+G.map(g=>'<div class="tmP'+(g.k===''?' none':'')+'"><div class="tmH"><b>'+(g.k===''?'⚠️ Sorumlusu yok':dEsc(dName(g.name)))+'</b><span>'+g.list.length+' işletme</span></div><div class="tmL">'+(g.list.map(chip).join('')||'<span class="empty">İşletme yok</span>')+'</div></div>').join('')+'</div>';
+ if(TM.edit&&TM.users)box.querySelectorAll('[data-own]').forEach(s=>{const b=DZ.data.businesses.find(x=>String(x.id)===s.dataset.own);const u=b&&b.owner&&TM.users.find(x=>dFold(x.name)===dFold(b.owner));s.value=u?u.email:'';});
+ $('tmEdit').onclick=async e=>{e.stopPropagation();
+  if(!TM.edit&&!TM.users){e.target.textContent='…';try{TM.users=(await dCall('__taskopts',{})).users.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'tr'));}catch(err){e.target.textContent='⚠️';return;}}
+  TM.edit=!TM.edit;renderTeam();};
+}
+document.addEventListener('click',e=>{const c=e.target.closest('#dTeam [data-tb]');if(c)openBiz(c.dataset.tb);});
+document.addEventListener('change',async e=>{
+ const s=e.target.closest('#dTeam [data-own]');if(!s)return;s.disabled=true;
+ try{const r=await dCall('__setowner',{id:Number(s.dataset.own),email:s.value});const b=DZ.data.businesses.find(x=>String(x.id)===s.dataset.own);if(b)b.owner=r.owner||null;renderTeam();}
+ catch(err){s.disabled=false;alert(err.message||err);}
+});
+const _renderDashTM=renderDash;renderDash=function(){_renderDashTM.apply(this,arguments);renderTeam();};
+const _dTabTM=dTab;dTab=function(i){_dTabTM(i);const t=$('dTeam');if(t)t.classList.toggle('show',i===1);};
+if(DZ.data)renderTeam();
+(function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dTeam"]')){const w=j.querySelector('[data-j="dWork"]');if(w)w.insertAdjacentHTML('afterend','<button type="button" data-j="dTeam">🧑‍💼 Ekip · İşletmeler</button>');}})();
 </script>
 </body>
 </html>
