@@ -315,6 +315,26 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .tmE{display:flex;flex-direction:column;gap:3px;width:100%;font-size:12.5px}
 #dash .tmE select{background:#12261d;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:inherit;font-size:12.5px}
 @media (min-width:901px){#dash #dTeam{grid-column:1/-1;scroll-margin-top:64px}}
+
+/* İçerik Ajandası · Stratejist */
+#dash .plBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+#dash .plBar select{background:#12261d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:7px 9px;font:inherit;font-size:13.5px;min-width:220px;max-width:100%}
+#dash .plHead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:6px}
+#dash .plHead b{color:var(--text)}
+#dash .plSum{font-size:14px;line-height:1.5;margin:0 0 10px}
+#dash .plGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:12px}
+#dash .plGrid>div{background:#0f2219;border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+#dash #dPlan h3{font-size:13.5px;margin:6px 0}
+#dash #dPlan ul{margin:0;padding-left:18px;font-size:13px;line-height:1.45}
+#dash #dPlan li em{font-style:normal;color:var(--muted)}
+#dash .plTbl{overflow-x:auto}
+#dash .plTbl table{width:100%;border-collapse:collapse;font-size:13px}
+#dash .plTbl th,#dash .plTbl td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#dash .plTbl td div{color:var(--muted);margin-top:2px}
+#dash .plT{display:inline-block;background:#12261d;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px}
+#dash .plErr{color:#ff8a9a}
+@media (min-width:901px){#dash #dPlan{grid-column:1/-1;scroll-margin-top:64px}}
+
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -708,7 +728,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795269841054';
+const BUILD='1795351191860';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1166,6 +1186,47 @@ const _renderDashTM=renderDash;renderDash=function(){_renderDashTM.apply(this,ar
 const _dTabTM=dTab;dTab=function(i){_dTabTM(i);const t=$('dTeam');if(t)t.classList.toggle('show',i===1);};
 if(DZ.data)renderTeam();
 (function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dTeam"]')){const w=j.querySelector('[data-j="dWork"]');if(w)w.insertAdjacentHTML('afterend','<button type="button" data-j="dTeam">🧑‍💼 Ekip · İşletmeler</button>');}})();
+
+// 📅 İçerik Ajandası · 🔎 Stratejist: pick a business, Eyşan reads its Instagram and writes the content brief + month plan.
+const PL={id:null,data:{},busy:false};
+function plList(arr){return (arr||[]).length?'<ul>'+arr.map(x=>'<li>'+dEsc(typeof x==='string'?x:JSON.stringify(x))+'</li>').join('')+'</ul>':'<p class="empty">—</p>';}
+function plBrief(r){
+ const b=r.brief||{},st=b.stil||{};
+ const when=r.updated_at?new Date(r.updated_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long'}):'';
+ const kamp=(b.kampanyalar||[]).map(k=>'<li><b>'+dEsc(k.ad||'')+'</b> '+dEsc(k.detay||'')+(k.tarih?' <em>('+dEsc(k.tarih)+')</em>':'')+'</li>').join('');
+ const plan=(b.plan||[]).map((p,i)=>'<tr><td>'+(i+1)+'</td><td><span class="plT">'+dEsc(p.tur||'')+'</span></td><td><b>'+dEsc(p.baslik||p.konu||'')+'</b><div>'+dEsc(p.metin||'')+'</div></td><td>'+dEsc(p.gorsel||'')+'</td></tr>').join('');
+ return '<div class="plHead"><b>@'+dEsc(r.username||'')+'</b><span>'+dEsc(when)+' · '+(r.posts||0)+' gönderi incelendi</span></div>'
+  +'<p class="plSum">'+dEsc(b.ozet||'')+'</p>'
+  +'<div class="plGrid">'
+  +'<div><h3>🎨 Stil</h3><ul><li><b>Renk:</b> '+dEsc(st.renkler||'')+'</li><li><b>Fotoğraf:</b> '+dEsc(st.fotograf||'')+'</li><li><b>Yazı:</b> '+dEsc(st.yazi||'')+'</li><li><b>Şablon:</b> '+dEsc(st.sablon||'')+'</li></ul></div>'
+  +'<div><h3>🏷️ Güncel kampanyalar</h3>'+(kamp?'<ul>'+kamp+'</ul>':'<p class="empty">Gönderilerde kampanya yok.</p>')+'</div>'
+  +'<div><h3>✅ İşe yarayan</h3>'+plList(b.ise_yarayan)+'</div>'
+  +'<div><h3>⚠️ Dikkat</h3>'+plList((b.ise_yaramayan||[]).concat(b.dikkat||[]))+'</div>'
+  +'<div><h3>🎥 Çekim listesi</h3>'+plList(b.cekim_listesi)+'</div>'
+  +'<div><h3>🧾 Hizmetler</h3>'+plList(b.hizmetler)+'</div>'
+  +'</div>'
+  +'<h3>📅 Önerilen plan ('+(b.plan||[]).length+')</h3><div class="plTbl"><table><thead><tr><th>#</th><th>Tür</th><th>Başlık / metin</th><th>Görsel ihtiyacı</th></tr></thead><tbody>'+plan+'</tbody></table></div>';
+}
+function renderPlan(){
+ let box=$('dPlan');
+ if(!box){const anchor=$('dTeam')||$('dWork');if(!anchor)return;anchor.insertAdjacentHTML('afterend','<div class="dcard" id="dPlan"></div>');box=$('dPlan');if(DZ.tab===1)box.classList.add('show');}
+ const biz=(DZ.data&&DZ.data.businesses||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+ if(!biz.length){box.innerHTML='';return;}
+ const cur=PL.id&&PL.data[PL.id];
+ box.innerHTML='<h2>📅 İçerik Ajandası<small>🔎 Stratejist profili inceler, plan çıkarır</small></h2>'
+  +'<div class="plBar"><select id="plBiz"><option value="">İşletme seç…</option>'+biz.map(b=>'<option value="'+b.id+'"'+(String(b.id)===String(PL.id)?' selected':'')+'>'+dEsc(b.name)+'</option>').join('')+'</select>'
+  +'<button type="button" class="mini" id="plGo"'+(PL.busy||!PL.id?' disabled':'')+'>'+(PL.busy?'⏳ İnceleniyor…':(cur&&cur.brief?'🔄 Yeniden incele':'🔎 Profili incele'))+'</button></div>'
+  +'<div id="plOut">'+(cur?(cur.error?'<p class="plErr">⚠️ '+dEsc(cur.error)+'</p>':(cur.brief?plBrief(cur):'<p class="empty">Bu işletme için henüz brief yok. “Profili incele”ye bas (yaklaşık 30–60 sn).</p>')):'<p class="empty">Bir işletme seç.</p>')+'</div>';
+ $('plBiz').onchange=async e=>{PL.id=e.target.value||null;renderPlan();if(PL.id&&!PL.data[PL.id]){try{PL.data[PL.id]=await dCall('__brief',{id:Number(PL.id),peek:true});}catch(err){PL.data[PL.id]={};}renderPlan();}};
+ $('plGo').onclick=async()=>{if(!PL.id||PL.busy)return;PL.busy=true;renderPlan();const id=PL.id;
+  try{PL.data[id]=await dCall('__brief',{id:Number(id),fresh:true});}catch(err){PL.data[id]={error:String(err.message||err)};}
+  PL.busy=false;renderPlan();};
+}
+const _renderDashPL=renderDash;renderDash=function(){_renderDashPL.apply(this,arguments);renderPlan();};
+const _dTabPL=dTab;dTab=function(i){_dTabPL(i);const t=$('dPlan');if(t)t.classList.toggle('show',i===1);};
+if(DZ.data)renderPlan();
+(function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dPlan"]')){const w=j.querySelector('[data-j="dTeam"]')||j.querySelector('[data-j="dWork"]');if(w)w.insertAdjacentHTML('afterend','<button type="button" data-j="dPlan">📅 İçerik Ajandası</button>');}})();
+
 </script>
 </body>
 </html>
