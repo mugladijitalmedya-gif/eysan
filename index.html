@@ -860,7 +860,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795461340343';
+const BUILD='1795461699427';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1528,7 +1528,7 @@ if(ADS.data)rpRender();
 (function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dRp"]')){const w=j.querySelector('[data-j="dAds"]');if(w)w.insertAdjacentHTML('beforebegin','<button type="button" data-j="dRp">📊 Reklam Paneli</button>');}})();
 
 // 📸 Instagram Paneli: per-business cards (followers, growth, posting rhythm) → tap for detail with rings, follower chart and last posts.
-const IGP={sel:null,hist:null,media:{},loading:false,err:null};
+const IGP={sel:null,hist:null,media:{},loading:false,err:null,ref:false,refMsg:''};
 function igDays(ms){return ms?Math.floor((Date.now()-ms)/86400e3):null;}
 function igAgo(ms){const d=igDays(ms);return d==null?'—':d===0?'bugün':d===1?'dün':d+' gün önce';}
 function igGrowth(id){
@@ -1582,6 +1582,14 @@ async function igLoad(id){
  catch(e){IGP.err=String(e.message||e);if(!IGP.hist)IGP.hist={};}
  IGP.loading=false;igRender();
 }
+async function igRefresh(){
+ if(IGP.ref)return;IGP.ref=true;IGP.refMsg='Instagram\'dan güncel veriler alınıyor, 10–20 saniye sürebilir…';igRender();
+ try{const r=await dCall('__igrefresh',{});if(r.error)throw Error(r.error);
+  if(r.ok===false){IGP.refMsg=r.msg||'Az önce yenilendi.';}
+  else{IGP.hist=null;IGP.media={};IGP.refMsg='Güncellendi · '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});const b=$('dRefresh');if(b)b.click();}
+ }catch(e){IGP.refMsg='Yenilenemedi: '+String(e.message||e).slice(0,80);}
+ IGP.ref=false;igRender();
+}
 function igRender(){
  let box=$('dIg');
  if(!box){const anchor=$('dBiz');if(!anchor)return;anchor.insertAdjacentHTML('beforebegin','<div class="dcard rpCardBox" id="dIg"></div>');box=$('dIg');if(DZ.tab===2)box.classList.add('show');}
@@ -1594,7 +1602,8 @@ function igRender(){
   const k=rows.filter(r=>r.durum==='kirmizi').length,s=rows.filter(r=>r.durum==='sari').length,y=rows.length-k-s;
   const tot=rows.reduce((a,r)=>a+r.f,0),gain=rows.reduce((a,r)=>a+(r.g?r.g.diff:0),0),gd=Math.max(0,...rows.map(r=>r.g?r.g.days:0));
   const pd=rows.reduce((a,r)=>a+(r.plan?r.plan.done:0),0),pt=rows.reduce((a,r)=>a+(r.plan?r.plan.total:0),0),pp=pt?Math.round(pd/pt*100):null;
-  h+='<div class="rpHead"><h1>Instagram</h1><span class="rpChip">'+dEsc(day)+'</span></div>'
+  h+='<div class="rpHead"><h1>Instagram</h1><button type="button" class="rpBtn" id="igRef"'+(IGP.ref?' disabled':'')+'>'+(IGP.ref?'⏳ Yenileniyor…':'🔄 Şimdi yenile')+'</button></div>'
+   +'<p class="rpMut">'+dEsc(IGP.refMsg||'Saatte bir kendiliğinden yenilenir.')+'</p>'
    +'<p class="rpTop">'+(k?k+' işletmede 7 günden uzun süredir paylaşım yok'+(s?', '+s+' işletme yavaşladı':'')+'.':s?s+' işletmede paylaşım yavaşladı.':'Tüm işletmeler düzenli paylaşıyor.')+(gd?' Son '+gd+' günde toplam '+(gain>=0?'+':'−')+rpN(Math.abs(gain))+' takipçi.':'')+'</p>'
    +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:y,c:'var(--rp-ok)'},{v:s,c:'var(--rp-warn)'},{v:k,c:'var(--rp-bad)'}],rows.length,String(y),rows.length+' işletmeden')+'<div class="t">Düzenli paylaşan işletme</div><div class="s">yeşil: 3 gün içinde · sarı: 4–7 gün · kırmızı: 7+ gün</div></div>'
    +'<div class="rpRing rpG">'+rpRing([{v:pp||0,c:'var(--rp-acc)'}],100,pp==null?'—':'%'+pp,pd+' / '+pt+' paylaşım')+'<div class="t">Bu ayın içerik planı</div><div class="s">Planlanan paylaşımların ne kadarı yapıldı</div></div></div>'
@@ -1619,6 +1628,7 @@ function igRender(){
  }
  box.innerHTML=h+'</div>';
  box.querySelectorAll('[data-ig]').forEach(b=>b.onclick=()=>{IGP.sel=b.dataset.ig;igRender();box.scrollIntoView({block:'start'});});
+ const rb=$('igRef');if(rb)rb.onclick=igRefresh;
  const bk=$('igBack');if(bk)bk.onclick=()=>{IGP.sel=null;igRender();box.scrollIntoView({block:'start'});};
  const ch=box.querySelector('.rpChart'),tip=box.querySelector('.rpTip');
  if(ch&&tip){ch.onpointermove=e=>{const t=e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}const rc=ch.getBoundingClientRect();tip.hidden=false;tip.textContent=t.dataset.tip;tip.style.left=Math.min(e.clientX-rc.left+10,rc.width-170)+'px';tip.style.top=Math.max(0,e.clientY-rc.top-32)+'px';};ch.onpointerleave=()=>{tip.hidden=true;};}
