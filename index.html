@@ -335,6 +335,57 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .plErr{color:#ff8a9a}
 @media (min-width:901px){#dash #dPlan{grid-column:1/-1;scroll-margin-top:64px}}
 
+
+/* 📊 Reklam Paneli (sade, koyu) */
+#dash #dRp{background:radial-gradient(900px 420px at 0% -10%,rgba(139,123,255,.22),transparent 60%),radial-gradient(700px 420px at 110% 0%,rgba(34,195,180,.16),transparent 55%),#0b0f17;border-color:rgba(255,255,255,.08);padding:20px 16px 24px}
+@media (min-width:901px){#dash #dRp{grid-column:1/-1;scroll-margin-top:64px}}
+#dash .rp{--rp-fg:#eef2f8;--rp-mut:#8d98ab;--rp-line:rgba(255,255,255,.08);--rp-ok:#2fd38a;--rp-warn:#ffb648;--rp-bad:#ff5d73;--rp-acc:#8b7bff;color:var(--rp-fg);display:flex;flex-direction:column;gap:14px}
+#dash .rp h1{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:0}
+#dash .rpHead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#dash .rpChip{font-size:12px;color:var(--rp-mut);border:1px solid var(--rp-line);background:rgba(255,255,255,.045);border-radius:999px;padding:5px 11px}
+#dash .rpTop{font-size:15.5px;margin:0;color:#d9dfea}
+#dash .rpMut{color:var(--rp-mut);font-size:12.5px;margin:0}
+#dash .rpG{background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border:1px solid var(--rp-line);border-radius:18px;box-shadow:0 10px 30px -18px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.06)}
+#dash .rpRings{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+#dash .rpRing{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px}
+#dash .rpRing .rw{position:relative;width:140px;height:140px}
+#dash .rpRing .rw svg{position:absolute;inset:0;width:100%;height:100%}
+#dash .rpRing circle[data-to]{transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1)}
+#dash .rpRing .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#dash .rpRing .c b{font-size:30px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+#dash .rpRing .c small{font-size:11px;color:var(--rp-mut);margin-top:5px;max-width:105px}
+#dash .rpRing .t{font-size:13.5px;font-weight:600;margin-top:4px}
+#dash .rpRing .s{font-size:11.5px;color:var(--rp-mut);text-align:center}
+#dash .rpSec{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--rp-mut);margin:8px 2px 0}
+#dash .rpCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+#dash .rpCard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:14px 16px 12px;position:relative;overflow:hidden;color:var(--rp-fg);font-family:inherit;transition:transform .18s,border-color .18s}
+#dash .rpCard::before,#dash .rpNotes li::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--c);box-shadow:0 0 14px var(--c)}
+#dash .rpCard:hover,#dash .rpCard:focus-visible{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+#dash .rpCard .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#dash .rpCard .n{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dash .rpPill{flex:none;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+#dash .rpCard .big{font-size:25px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#dash .rpCard .big small{font-size:13px;font-weight:500;color:var(--rp-mut);letter-spacing:0;margin-left:5px}
+#dash .rpCard .spark{height:34px}
+#dash .rpCard .spark svg{width:100%;height:34px;display:block}
+#dash .rpCard .why{font-size:12.5px;color:var(--c)}
+#dash .rpBack{all:unset;cursor:pointer;color:var(--rp-mut);font-size:14px}
+#dash .rpBack:hover{color:var(--rp-fg)}
+#dash .rpTiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}
+#dash .rpTile{padding:13px 15px}
+#dash .rpTile .l{font-size:11px;color:var(--rp-mut);text-transform:uppercase;letter-spacing:.07em}
+#dash .rpTile b{display:block;font-size:24px;font-weight:700;letter-spacing:-.03em;margin-top:4px;font-variant-numeric:tabular-nums}
+#dash .rpNotes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+#dash .rpNotes li{padding:11px 14px 11px 16px;font-size:14.5px;position:relative;overflow:hidden}
+#dash .rpBox{padding:14px 16px}
+#dash .rpBox h3{font-size:14px;font-weight:600;margin:0 0 8px}
+#dash .rpChart{position:relative;min-height:170px}
+#dash .rpChart svg text{fill:var(--rp-mut);font-size:11px}
+#dash .rpTip{position:absolute;pointer-events:none;background:#161c28;color:var(--rp-fg);border:1px solid var(--rp-line);box-shadow:0 8px 24px -8px rgba(0,0,0,.7);border-radius:10px;padding:6px 10px;font-size:12px;white-space:nowrap}
+#dash .rpAct{display:flex;gap:8px;flex-wrap:wrap}
+#dash .rpBtn{all:unset;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--rp-fg);padding:8px 14px;border-radius:999px;border:1px solid rgba(139,123,255,.45);background:linear-gradient(180deg,rgba(139,123,255,.28),rgba(139,123,255,.1));box-shadow:0 0 18px -6px rgba(139,123,255,.7)}
+#dash .rpBtn:hover{background:rgba(139,123,255,.35)}
+#dash .rpBtn#rpTalk{border-color:rgba(34,195,180,.45);background:linear-gradient(180deg,rgba(34,195,180,.26),rgba(34,195,180,.08));box-shadow:0 0 18px -6px rgba(34,195,180,.7)}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -423,7 +474,7 @@ async function startEleven(s){
  };
  conv=await ElevenLabsClient.Conversation.startSession({
   signedUrl:s.signed_url,connectionType:'websocket',
-  overrides:{agent:{prompt:{prompt:s.prompt},firstMessage:s.first_message,language:'tr'}},
+  overrides:{agent:{prompt:{prompt:s.prompt+(await rpVoiceCtx())},firstMessage:s.first_message,language:'tr'}},
   clientTools:tools,
   onMessage:m=>{const t=String(m?.message||'').trim();if(!t||/^[.…\s]*$/.test(t))return;const u=(m.role||m.source)==='user';{const o=$('orbText');o.textContent=t.length>220?t.slice(0,217)+'…':t;o.classList.toggle('ai',!u);}add(u?'msg you':'msg eysan',t);logTurn(u?'user':'assistant',t);},
   onModeChange:m=>{if(m?.mode==='speaking'){agentTalking=true;if(conv&&!micMuted)muteMic(true);setStatus('Eyşan konuşuyor…');}else if(agentTalking){agentTalking=false;muteMic(false);}else setStatus(micMuted?'🎙️ Konuşmak için mikrofona dokunun':'🔴 Dinliyorum, bitince mikrofona tekrar dokunun');},
@@ -728,7 +779,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795351191860';
+const BUILD='1795454130657';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1227,6 +1278,143 @@ const _dTabPL=dTab;dTab=function(i){_dTabPL(i);const t=$('dPlan');if(t)t.classLi
 if(DZ.data)renderPlan();
 (function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dPlan"]')){const w=j.querySelector('[data-j="dTeam"]')||j.querySelector('[data-j="dWork"]');if(w)w.insertAdjacentHTML('afterend','<button type="button" data-j="dPlan">📅 İçerik Ajandası</button>');}})();
 
+
+// 📊 Reklam Paneli (sade): status cards per business → tap for detail with rings + 30-day chart. Live from ADS / AW (same data as 📣 Reklamlar).
+const RP={sel:null,trLoading:false};
+const RPC={kirmizi:'var(--rp-bad)',sari:'var(--rp-warn)',yesil:'var(--rp-ok)'},RPL={kirmizi:'Bak',sari:'İzle',yesil:'Yolunda'};
+function rpTl(v){return v==null||isNaN(v)?'—':'₺'+Number(v).toLocaleString('tr-TR',{maximumFractionDigits:Number(v)<100?2:0});}
+function rpN(v){return v==null?'—':Number(v).toLocaleString('tr-TR');}
+function rpRows(){
+ const A=ADS.data;if(!A||!A.accounts)return [];
+ const bz={};(DZ.data&&DZ.data.businesses||[]).forEach(b=>bz[b.id]=b.name);
+ const wk={};((AW.data&&AW.data.accounts)||[]).forEach(w=>wk[w.id]=w);
+ const now=new Date(),day=now.getDate(),mlen=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ return A.accounts.filter(a=>!a.err&&a.month).map(a=>{
+  const r=a.month.results||{},t=a.todayRes||{},w=wk[a.id]||{};
+  const name=Number(a.business)===-2?'Emel Hazır – '+String(a.name||'').trim().replace(/fetihye/i,'Fethiye').replace(/ Reklam Hesabi$/i,''):(bz[a.business]||String(a.name||'').trim());
+  const mesaj=r.mesaj||0,profil=r.profil||0,spend=a.month.spend||0;
+  const mesajli=mesaj>=Math.max(10,profil*0.05);
+  const sonuc=mesajli?mesaj:profil;
+  const butce=(a.camps||[]).reduce((s,c)=>s+(c.daily||0),0);
+  const bugun=a.today||0;
+  const ayni=w.unit&&(mesajli?w.unit.k==='mesaj':w.unit.k!=='mesaj');
+  const h=ayni?w.unit.c:0,o=ayni&&w.oldUnit&&w.oldUnit.k===w.unit.k?w.oldUnit.c:0;
+  const notlar=[];let durum='yesil';
+  if(h&&o&&h/o>=1.3){durum='kirmizi';notlar.push('Son 7 günde '+w.unit.k+' maliyeti %'+Math.round((h/o-1)*100)+' arttı.');}
+  if(mesajli&&sonuc&&spend/sonuc>150){durum='kirmizi';notlar.push('Mesaj başı '+rpTl(Math.round(spend/sonuc))+' — pahalı.');}
+  if(!bugun&&butce>0){if(durum==='yesil')durum='sari';notlar.push('Bugün hiç harcama yok, reklam durmuş olabilir.');}
+  if(h&&o&&h/o<=0.8)notlar.push('Son 7 günde '+w.unit.k+' maliyeti %'+Math.round((1-h/o)*100)+' ucuzladı. 👍');
+  if(!notlar.length)notlar.push('Her şey normal görünüyor.');
+  const prev=(a.prev&&a.prev.spend)||0,tahmin=spend/day*mlen;
+  return {id:a.id,ad:name,durum,notlar,harcama:spend,sonuc,sonucAdi:mesajli?'mesaj':'profil ziyareti',sonucBasi:sonuc?spend/sonuc:null,
+   bugun,butce,kullanim:butce?Math.round(bugun/butce*100):null,tahmin,prev,oran:prev?Math.round(tahmin/prev*100):null};
+ }).sort((x,y)=>({kirmizi:0,sari:1,yesil:2}[x.durum]-{kirmizi:0,sari:1,yesil:2}[y.durum])||y.harcama-x.harcama);
+}
+function rpRing(segs,total,num,sub){
+ const S=150,R=62,w=14,C=2*Math.PI*R;let off=0,out='';const gap=segs.filter(s=>s.v>0).length>1?3:0;
+ segs.forEach(sg=>{const f=Math.min(1,total?sg.v/total:0);if(f<=0)return;const len=Math.max(0,f*C-gap);
+  out+='<circle cx="75" cy="75" r="'+R+'" fill="none" stroke="'+sg.c+'" stroke-width="'+w+'" stroke-linecap="round" transform="rotate(-90 75 75)" stroke-dashoffset="'+(-off)+'" stroke-dasharray="0 '+C+'" data-to="'+len+' '+C+'" style="filter:drop-shadow(0 0 5px '+sg.c+')"/>';off+=f*C;});
+ return '<div class="rw"><svg viewBox="0 0 '+S+' '+S+'" role="img"><circle cx="75" cy="75" r="'+R+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+w+'"/>'+out+'</svg><div class="c"><b>'+dEsc(num)+'</b><small>'+dEsc(sub)+'</small></div></div>';
+}
+function rpUse(p){return p==null?'var(--rp-mut)':p>110?'var(--rp-bad)':p>=60?'var(--rp-ok)':'var(--rp-warn)';}
+function rpSpark(id,c){
+ const d=AW.trend[id];if(!Array.isArray(d)||d.length<2)return '';const days=d.slice(-14),W=220,H=34,mx=Math.max(1,...days.map(x=>x.spend||0));
+ const pts=days.map((x,i)=>[2+i*(W-4)/(days.length-1),H-3-(H-6)*(x.spend||0)/mx]);
+ const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+ return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="rpg'+id+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+c+'" stop-opacity=".35"/><stop offset="1" stop-color="'+c+'" stop-opacity="0"/></linearGradient></defs><path d="'+line+' L'+(W-2)+' '+H+' L2 '+H+' Z" fill="url(#rpg'+id+')"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>';
+}
+function rpBars(id){
+ const d=AW.trend[id];if(!Array.isArray(d))return '<div class="empty">'+(d&&d.err?'Grafik yüklenemedi.':'Son 30 gün yükleniyor…')+'</div>';
+ if(!d.length)return '<div class="empty">Son 30 günde harcama yok.</div>';
+ const W=640,H=190,l=46,b=24,t=10,mx=Math.max(1,...d.map(x=>x.spend||0)),step=(W-l-6)/d.length,bw=Math.max(2,step*0.78);
+ const nice=Math.pow(10,Math.floor(Math.log10(mx)));const top=Math.ceil(mx/nice)*nice;const y=v=>H-b-(H-b-t)*v/top;
+ let g='';for(let i=0;i<=4;i++){const v=top*i/4;g+='<line x1="'+l+'" x2="'+(W-6)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="rgba(255,255,255,.06)"/><text x="'+(l-6)+'" y="'+(y(v)+4)+'" text-anchor="end">₺'+(v>=1000?(v/1000).toLocaleString('tr-TR',{maximumFractionDigits:1})+'b':Math.round(v))+'</text>';}
+ const every=Math.ceil(d.length/7);
+ d.forEach((x,i)=>{const X=l+i*step+(step-bw)/2,Y=y(x.spend||0);const lab=String(x.day||'').slice(8)+'.'+String(x.day||'').slice(5,7);
+  g+='<rect x="'+X.toFixed(1)+'" y="'+Y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+(H-b-Y).toFixed(1)+'" rx="2" fill="'+((x.spend||0)>0?'var(--rp-acc)':'rgba(255,255,255,.08)')+'" data-tip="'+lab+' · '+rpTl(x.spend||0)+((x.mesaj)?' · '+x.mesaj+' mesaj':'')+'"/>';
+  if(i%every===0)g+='<text x="'+(X+bw/2)+'" y="'+(H-6)+'" text-anchor="middle">'+lab+'</text>';});
+ return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Son 30 gün günlük harcama">'+g+'</svg><div class="rpTip" hidden></div>';
+}
+function rpLoadTrends(rows){
+ if(RP.trLoading)return;const need=rows.filter(r=>!AW.trend[r.id]&&!AW.trendLoading[r.id]);if(!need.length)return;RP.trLoading=true;
+ const key='rp_tr_'+new Date().toISOString().slice(0,10);let cache={};try{cache=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){}
+ need.forEach(r=>{if(cache[r.id])AW.trend[r.id]=cache[r.id];});
+ const todo=need.filter(r=>!AW.trend[r.id]);
+ (async()=>{for(let i=0;i<todo.length;i+=3){await Promise.all(todo.slice(i,i+3).map(r=>loadTrend(r.id)));}
+  try{const c={};rows.forEach(r=>{if(Array.isArray(AW.trend[r.id]))c[r.id]=AW.trend[r.id];});Object.keys(localStorage).filter(k=>k.startsWith('rp_tr_')&&k!==key).forEach(k=>localStorage.removeItem(k));localStorage.setItem(key,JSON.stringify(c));}catch(e){}
+  RP.trLoading=false;rpRender();})();
+ if(todo.length<need.length)setTimeout(rpRender,0);
+}
+// 🔊 Read the summary aloud (phone's own voice) · 🎙️ voice chat gets the ads summary in its prompt.
+function rpSayText(rows,cur){
+ const k=rows.filter(r=>r.durum==='kirmizi'),s=rows.filter(r=>r.durum==='sari');
+ if(cur)return (cur.ad+'. Bu ay '+Math.round(cur.harcama)+' lira harcandı, '+cur.sonuc+' '+cur.sonucAdi+' geldi. '+(cur.sonucBasi?'Sonuç başı '+cur.sonucBasi.toFixed(cur.sonucBasi<100?1:0).replace('.',',')+' lira. ':'')+'Bugün '+Math.round(cur.bugun)+' lira harcandı. '+cur.notlar.join(' ').replace(/👍/g,'')).replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
+ let t=k.length||s.length?'Bugün '+k.length+' işletmeye bakman lazım, '+s.length+' işletmeyi izle. ':'Bugün bütün reklamlar yolunda. ';
+ k.forEach(r=>{t+=r.ad+': '+r.notlar[0]+' ';});
+ if(s.length)t+='Bugün harcaması olmayanlar: '+s.map(r=>r.ad).join(', ')+'. ';
+ return t.replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
+}
+function rpSay(text,btn){
+ const ss=window.speechSynthesis;if(!ss){alert('Bu cihaz sesli okumayı desteklemiyor.');return;}
+ if(ss.speaking){ss.cancel();if(btn)btn.textContent='🔊 Durumu oku';return;}
+ const u=new SpeechSynthesisUtterance(text);u.lang='tr-TR';u.rate=1.02;const v=ss.getVoices().find(x=>/^tr/i.test(x.lang));if(v)u.voice=v;
+ u.onend=u.onerror=()=>{if(btn)btn.textContent='🔊 Durumu oku';};if(btn)btn.textContent='⏹ Durdur';ss.speak(u);
+}
+async function rpVoiceCtx(){
+ try{
+  if(!ADS.data)ADS.data=await Promise.race([dCall('__ads'),new Promise((_,j)=>setTimeout(()=>j(Error('t')),6000))]);
+  const rows=rpRows();if(!rows.length)return '';
+  const L={kirmizi:'KIRMIZI (bakılmalı)',sari:'SARI (izle)',yesil:'yeşil'};
+  return '\n\n# Reklam durumu ('+new Date(ADS.data.at||Date.now()).toLocaleString('tr-TR')+', Meta reklam hesapları)\nKullanıcı reklamları sorarsa SADECE bu veriye dayan, rakam uydurma; liraları ve sayıları yuvarlayarak kısa söyle.\n'
+   +rows.map(r=>'- '+r.ad+' | '+L[r.durum]+' | bu ay '+Math.round(r.harcama)+' TL, '+r.sonuc+' '+r.sonucAdi+(r.sonucBasi?', sonuç başı '+r.sonucBasi.toFixed(2)+' TL':'')+' | bugün '+Math.round(r.bugun)+' TL / günlük bütçe '+Math.round(r.butce)+' TL | geçen ay '+Math.round(r.prev)+' TL | '+r.notlar.join(' ').replace(/👍/g,'')).join('\n');
+ }catch(e){return '';}
+}
+function rpActs(){return '<div class="rpAct"><button type="button" class="rpBtn" id="rpSay">🔊 Durumu oku</button><button type="button" class="rpBtn" id="rpTalk">🎙️ Eyşan\'la konuş</button></div>';}
+function rpRender(){
+ let box=$('dRp');
+ if(!box){const anchor=$('dAds');if(!anchor)return;anchor.insertAdjacentHTML('beforebegin','<div class="dcard" id="dRp"></div>');box=$('dRp');if(DZ.tab===3)box.classList.add('show');}
+ const rows=rpRows();
+ if(!rows.length){box.innerHTML='<div class="rp"><h1>Reklamlar</h1><p class="rpMut">'+(ADS.data?'Reklam hesabı bulunamadı.':'Yükleniyor…')+'</p></div>';return;}
+ const at=ADS.data.at?new Date(ADS.data.at).toLocaleString('tr-TR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'';
+ const cur=RP.sel&&rows.find(r=>r.id===RP.sel);
+ let h='<div class="rp">';
+ if(!cur){
+  const k=rows.filter(r=>r.durum==='kirmizi').length,s=rows.filter(r=>r.durum==='sari').length,y=rows.length-k-s;
+  const bt=rows.reduce((a,r)=>a+r.bugun,0),bb=rows.reduce((a,r)=>a+r.butce,0),ku=bb?Math.round(bt/bb*100):null;
+  h+='<div class="rpHead"><h1>Reklamlar</h1><span class="rpChip">'+dEsc(at)+'</span></div>'
+   +'<p class="rpTop">'+(k||s?'Bugün '+k+' işletmeye bakman lazım, '+s+' işletmeyi izle. Gerisi yolunda.':'Bugün her şey yolunda.')+'</p>'+rpActs()
+   +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:y,c:'var(--rp-ok)'},{v:s,c:'var(--rp-warn)'},{v:k,c:'var(--rp-bad)'}],rows.length,String(y),rows.length+' işletmeden')+'<div class="t">Yolunda giden işletme</div><div class="s">yeşil · sarı: izle · kırmızı: bak</div></div>'
+   +'<div class="rpRing rpG">'+rpRing([{v:ku||0,c:rpUse(ku)}],100,ku==null?'—':'%'+ku,rpTl(bt)+' / '+rpTl(bb))+'<div class="t">Bugünkü bütçe kullanımı</div><div class="s">Bugün harcanan / günlük bütçelerin toplamı</div></div></div>'
+   +'<p class="rpSec">İşletmeler · dokun, detay açılsın</p><div class="rpCards">'
+   +rows.map(r=>'<button type="button" class="rpCard rpG" data-rp="'+dEsc(r.id)+'" style="--c:'+RPC[r.durum]+'"><div class="row"><div class="n">'+dEsc(r.ad)+'</div><span class="rpPill">'+RPL[r.durum]+'</span></div>'
+     +'<div class="big">'+rpN(r.sonuc)+'<small>'+r.sonucAdi+'</small></div><div class="spark">'+rpSpark(r.id,RPC[r.durum])+'</div>'
+     +'<div class="rpMut">'+rpTl(r.harcama)+' harcandı · sonuç başı '+rpTl(r.sonucBasi)+'</div><div class="why">'+dEsc(r.durum==='yesil'?'Her şey yolunda':r.notlar[0])+'</div></button>').join('')+'</div>';
+ }else{
+  const r=cur;
+  h+='<button type="button" class="rpBack" id="rpBack">← Tüm işletmeler</button>'
+   +'<div class="rpHead"><h1>'+dEsc(r.ad)+'</h1><span class="rpPill" style="--c:'+RPC[r.durum]+'">'+RPL[r.durum]+'</span></div>'
+   +rpActs()+'<div class="rpTiles"><div class="rpTile rpG"><div class="l">Bu ay harcama</div><b>'+rpTl(r.harcama)+'</b></div><div class="rpTile rpG"><div class="l">Bu ay '+r.sonucAdi+'</div><b>'+rpN(r.sonuc)+'</b></div>'
+   +'<div class="rpTile rpG"><div class="l">Sonuç başı maliyet</div><b>'+rpTl(r.sonucBasi)+'</b></div><div class="rpTile rpG"><div class="l">Bugün harcama</div><b>'+rpTl(r.bugun)+'</b></div></div>'
+   +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:r.kullanim||0,c:rpUse(r.kullanim)}],100,r.kullanim==null?'—':'%'+r.kullanim,rpTl(r.bugun)+' / '+rpTl(r.butce))+'<div class="t">Bugünkü bütçe kullanımı</div><div class="s">Bugün harcanan / günlük bütçe</div></div>'
+   +'<div class="rpRing rpG">'+rpRing([{v:r.oran||0,c:'var(--rp-acc)'}],100,r.oran==null?'yeni':'%'+r.oran,r.oran==null?'geçen ay reklam yok':rpTl(r.tahmin)+' / '+rpTl(r.prev))+'<div class="t">Geçen aya göre</div><div class="s">Bu hızla ay sonu harcaması / geçen ayın harcaması</div></div></div>'
+   +'<ul class="rpNotes">'+r.notlar.map(t=>'<li class="rpG" style="--c:'+(/👍|normal/.test(t)?'var(--rp-ok)':/durmuş/.test(t)?'var(--rp-warn)':'var(--rp-bad)')+'">'+dEsc(t)+'</li>').join('')+'</ul>'
+   +'<div class="rpBox rpG"><h3>Son 30 gün harcama</h3><div class="rpChart">'+rpBars(r.id)+'</div></div>';
+  if(!AW.trend[r.id])loadTrend(r.id).then(rpRender);
+ }
+ box.innerHTML=h+'</div>';
+ box.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{RP.sel=b.dataset.rp;rpRender();box.scrollIntoView({block:'start'});});
+ const sb=$('rpSay');if(sb)sb.onclick=()=>rpSay(rpSayText(rows,cur),sb);
+ const tb=$('rpTalk');if(tb)tb.onclick=()=>{try{speechSynthesis.cancel();}catch(e){}dashShow(false);};
+ const bk=$('rpBack');if(bk)bk.onclick=()=>{RP.sel=null;rpRender();box.scrollIntoView({block:'start'});};
+ const ch=box.querySelector('.rpChart'),tip=box.querySelector('.rpTip');
+ if(ch&&tip){ch.onpointermove=e=>{const t=e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}const rc=ch.getBoundingClientRect();tip.hidden=false;tip.textContent=t.dataset.tip;tip.style.left=Math.min(e.clientX-rc.left+10,rc.width-150)+'px';tip.style.top=Math.max(0,e.clientY-rc.top-32)+'px';};ch.onpointerleave=()=>{tip.hidden=true;};}
+ requestAnimationFrame(()=>box.querySelectorAll('circle[data-to]').forEach(c=>c.setAttribute('stroke-dasharray',c.dataset.to)));
+ if(!cur)rpLoadTrends(rows);
+}
+const _renderAdsRP=renderAds;renderAds=function(){_renderAdsRP.apply(this,arguments);rpRender();};
+const _dTabRP=dTab;dTab=function(i){_dTabRP(i);const t=$('dRp');if(t)t.classList.toggle('show',i===3);};
+if(ADS.data)rpRender();
+(function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dRp"]')){const w=j.querySelector('[data-j="dAds"]');if(w)w.insertAdjacentHTML('beforebegin','<button type="button" data-j="dRp">📊 Reklam Paneli</button>');}})();
 </script>
 </body>
 </html>
