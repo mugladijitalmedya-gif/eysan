@@ -397,6 +397,76 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .igPost .vk{position:absolute;top:6px;right:8px;font-size:12px;background:rgba(0,0,0,.55);border-radius:999px;padding:2px 7px}
 #dash .igPost .bk{position:absolute;left:6px;bottom:6px;font-size:10.5px;font-weight:700;color:#1a1204;background:#ffb648;border-radius:999px;padding:2px 8px}
 #dash .igPost .mt{font-size:11.5px;color:#8d98ab;padding:6px 8px}
+
+/* ✨ Koyu tema (Reklam / Instagram panelleriyle aynı) */
+body.uiDark #dash{--bg:#0b0f17;--panel:#121826;--panel2:#161d2c;--line:rgba(255,255,255,.08);--text:#eef2f8;--muted:#8d98ab;--accent:#8b7bff;--accent-ink:#0b0f17;--rp-ok:#2fd38a;--rp-warn:#ffb648;--rp-bad:#ff5d73;--rp-acc:#8b7bff;--rp-mut:#8d98ab;--rp-fg:#eef2f8;
+ background:radial-gradient(1100px 520px at 0% -10%,rgba(139,123,255,.20),transparent 60%),radial-gradient(900px 520px at 110% 0%,rgba(34,195,180,.14),transparent 55%),#0b0f17}
+body.uiDark #dash .top img{box-shadow:0 0 0 2px rgba(139,123,255,.6),0 0 18px rgba(139,123,255,.35)}
+body.uiDark #dash .top h1{font-size:21px;font-weight:700;letter-spacing:-.02em}
+body.uiDark #dash .chip{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#eef2f8;border-radius:999px}
+body.uiDark #dash .dcard{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:20px;box-shadow:0 14px 36px -22px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(8px)}
+body.uiDark #dash .dcard h2{font-size:16px;font-weight:700;letter-spacing:-.01em}
+/* Brifing */
+body.uiDark #dash .sumcard{background:linear-gradient(135deg,rgba(139,123,255,.16),rgba(34,195,180,.08) 70%),rgba(255,255,255,.02);border:1px solid rgba(139,123,255,.28);border-radius:22px;box-shadow:0 18px 40px -26px rgba(139,123,255,.8);padding:16px 18px}
+body.uiDark #dash .sumcard .sh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+body.uiDark #dash .sumcard .sh b{font-size:17px;letter-spacing:-.01em}
+body.uiDark #dash .sumcard .uiSay{margin-left:auto}
+body.uiDark #dash .sumcard .sl{position:relative;padding:9px 12px 9px 16px;margin:6px 0;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s,transform .15s;overflow:hidden}
+body.uiDark #dash .sumcard .sl::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--c,#2fd38a);box-shadow:0 0 12px var(--c,#2fd38a)}
+body.uiDark #dash .sumcard .sl:hover{background:rgba(255,255,255,.07);transform:translateX(2px)}
+body.uiDark #dash .sumcard .sl::after{content:"›";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8d98ab;font-size:18px}
+/* Sayı kutuları */
+body.uiDark #dash .kpi{--k:#2fd38a;background:linear-gradient(145deg,color-mix(in srgb,var(--k) 20%,rgba(18,24,38,.9)),rgba(18,24,38,.9) 70%);border:1px solid color-mix(in srgb,var(--k) 30%,rgba(255,255,255,.06));border-radius:18px;box-shadow:0 12px 30px -22px var(--k);transition:transform .15s}
+body.uiDark #dash .kpi:hover{transform:translateY(-2px)}
+body.uiDark #dash .kpi::after{background:var(--k);box-shadow:0 0 14px var(--k);width:3px}
+body.uiDark #dash .kpi.r{--k:#ff5d73}body.uiDark #dash .kpi.o{--k:#ffb648}body.uiDark #dash .kpi.b{--k:#5b8cff}
+body.uiDark #dash .kpi b{color:color-mix(in srgb,var(--k) 75%,#fff);font-size:30px;letter-spacing:-.03em}
+/* 4 sekme her ekranda; eski düğme kalabalığı gizli */
+body.uiDark #dash .jump{display:none}
+body.uiDark #dash .tabs{display:flex;gap:6px;margin-bottom:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:5px;position:sticky;top:0;z-index:3;backdrop-filter:blur(10px)}
+body.uiDark #dash .tabs button{flex:1;border:0;background:none;color:#8d98ab;padding:10px 0;border-radius:12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+body.uiDark #dash .tabs button.on{background:linear-gradient(135deg,#8b7bff,#22c3b4);color:#fff;box-shadow:0 6px 20px -8px rgba(139,123,255,.8)}
+body.uiDark #dash .grid>.dcard:not(.show){display:none}
+@media (min-width:901px){body.uiDark #dash .grid{grid-template-columns:1fr 1fr}}
+/* Ajanda: zaman çizelgesi */
+body.uiDark #dash #dAgenda .ev{position:relative;padding-left:16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin:8px 0}
+body.uiDark #dash #dAgenda .ev::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:linear-gradient(#8b7bff,#22c3b4);box-shadow:0 0 10px rgba(139,123,255,.7)}
+body.uiDark #dash #dAgenda .ev time{color:#b9b0ff;font-weight:700}
+body.uiDark #dash #dAgenda .ev.past{opacity:.7}
+body.uiDark #dash #dAgenda .sub h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8d98ab}
+body.uiDark #dash #dAgenda .li{border-radius:12px;padding:8px 10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);margin:6px 0}
+body.uiDark #dash .seg{background:rgba(255,255,255,.05);border-radius:999px}
+body.uiDark #dash .seg button.on{background:linear-gradient(135deg,#8b7bff,#22c3b4);color:#fff}
+/* Ekip */
+body.uiDark #dash #dWork .pp{display:flex;align-items:center;gap:10px;padding:6px 4px}
+body.uiDark #dash .uiAv{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 70% 55%),hsl(calc(var(--h) + 40) 70% 40%));box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+body.uiDark #dash #dWork .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.05)}
+body.uiDark #dash #dWork .bar i.l{background:linear-gradient(90deg,#ff5d73,#ff8a9a)!important}
+body.uiDark #dash #dWork .bar i.t{background:linear-gradient(90deg,#ffb648,#ffd08a)!important}
+body.uiDark #dash #dWork .bar i.o{background:linear-gradient(90deg,#2fd38a,#7ff0bd)!important}
+body.uiDark #dash .mini,body.uiDark #dash .okb{border-radius:999px}
+body.uiDark #dash #dWork .pp .n{min-width:130px}
+body.uiDark #dashFab{background:linear-gradient(135deg,#8b7bff,#22c3b4)!important;color:#fff!important;box-shadow:0 10px 30px -10px rgba(139,123,255,.9)!important}
+body.uiDark #dash .sumcard .sl{padding-right:30px}
+@media (max-width:900px){
+ body.uiDark #dash .top{gap:10px;margin-bottom:12px}
+ body.uiDark #dash .top img{width:38px;height:38px}
+ body.uiDark #dash .top>div:not(.sp){min-width:0;flex:1}
+ body.uiDark #dash .top h1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ body.uiDark #dash .top p{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ body.uiDark #dash .top .sp{display:none}
+ body.uiDark #dash .top .chip{padding:7px 10px;font-size:15px;white-space:nowrap}
+ body.uiDark #dash .top .chip .tx{display:none}
+ body.uiDark #dash .sumcard{padding:12px 12px}
+ body.uiDark #dash .sumcard .sh b{font-size:15.5px}
+ body.uiDark #dash .sumcard .sl{font-size:14px;padding:8px 28px 8px 14px}
+ body.uiDark #dash .uiSay{padding:7px 11px;font-size:12.5px}
+ body.uiDark #dash .kpis{display:flex;overflow-x:auto;gap:8px;scroll-snap-type:x mandatory;padding-bottom:4px;scrollbar-width:none}
+ body.uiDark #dash .kpis::-webkit-scrollbar{display:none}
+ body.uiDark #dash .kpi{flex:0 0 31%;scroll-snap-align:start}
+ body.uiDark #dash .kpi b{font-size:24px}
+ body.uiDark #dash .tabs button{font-size:13px}
+}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -790,7 +860,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795460129447';
+const BUILD='1795460647783';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1541,6 +1611,42 @@ const _renderBizIG=renderBiz;renderBiz=function(){_renderBizIG.apply(this,argume
 const _dTabIG=dTab;dTab=function(i){_dTabIG(i);const t=$('dIg');if(t)t.classList.toggle('show',i===2);};
 if(DZ.data)igRender();
 (function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dIg"]')){const w=j.querySelector('[data-j="dBiz"]');if(w)w.insertAdjacentHTML('beforebegin','<button type="button" data-j="dIg">📸 Instagram Paneli</button>');}})();
+
+// ✨ Görünüm: koyu tema, 4 sekme (masaüstünde de), tıklanabilir brifing + 🔊 Özeti oku, ajanda zaman çizelgesi, ekip avatarları.
+const UI={wide:()=>matchMedia('(min-width:901px)').matches};
+function uiBriefTone(t){return /^🔴/.test(t)?'var(--rp-bad)':/^(📅|⏰|🎥)/.test(t)?'var(--rp-warn)':/^📸/.test(t)?'#ff5fa2':/^🗓/.test(t)?'var(--rp-acc)':/^🎉/.test(t)?'#22c3b4':'var(--rp-ok)';}
+function uiBriefGo(t){
+ const kpi=go=>{const b=document.querySelector('#dKpi .kpi[data-go="'+go+'"]');if(b)b.click();};
+ if(/gecikmiş/.test(t))return kpi('late');
+ if(/teslim/.test(t))return kpi('work');
+ if(/çekim/.test(t))return kpi('agenda');
+ if(/paylaşım yapmadı|paylaşım yok/.test(t)){dTab(2);const rows=typeof igRows==='function'?igRows():[];const r=rows.find(x=>t.includes(x.ad));if(r&&typeof igRender==='function'){IGP.sel=String(r.id);igRender();}const b=$('dIg');if(b)b.scrollIntoView({block:'start'});return;}
+ if(/plan/.test(t)){dTab(1);const p=$('dPlan');if(p)p.scrollIntoView({block:'start'});return;}
+ dTab(0);const a=$('dAgenda');if(a)a.scrollIntoView({block:'start'});
+}
+function uiEnhance(){
+ const s=$('dSum');
+ if(s&&!s.dataset.ui){
+  s.dataset.ui=1;const h=s.querySelector('.sh');
+  if(h&&!h.querySelector('.uiSay')){const b=h.querySelector('b');if(b)b.textContent='Günün brifingi';h.insertAdjacentHTML('beforeend','<button type="button" class="rpBtn uiSay">🔊 Özeti oku</button>');}
+  s.querySelectorAll('.sl').forEach(l=>{l.style.setProperty('--c',uiBriefTone(l.textContent.trim()));l.setAttribute('role','button');l.tabIndex=0;l.onclick=()=>uiBriefGo(l.textContent);l.onkeydown=e=>{if(e.key==='Enter')uiBriefGo(l.textContent);};});
+  const sb=s.querySelector('.uiSay');if(sb)sb.onclick=e=>{e.stopPropagation();const tx='Günaydın Oğuzhan Bey. '+[...s.querySelectorAll('.sl')].map(l=>l.textContent.replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu,'').trim()).join(' ');if(typeof rpSay==='function')rpSay(tx,sb);};
+ }
+ const w=$('dWork');
+ if(w)w.querySelectorAll('.pp').forEach(p=>{if(p.querySelector('.uiAv'))return;const n=(p.querySelector('.n')||{}).textContent||'';const ini=n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toLocaleUpperCase('tr-TR')).join('');let hsh=0;for(const c of n)hsh=(hsh*31+c.charCodeAt(0))>>>0;
+  p.insertAdjacentHTML('afterbegin','<span class="uiAv" style="--h:'+(hsh%360)+'">'+dEsc(ini)+'</span>');});
+ document.querySelectorAll('#dash .top .chip').forEach(c=>{if(c.querySelector('.tx'))return;const t=c.textContent.trim(),m=t.match(/^(\S+)\s+(.+)$/);if(m)c.innerHTML=dEsc(m[1])+'<span class="tx"> '+dEsc(m[2])+'</span>';});
+ const tabs=$('dTabs');if(tabs)tabs.classList.add('uiTabs');
+ uiDesk();
+}
+function uiDesk(){
+ if(!UI.wide())return;const on=document.querySelector('#dTabs button.on');const i=on?Number(on.dataset.t):0;
+ if(i===0){const w=$('dWork');if(w)w.classList.add('show');}
+}
+const _renderDashUI=renderDash;renderDash=function(){_renderDashUI.apply(this,arguments);uiEnhance();};
+const _dTabUI=dTab;dTab=function(i){_dTabUI(i);uiDesk();};
+document.body.classList.add('uiDark');
+if(DZ.data)uiEnhance();
 </script>
 </body>
 </html>
