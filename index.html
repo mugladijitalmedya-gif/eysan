@@ -860,7 +860,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795460647783';
+const BUILD='1795460730924';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1626,8 +1626,8 @@ function uiBriefGo(t){
 }
 function uiEnhance(){
  const s=$('dSum');
- if(s&&!s.dataset.ui){
-  s.dataset.ui=1;const h=s.querySelector('.sh');
+ if(s&&!s.querySelector('.uiSay')){
+  const h=s.querySelector('.sh');
   if(h&&!h.querySelector('.uiSay')){const b=h.querySelector('b');if(b)b.textContent='Günün brifingi';h.insertAdjacentHTML('beforeend','<button type="button" class="rpBtn uiSay">🔊 Özeti oku</button>');}
   s.querySelectorAll('.sl').forEach(l=>{l.style.setProperty('--c',uiBriefTone(l.textContent.trim()));l.setAttribute('role','button');l.tabIndex=0;l.onclick=()=>uiBriefGo(l.textContent);l.onkeydown=e=>{if(e.key==='Enter')uiBriefGo(l.textContent);};});
   const sb=s.querySelector('.uiSay');if(sb)sb.onclick=e=>{e.stopPropagation();const tx='Günaydın Oğuzhan Bey. '+[...s.querySelectorAll('.sl')].map(l=>l.textContent.replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu,'').trim()).join(' ');if(typeof rpSay==='function')rpSay(tx,sb);};
