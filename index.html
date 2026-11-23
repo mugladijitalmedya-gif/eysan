@@ -386,6 +386,17 @@ body.orbOn.orbHide #orbPill{display:flex}
 #dash .rpBtn{all:unset;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--rp-fg);padding:8px 14px;border-radius:999px;border:1px solid rgba(139,123,255,.45);background:linear-gradient(180deg,rgba(139,123,255,.28),rgba(139,123,255,.1));box-shadow:0 0 18px -6px rgba(139,123,255,.7)}
 #dash .rpBtn:hover{background:rgba(139,123,255,.35)}
 #dash .rpBtn#rpTalk{border-color:rgba(34,195,180,.45);background:linear-gradient(180deg,rgba(34,195,180,.26),rgba(34,195,180,.08));box-shadow:0 0 18px -6px rgba(34,195,180,.7)}
+
+#dash #dIg{background:radial-gradient(900px 420px at 0% -10%,rgba(225,48,108,.18),transparent 60%),radial-gradient(700px 420px at 110% 0%,rgba(34,195,180,.16),transparent 55%),#0b0f17;border-color:rgba(255,255,255,.08);padding:20px 16px 24px}
+@media (min-width:901px){#dash #dIg{grid-column:1/-1;scroll-margin-top:64px}}
+#dash .igAv{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:-6px;margin-right:7px;border:1px solid rgba(255,255,255,.15)}
+#dash .igPosts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+#dash .igPost{display:block;color:inherit;text-decoration:none;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+#dash .igPost.best{border-color:rgba(255,182,72,.6);box-shadow:0 0 18px -6px rgba(255,182,72,.7)}
+#dash .igPost .ph{position:relative;aspect-ratio:1;background:#151b26 center/cover no-repeat}
+#dash .igPost .vk{position:absolute;top:6px;right:8px;font-size:12px;background:rgba(0,0,0,.55);border-radius:999px;padding:2px 7px}
+#dash .igPost .bk{position:absolute;left:6px;bottom:6px;font-size:10.5px;font-weight:700;color:#1a1204;background:#ffb648;border-radius:999px;padding:2px 8px}
+#dash .igPost .mt{font-size:11.5px;color:#8d98ab;padding:6px 8px}
 </style>
 <body>
 <header><img src="eysan.jpg" alt=""><div class="who"><h1>Eyşan</h1><p id="status">Çevrimiçi</p></div><select id="voice" aria-label="Ses"><option value="marin">marin</option></select><button id="dashBtn" type="button">📊 Panel</button><button id="menuBtn" type="button" aria-label="Menü">⋯</button>
@@ -779,7 +790,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795459398197';
+const BUILD='1795460129447';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1428,6 +1439,108 @@ const _renderAdsRP=renderAds;renderAds=function(){_renderAdsRP.apply(this,argume
 const _dTabRP=dTab;dTab=function(i){_dTabRP(i);const t=$('dRp');if(t)t.classList.toggle('show',i===3);};
 if(ADS.data)rpRender();
 (function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dRp"]')){const w=j.querySelector('[data-j="dAds"]');if(w)w.insertAdjacentHTML('beforebegin','<button type="button" data-j="dRp">📊 Reklam Paneli</button>');}})();
+
+// 📸 Instagram Paneli: per-business cards (followers, growth, posting rhythm) → tap for detail with rings, follower chart and last posts.
+const IGP={sel:null,hist:null,media:{},loading:false,err:null};
+function igDays(ms){return ms?Math.floor((Date.now()-ms)/86400e3):null;}
+function igAgo(ms){const d=igDays(ms);return d==null?'—':d===0?'bugün':d===1?'dün':d+' gün önce';}
+function igGrowth(id){
+ const h=IGP.hist&&IGP.hist[id];if(!h||h.length<2)return null;
+ const last=h[h.length-1],cut=new Date(Date.now()-30*86400e3).toISOString().slice(0,10);
+ const first=h.find(x=>x[0]>=cut)||h[0];const days=Math.max(1,Math.round((new Date(last[0])-new Date(first[0]))/86400e3));
+ return {diff:last[1]-first[1],days,pct:first[1]?(last[1]-first[1])/first[1]*100:0};
+}
+function igRows(){
+ const B=(DZ.data&&DZ.data.businesses)||[];
+ return B.filter(b=>b.ig&&b.ig.followers!=null).map(b=>{
+  const g=igGrowth(b.id),ld=igDays(b.ig.last),p30=b.ig.posts30||0,pl=b.plan;
+  let durum='yesil';const notlar=[];
+  if(ld==null||ld>7){durum='kirmizi';notlar.push(ld==null?'Hiç paylaşım görünmüyor.':ld+' gündür paylaşım yok.');}
+  else if(ld>3){durum='sari';notlar.push(ld+' gündür paylaşım yok.');}
+  if(g&&g.diff<0){if(durum==='yesil')durum='sari';notlar.push('Son '+g.days+' günde '+Math.abs(g.diff)+' takipçi kaybetti.');}
+  if(g&&g.diff>0)notlar.push('Son '+g.days+' günde +'+g.diff+' takipçi. 👍');
+  if(p30<4)notlar.push('Son 30 günde sadece '+p30+' paylaşım.');
+  if(pl&&pl.total&&pl.done<pl.total)notlar.push('Ay planı: '+pl.done+'/'+pl.total+' paylaşım tamam.');
+  if(!notlar.length)notlar.push('Düzenli paylaşım var.');
+  return {id:b.id,ad:b.name,user:b.ig.username,pic:b.ig.pic,f:b.ig.followers,g,ld,last:b.ig.last,p30,plan:pl,durum,notlar};
+ }).sort((x,y)=>({kirmizi:0,sari:1,yesil:2}[x.durum]-{kirmizi:0,sari:1,yesil:2}[y.durum])||y.f-x.f);
+}
+function igSpark(id,c){
+ const h=IGP.hist&&IGP.hist[id];if(!h||h.length<2)return '';const W=220,H=34,v=h.map(x=>x[1]),mn=Math.min(...v),mx=Math.max(...v),rg=Math.max(1,mx-mn);
+ const line=h.map((x,i)=>(i?'L':'M')+(2+i*(W-4)/(h.length-1)).toFixed(1)+' '+(H-4-(H-8)*(x[1]-mn)/rg).toFixed(1)).join(' ');
+ return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="igg'+id+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+c+'" stop-opacity=".35"/><stop offset="1" stop-color="'+c+'" stop-opacity="0"/></linearGradient></defs><path d="'+line+' L'+(W-2)+' '+H+' L2 '+H+' Z" fill="url(#igg'+id+')"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>';
+}
+function igGrowthTxt(g){return !g?'büyüme verisi birikiyor':(g.diff>=0?'+':'−')+rpN(Math.abs(g.diff))+' takipçi · son '+g.days+' gün';}
+function igChart(id){
+ const h=IGP.hist&&IGP.hist[id];if(!h)return '<div class="empty">'+(IGP.err?'Yüklenemedi.':'Yükleniyor…')+'</div>';
+ if(h.length<2)return '<div class="empty">Takipçi geçmişi birikiyor, birkaç gün sonra grafik oluşacak.</div>';
+ const W=640,H=180,l=54,b=24,t=12,v=h.map(x=>x[1]);let mn=Math.min(...v),mx=Math.max(...v);if(mx-mn<4){mn-=2;mx+=2;}const pad=(mx-mn)*.15;mn-=pad;mx+=pad;
+ const X=i=>l+i*(W-l-10)/(h.length-1),Y=y=>H-b-(H-b-t)*(y-mn)/(mx-mn);let g='';
+ for(let i=0;i<=3;i++){const y=mn+(mx-mn)*i/3;g+='<line x1="'+l+'" x2="'+(W-6)+'" y1="'+Y(y)+'" y2="'+Y(y)+'" stroke="rgba(255,255,255,.06)"/><text x="'+(l-6)+'" y="'+(Y(y)+4)+'" text-anchor="end">'+Math.round(y).toLocaleString('tr-TR')+'</text>';}
+ const line=h.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x[1]).toFixed(1)).join(' ');
+ g+='<path d="'+line+' L'+X(h.length-1)+' '+(H-b)+' L'+l+' '+(H-b)+' Z" fill="rgba(34,195,180,.12)"/><path d="'+line+'" fill="none" stroke="#22c3b4" stroke-width="2.2"/>';
+ const every=Math.ceil(h.length/7);
+ h.forEach((x,i)=>{const lab=x[0].slice(8)+'.'+x[0].slice(5,7);g+='<circle cx="'+X(i)+'" cy="'+Y(x[1])+'" r="4" fill="#22c3b4" data-tip="'+lab+' · '+x[1].toLocaleString('tr-TR')+' takipçi"/>';if(i%every===0||i===h.length-1)g+='<text x="'+X(i)+'" y="'+(H-6)+'" text-anchor="middle">'+lab+'</text>';});
+ return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Takipçi sayısı">'+g+'</svg><div class="rpTip" hidden></div>';
+}
+function igPosts(id){
+ const m=IGP.media[id];if(!m)return '<div class="empty">Paylaşımlar yükleniyor…</div>';if(!m.length)return '<div class="empty">Paylaşım bulunamadı.</div>';
+ const best=m.reduce((a,x)=>(x.l||0)>(a.l||0)?x:a,m[0]);
+ return '<div class="igPosts">'+m.slice(0,9).map(x=>{const u=/^https:\/\//.test(x.u||'')?x.u:'';return '<a class="igPost'+(x===best?' best':'')+'"'+(u?' href="'+dEsc(u)+'" target="_blank" rel="noopener"':'')+'><div class="ph"'+(x.img&&/^https:\/\//.test(x.img)?' style="background-image:url(\''+String(x.img).replace(/'/g,'%27')+'\')"':'')+'>'+(x.k==='VIDEO'?'<span class="vk">▶</span>':'')+(x===best?'<span class="bk">en çok beğenilen</span>':'')+'</div><div class="mt">❤️ '+rpN(x.l||0)+' · 💬 '+rpN(x.c||0)+' · '+igAgo(Date.parse(x.t))+'</div></a>';}).join('')+'</div>';
+}
+function igEng(id,f){const m=IGP.media[id];if(!m||!m.length||!f)return null;const s=m.slice(0,9);return s.reduce((a,x)=>a+(x.l||0)+(x.c||0),0)/s.length/f*100;}
+async function igLoad(id){
+ if(IGP.loading)return;IGP.loading=true;
+ try{const r=await dCall('__igpanel',id?{id:Number(id)}:{});if(r.error)throw Error(r.error);IGP.hist=r.hist||{};if(id)IGP.media[id]=r.media||[];IGP.err=null;}
+ catch(e){IGP.err=String(e.message||e);if(!IGP.hist)IGP.hist={};}
+ IGP.loading=false;igRender();
+}
+function igRender(){
+ let box=$('dIg');
+ if(!box){const anchor=$('dBiz');if(!anchor)return;anchor.insertAdjacentHTML('beforebegin','<div class="dcard rpCardBox" id="dIg"></div>');box=$('dIg');if(DZ.tab===2)box.classList.add('show');}
+ const rows=igRows();if(!rows.length){box.innerHTML='<div class="rp"><h1>Instagram</h1><p class="rpMut">Instagram verisi yok.</p></div>';return;}
+ if(!IGP.hist&&!IGP.loading)igLoad();
+ const cur=IGP.sel&&rows.find(r=>String(r.id)===String(IGP.sel));
+ const day=DZ.data.igDay?dShortDate(DZ.data.igDay):'';
+ let h='<div class="rp">';
+ if(!cur){
+  const k=rows.filter(r=>r.durum==='kirmizi').length,s=rows.filter(r=>r.durum==='sari').length,y=rows.length-k-s;
+  const tot=rows.reduce((a,r)=>a+r.f,0),gain=rows.reduce((a,r)=>a+(r.g?r.g.diff:0),0),gd=Math.max(0,...rows.map(r=>r.g?r.g.days:0));
+  const pd=rows.reduce((a,r)=>a+(r.plan?r.plan.done:0),0),pt=rows.reduce((a,r)=>a+(r.plan?r.plan.total:0),0),pp=pt?Math.round(pd/pt*100):null;
+  h+='<div class="rpHead"><h1>Instagram</h1><span class="rpChip">'+dEsc(day)+'</span></div>'
+   +'<p class="rpTop">'+(k?k+' işletmede 7 günden uzun süredir paylaşım yok'+(s?', '+s+' işletme yavaşladı':'')+'.':s?s+' işletmede paylaşım yavaşladı.':'Tüm işletmeler düzenli paylaşıyor.')+(gd?' Son '+gd+' günde toplam '+(gain>=0?'+':'−')+rpN(Math.abs(gain))+' takipçi.':'')+'</p>'
+   +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:y,c:'var(--rp-ok)'},{v:s,c:'var(--rp-warn)'},{v:k,c:'var(--rp-bad)'}],rows.length,String(y),rows.length+' işletmeden')+'<div class="t">Düzenli paylaşan işletme</div><div class="s">yeşil: 3 gün içinde · sarı: 4–7 gün · kırmızı: 7+ gün</div></div>'
+   +'<div class="rpRing rpG">'+rpRing([{v:pp||0,c:'var(--rp-acc)'}],100,pp==null?'—':'%'+pp,pd+' / '+pt+' paylaşım')+'<div class="t">Bu ayın içerik planı</div><div class="s">Planlanan paylaşımların ne kadarı yapıldı</div></div></div>'
+   +'<p class="rpSec">İşletmeler · dokun, detay açılsın · toplam '+rpN(tot)+' takipçi</p><div class="rpCards">'
+   +rows.map(r=>'<button type="button" class="rpCard rpG" data-ig="'+dEsc(r.id)+'" style="--c:'+RPC[r.durum]+'"><div class="row"><div class="n">'+(r.pic&&/^https:\/\//.test(r.pic)?'<img class="igAv" src="'+dEsc(r.pic)+'" alt="" loading="lazy">':'')+dEsc(r.ad)+'</div><span class="rpPill">'+({kirmizi:'Durgun',sari:'Yavaş',yesil:'Aktif'})[r.durum]+'</span></div>'
+     +'<div class="big">'+rpN(r.f)+'<small>takipçi</small></div><div class="spark">'+igSpark(r.id,RPC[r.durum])+'</div>'
+     +'<div class="rpMut">'+igGrowthTxt(r.g)+'</div><div class="why">Son paylaşım '+igAgo(r.last)+' · 30 günde '+r.p30+' paylaşım</div></button>').join('')+'</div>';
+ }else{
+  const r=cur,eng=igEng(r.id,r.f),pl=r.plan,pp=pl&&pl.total?Math.round(pl.done/pl.total*100):null;
+  h+='<button type="button" class="rpBack" id="igBack">← Tüm işletmeler</button>'
+   +'<div class="rpHead"><h1>'+dEsc(r.ad)+'</h1><span class="rpPill" style="--c:'+RPC[r.durum]+'">'+({kirmizi:'Durgun',sari:'Yavaş',yesil:'Aktif'})[r.durum]+'</span></div>'
+   +'<p class="rpMut">@'+dEsc(r.user||'')+'</p>'
+   +'<div class="rpTiles"><div class="rpTile rpG"><div class="l">Takipçi</div><b>'+rpN(r.f)+'</b></div><div class="rpTile rpG"><div class="l">Büyüme'+(r.g?' ('+r.g.days+' gün)':'')+'</div><b style="color:'+(!r.g?'inherit':r.g.diff>=0?'var(--rp-ok)':'var(--rp-bad)')+'">'+(r.g?(r.g.diff>=0?'+':'−')+rpN(Math.abs(r.g.diff)):'—')+'</b></div>'
+   +'<div class="rpTile rpG"><div class="l">Son paylaşım</div><b>'+igAgo(r.last)+'</b></div><div class="rpTile rpG"><div class="l">30 günde paylaşım</div><b>'+r.p30+'</b></div>'
+   +'<div class="rpTile rpG"><div class="l">Ort. beğeni+yorum</div><b>'+(IGP.media[r.id]&&IGP.media[r.id].length?rpN(Math.round(IGP.media[r.id].slice(0,9).reduce((a,x)=>a+(x.l||0)+(x.c||0),0)/Math.min(9,IGP.media[r.id].length))):'—')+'</b></div></div>'
+   +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:pp||0,c:'var(--rp-acc)'}],100,pp==null?'—':'%'+pp,pl?pl.done+' / '+pl.total+' paylaşım':'plan yok')+'<div class="t">Bu ayın içerik planı</div><div class="s">Planlanan paylaşımların ne kadarı yapıldı</div></div>'
+   +'<div class="rpRing rpG">'+rpRing([{v:eng==null?0:Math.min(eng,5),c:eng==null?'var(--rp-mut)':eng>=1.5?'var(--rp-ok)':eng>=0.5?'var(--rp-warn)':'var(--rp-bad)'}],5,eng==null?'—':'%'+eng.toFixed(1).replace('.',','),'son 9 paylaşım')+'<div class="t">Etkileşim oranı</div><div class="s">Beğeni+yorum / takipçi · %1,5 üstü iyi</div></div></div>'
+   +'<ul class="rpNotes">'+r.notlar.map(t=>'<li class="rpG" style="--c:'+(/👍|Düzenli/.test(t)?'var(--rp-ok)':/kaybetti|gündür/.test(t)&&r.durum==='kirmizi'?'var(--rp-bad)':'var(--rp-warn)')+'">'+dEsc(t)+'</li>').join('')+'</ul>'
+   +'<div class="rpBox rpG"><h3>Takipçi sayısı</h3><div class="rpChart">'+igChart(r.id)+'</div></div>'
+   +'<div class="rpBox rpG"><h3>Son paylaşımlar</h3>'+igPosts(r.id)+'</div>';
+  if(!IGP.media[r.id]&&!IGP.loading)igLoad(r.id);
+ }
+ box.innerHTML=h+'</div>';
+ box.querySelectorAll('[data-ig]').forEach(b=>b.onclick=()=>{IGP.sel=b.dataset.ig;igRender();box.scrollIntoView({block:'start'});});
+ const bk=$('igBack');if(bk)bk.onclick=()=>{IGP.sel=null;igRender();box.scrollIntoView({block:'start'});};
+ const ch=box.querySelector('.rpChart'),tip=box.querySelector('.rpTip');
+ if(ch&&tip){ch.onpointermove=e=>{const t=e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}const rc=ch.getBoundingClientRect();tip.hidden=false;tip.textContent=t.dataset.tip;tip.style.left=Math.min(e.clientX-rc.left+10,rc.width-170)+'px';tip.style.top=Math.max(0,e.clientY-rc.top-32)+'px';};ch.onpointerleave=()=>{tip.hidden=true;};}
+ requestAnimationFrame(()=>box.querySelectorAll('circle[data-to]').forEach(c=>c.setAttribute('stroke-dasharray',c.dataset.to)));
+}
+const _renderBizIG=renderBiz;renderBiz=function(){_renderBizIG.apply(this,arguments);igRender();};
+const _dTabIG=dTab;dTab=function(i){_dTabIG(i);const t=$('dIg');if(t)t.classList.toggle('show',i===2);};
+if(DZ.data)igRender();
+(function(){const j=$('dJump');if(j&&!j.querySelector('[data-j="dIg"]')){const w=j.querySelector('[data-j="dBiz"]');if(w)w.insertAdjacentHTML('beforebegin','<button type="button" data-j="dIg">📸 Instagram Paneli</button>');}})();
 </script>
 </body>
 </html>
