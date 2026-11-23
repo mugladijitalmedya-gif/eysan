@@ -860,7 +860,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795460730924';
+const BUILD='1795461340343';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1429,13 +1429,30 @@ function rpLoadTrends(rows){
  if(todo.length<need.length)setTimeout(rpRender,0);
 }
 // 🔊 Read the summary aloud (phone's own voice) · 🎙️ voice chat gets the ads summary in its prompt.
+function rpSayNum(v){v=Math.round(v);return v.toLocaleString('tr-TR');}
+function rpSayClean(t){return t.replace(/₺\s?(\d[\d.,]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',').replace(/👍/g,'').replace(/\s+/g,' ').trim();}
+function rpSayNote(n){
+ let m=n.match(/^Mesaj başı ₺?([\d.,]+)/);if(m)return 'mesaj başına '+m[1]+' lira ödüyoruz, bu biraz pahalı.';
+ m=n.match(/^Son 7 günde (\S+) maliyeti %(\d+) arttı/);if(m)return 'son bir haftada '+m[1]+' maliyeti yüzde '+m[2]+' artmış.';
+ m=n.match(/^Son 7 günde (\S+) maliyeti %(\d+) ucuzladı/);if(m)return 'son bir haftada '+m[1]+' maliyeti yüzde '+m[2]+' düşmüş, bu iyi haber.';
+ return n.charAt(0).toLocaleLowerCase('tr-TR')+n.slice(1);
+}
 function rpSayText(rows,cur){
- const k=rows.filter(r=>r.durum==='kirmizi'),s=rows.filter(r=>r.durum==='sari');
- if(cur)return (cur.ad+'. Bu ay '+Math.round(cur.harcama)+' lira harcandı, '+cur.sonuc+' '+cur.sonucAdi+' geldi. '+(cur.sonucBasi?'Sonuç başı '+cur.sonucBasi.toFixed(cur.sonucBasi<100?1:0).replace('.',',')+' lira. ':'')+'Bugün '+Math.round(cur.bugun)+' lira harcandı, '+cur.bugunSonuc+' '+cur.sonucAdi+' geldi. '+cur.notlar.join(' ').replace(/👍/g,'')).replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
- let t=k.length||s.length?'Bugün '+k.length+' işletmeye bakman lazım, '+s.length+' işletmeyi izle. ':'Bugün bütün reklamlar yolunda. ';
- k.forEach(r=>{t+=r.ad+': '+r.notlar[0]+' ';});
- if(s.length)t+='Bugün harcaması olmayanlar: '+s.map(r=>r.ad).join(', ')+'. ';
- return t.replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
+ const k=rows.filter(r=>r.durum==='kirmizi'),s=rows.filter(r=>r.durum==='sari'),y=rows.length-k.length-s.length;
+ if(cur){
+  let t='Oğuzhan Bey, '+cur.ad+' için sonuçları okuyorum. Bu ay '+rpSayNum(cur.harcama)+' lira harcadık ve '+rpSayNum(cur.sonuc)+' '+cur.sonucAdi+' geldi';
+  t+=cur.sonucBasi?'; yani her '+(cur.sonucAdi==='mesaj'?'mesaj':'ziyaret')+' bize yaklaşık '+(cur.sonucBasi<10?cur.sonucBasi.toFixed(1).replace('.',','):rpSayNum(cur.sonucBasi))+' liraya mal oluyor. ':'. ';
+  t+='Bugün '+rpSayNum(cur.bugun)+' lira harcandı'+(cur.bugunSonuc?', '+rpSayNum(cur.bugunSonuc)+' '+cur.sonucAdi+' geldi. ':'. ');
+  const n=cur.notlar.filter(x=>!/normal/.test(x));
+  t+=cur.durum==='yesil'?(n.length?n.map(x=>{const v=rpSayNote(x);return v.charAt(0).toLocaleUpperCase('tr-TR')+v.slice(1);}).join(' ')+' Genel olarak her şey yolunda görünüyor.':'Her şey yolunda görünüyor, şu an müdahale etmemize gerek yok.'):'Dikkat etmemiz gereken nokta şu: '+n.map(rpSayNote).join(' ');
+  return rpSayClean(t);
+ }
+ let t='Oğuzhan Bey, bugünün reklam sonuçlarını okuyorum. ';
+ t+=!k.length&&!s.length?'Güzel haber, bütün reklamlar yolunda gidiyor. ':rows.length+' işletmenin '+y+' tanesinde her şey yolunda. ';
+ if(k.length){t+=(k.length===1?'Ama bir yere bakmanızı isterim. ':'Ama '+k.length+' yere bakmanızı isterim. ');k.forEach(r=>{t+=r.ad+' tarafında '+rpSayNote(r.notlar[0])+' ';});}
+ if(s.length)t+='Bir de bugün '+s.length+' hesapta hiç harcama olmamış: '+s.map(r=>r.ad).join(', ')+'. Reklamları durmuş olabilir, kontrol etmekte fayda var. ';
+ const bt=rows.reduce((a,r)=>a+r.bugun,0);t+='Bugün toplamda '+rpSayNum(bt)+' lira harcandı. Detay isterseniz bir işletmeye dokunmanız yeterli.';
+ return rpSayClean(t);
 }
 function rpSayLocal(text,btn){
  const ss=window.speechSynthesis;if(!ss){if(btn)btn.textContent='🔊 Durumu oku';return;}
@@ -1630,7 +1647,7 @@ function uiEnhance(){
   const h=s.querySelector('.sh');
   if(h&&!h.querySelector('.uiSay')){const b=h.querySelector('b');if(b)b.textContent='Günün brifingi';h.insertAdjacentHTML('beforeend','<button type="button" class="rpBtn uiSay">🔊 Özeti oku</button>');}
   s.querySelectorAll('.sl').forEach(l=>{l.style.setProperty('--c',uiBriefTone(l.textContent.trim()));l.setAttribute('role','button');l.tabIndex=0;l.onclick=()=>uiBriefGo(l.textContent);l.onkeydown=e=>{if(e.key==='Enter')uiBriefGo(l.textContent);};});
-  const sb=s.querySelector('.uiSay');if(sb)sb.onclick=e=>{e.stopPropagation();const tx='Günaydın Oğuzhan Bey. '+[...s.querySelectorAll('.sl')].map(l=>l.textContent.replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu,'').trim()).join(' ');if(typeof rpSay==='function')rpSay(tx,sb);};
+  const sb=s.querySelector('.uiSay');if(sb)sb.onclick=e=>{e.stopPropagation();const hr=new Date().getHours();const tx=(hr<12?'Günaydın':hr<18?'İyi günler':'İyi akşamlar')+' Oğuzhan Bey, günün özetini okuyorum. '+[...s.querySelectorAll('.sl')].map(l=>l.textContent.replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu,'').trim()).join(' ');if(typeof rpSay==='function')rpSay(tx,sb);};
  }
  const w=$('dWork');
  if(w)w.querySelectorAll('.pp').forEach(p=>{if(p.querySelector('.uiAv'))return;const n=(p.querySelector('.n')||{}).textContent||'';const ini=n.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toLocaleUpperCase('tr-TR')).join('');let hsh=0;for(const c of n)hsh=(hsh*31+c.charCodeAt(0))>>>0;
