@@ -779,7 +779,7 @@ $('pinWho').onclick=e=>{const b=e.target.closest('[data-w]');if(!b)return;try{lo
 showWho();
 
 // Self-update: when a newer version of this page is published, reload into it (never during a call or while typing).
-const BUILD='1795454130657';
+const BUILD='1795459398197';
 async function checkUpdate(){
  try{
   if(conv||pc)return;
@@ -1280,7 +1280,9 @@ if(DZ.data)renderPlan();
 
 
 // 📊 Reklam Paneli (sade): status cards per business → tap for detail with rings + 30-day chart. Live from ADS / AW (same data as 📣 Reklamlar).
-const RP={sel:null,trLoading:false};
+const RP={sel:null,trLoading:false,audio:null,cache:{}};
+// Hesaplar panelde gösterilmez (reklamı bitti): Podolog Didem Aytaçlı.
+const RP_HIDE=['1134866162577479'];
 const RPC={kirmizi:'var(--rp-bad)',sari:'var(--rp-warn)',yesil:'var(--rp-ok)'},RPL={kirmizi:'Bak',sari:'İzle',yesil:'Yolunda'};
 function rpTl(v){return v==null||isNaN(v)?'—':'₺'+Number(v).toLocaleString('tr-TR',{maximumFractionDigits:Number(v)<100?2:0});}
 function rpN(v){return v==null?'—':Number(v).toLocaleString('tr-TR');}
@@ -1289,7 +1291,7 @@ function rpRows(){
  const bz={};(DZ.data&&DZ.data.businesses||[]).forEach(b=>bz[b.id]=b.name);
  const wk={};((AW.data&&AW.data.accounts)||[]).forEach(w=>wk[w.id]=w);
  const now=new Date(),day=now.getDate(),mlen=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
- return A.accounts.filter(a=>!a.err&&a.month).map(a=>{
+ return A.accounts.filter(a=>!a.err&&a.month&&!RP_HIDE.includes(String(a.id))).map(a=>{
   const r=a.month.results||{},t=a.todayRes||{},w=wk[a.id]||{};
   const name=Number(a.business)===-2?'Emel Hazır – '+String(a.name||'').trim().replace(/fetihye/i,'Fethiye').replace(/ Reklam Hesabi$/i,''):(bz[a.business]||String(a.name||'').trim());
   const mesaj=r.mesaj||0,profil=r.profil||0,spend=a.month.spend||0;
@@ -1306,8 +1308,8 @@ function rpRows(){
   if(h&&o&&h/o<=0.8)notlar.push('Son 7 günde '+w.unit.k+' maliyeti %'+Math.round((1-h/o)*100)+' ucuzladı. 👍');
   if(!notlar.length)notlar.push('Her şey normal görünüyor.');
   const prev=(a.prev&&a.prev.spend)||0,tahmin=spend/day*mlen;
-  return {id:a.id,ad:name,durum,notlar,harcama:spend,sonuc,sonucAdi:mesajli?'mesaj':'profil ziyareti',sonucBasi:sonuc?spend/sonuc:null,
-   bugun,butce,kullanim:butce?Math.round(bugun/butce*100):null,tahmin,prev,oran:prev?Math.round(tahmin/prev*100):null};
+  return {id:a.id,ad:name,emel:Number(a.business)===-2,durum,notlar,harcama:spend,sonuc,sonucAdi:mesajli?'mesaj':'profil ziyareti',sonucBasi:sonuc?spend/sonuc:null,
+   bugun,bugunSonuc:mesajli?(t.mesaj||0):(t.profil||0),butce,kullanim:butce?Math.round(bugun/butce*100):null,tahmin,prev,oran:prev?Math.round(tahmin/prev*100):null};
  }).sort((x,y)=>({kirmizi:0,sari:1,yesil:2}[x.durum]-{kirmizi:0,sari:1,yesil:2}[y.durum])||y.harcama-x.harcama);
 }
 function rpRing(segs,total,num,sub){
@@ -1348,17 +1350,28 @@ function rpLoadTrends(rows){
 // 🔊 Read the summary aloud (phone's own voice) · 🎙️ voice chat gets the ads summary in its prompt.
 function rpSayText(rows,cur){
  const k=rows.filter(r=>r.durum==='kirmizi'),s=rows.filter(r=>r.durum==='sari');
- if(cur)return (cur.ad+'. Bu ay '+Math.round(cur.harcama)+' lira harcandı, '+cur.sonuc+' '+cur.sonucAdi+' geldi. '+(cur.sonucBasi?'Sonuç başı '+cur.sonucBasi.toFixed(cur.sonucBasi<100?1:0).replace('.',',')+' lira. ':'')+'Bugün '+Math.round(cur.bugun)+' lira harcandı. '+cur.notlar.join(' ').replace(/👍/g,'')).replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
+ if(cur)return (cur.ad+'. Bu ay '+Math.round(cur.harcama)+' lira harcandı, '+cur.sonuc+' '+cur.sonucAdi+' geldi. '+(cur.sonucBasi?'Sonuç başı '+cur.sonucBasi.toFixed(cur.sonucBasi<100?1:0).replace('.',',')+' lira. ':'')+'Bugün '+Math.round(cur.bugun)+' lira harcandı, '+cur.bugunSonuc+' '+cur.sonucAdi+' geldi. '+cur.notlar.join(' ').replace(/👍/g,'')).replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
  let t=k.length||s.length?'Bugün '+k.length+' işletmeye bakman lazım, '+s.length+' işletmeyi izle. ':'Bugün bütün reklamlar yolunda. ';
  k.forEach(r=>{t+=r.ad+': '+r.notlar[0]+' ';});
  if(s.length)t+='Bugün harcaması olmayanlar: '+s.map(r=>r.ad).join(', ')+'. ';
  return t.replace(/₺(\d[\d.]*)/g,'$1 lira').replace(/%(\d+)/g,'yüzde $1').replace(/—/g,',');
 }
-function rpSay(text,btn){
- const ss=window.speechSynthesis;if(!ss){alert('Bu cihaz sesli okumayı desteklemiyor.');return;}
- if(ss.speaking){ss.cancel();if(btn)btn.textContent='🔊 Durumu oku';return;}
- const u=new SpeechSynthesisUtterance(text);u.lang='tr-TR';u.rate=1.02;const v=ss.getVoices().find(x=>/^tr/i.test(x.lang));if(v)u.voice=v;
- u.onend=u.onerror=()=>{if(btn)btn.textContent='🔊 Durumu oku';};if(btn)btn.textContent='⏹ Durdur';ss.speak(u);
+function rpSayLocal(text,btn){
+ const ss=window.speechSynthesis;if(!ss){if(btn)btn.textContent='🔊 Durumu oku';return;}
+ ss.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='tr-TR';const v=ss.getVoices().find(x=>/^tr/i.test(x.lang));if(v)u.voice=v;
+ u.onend=u.onerror=()=>{if(btn)btn.textContent='🔊 Durumu oku';};ss.speak(u);
+}
+// Eyşan'ın kendi sesiyle (ElevenLabs, sohbetteki ses) okur; sunucu ulaşılamazsa cihazın sesine düşer.
+async function rpSay(text,btn){
+ if(RP.audio&&!RP.audio.paused){RP.audio.pause();RP.audio=null;if(btn)btn.textContent='🔊 Durumu oku';return;}
+ try{speechSynthesis.cancel();}catch(e){}
+ if(btn)btn.textContent='⏳ Hazırlanıyor…';
+ try{
+  let src=RP.cache[text];
+  if(!src){const r=await dCall('__tts',{text});if(!r||!r.b64)throw Error((r&&r.error)||'ses yok');src='data:'+(r.mime||'audio/mpeg')+';base64,'+r.b64;RP.cache[text]=src;}
+  const a=new Audio(src);RP.audio=a;a.onended=a.onerror=()=>{if(RP.audio===a)RP.audio=null;if(btn)btn.textContent='🔊 Durumu oku';};
+  if(btn)btn.textContent='⏹ Durdur';await a.play();
+ }catch(e){if(btn)btn.textContent='⏹ Durdur';rpSayLocal(text,btn);}
 }
 async function rpVoiceCtx(){
  try{
@@ -1366,9 +1379,12 @@ async function rpVoiceCtx(){
   const rows=rpRows();if(!rows.length)return '';
   const L={kirmizi:'KIRMIZI (bakılmalı)',sari:'SARI (izle)',yesil:'yeşil'};
   return '\n\n# Reklam durumu ('+new Date(ADS.data.at||Date.now()).toLocaleString('tr-TR')+', Meta reklam hesapları)\nKullanıcı reklamları sorarsa SADECE bu veriye dayan, rakam uydurma; liraları ve sayıları yuvarlayarak kısa söyle.\n'
-   +rows.map(r=>'- '+r.ad+' | '+L[r.durum]+' | bu ay '+Math.round(r.harcama)+' TL, '+r.sonuc+' '+r.sonucAdi+(r.sonucBasi?', sonuç başı '+r.sonucBasi.toFixed(2)+' TL':'')+' | bugün '+Math.round(r.bugun)+' TL / günlük bütçe '+Math.round(r.butce)+' TL | geçen ay '+Math.round(r.prev)+' TL | '+r.notlar.join(' ').replace(/👍/g,'')).join('\n');
+   +rows.map(r=>'- '+r.ad+' | '+L[r.durum]+' | bu ay '+Math.round(r.harcama)+' TL, '+r.sonuc+' '+r.sonucAdi+(r.sonucBasi?', sonuç başı '+r.sonucBasi.toFixed(2)+' TL':'')+' | bugün '+Math.round(r.bugun)+' TL, '+r.bugunSonuc+' '+r.sonucAdi+' / günlük bütçe '+Math.round(r.butce)+' TL | geçen ay '+Math.round(r.prev)+' TL | '+r.notlar.join(' ').replace(/👍/g,'')).join('\n');
  }catch(e){return '';}
 }
+function rpGroup(t,list){if(!list.length)return '';return '<p class="rpSec">'+dEsc(t)+'</p><div class="rpCards">'+list.map(r=>'<button type="button" class="rpCard rpG" data-rp="'+dEsc(r.id)+'" style="--c:'+RPC[r.durum]+'"><div class="row"><div class="n">'+dEsc(r.ad)+'</div><span class="rpPill">'+RPL[r.durum]+'</span></div>'
+     +'<div class="big">'+rpN(r.sonuc)+'<small>'+r.sonucAdi+'</small></div><div class="spark">'+rpSpark(r.id,RPC[r.durum])+'</div>'
+     +'<div class="rpMut">'+rpTl(r.harcama)+' harcandı · sonuç başı '+rpTl(r.sonucBasi)+'</div><div class="why">'+dEsc(r.durum==='yesil'?'Her şey yolunda':r.notlar[0])+'</div></button>').join('')+'</div>';}
 function rpActs(){return '<div class="rpAct"><button type="button" class="rpBtn" id="rpSay">🔊 Durumu oku</button><button type="button" class="rpBtn" id="rpTalk">🎙️ Eyşan\'la konuş</button></div>';}
 function rpRender(){
  let box=$('dRp');
@@ -1385,16 +1401,13 @@ function rpRender(){
    +'<p class="rpTop">'+(k||s?'Bugün '+k+' işletmeye bakman lazım, '+s+' işletmeyi izle. Gerisi yolunda.':'Bugün her şey yolunda.')+'</p>'+rpActs()
    +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:y,c:'var(--rp-ok)'},{v:s,c:'var(--rp-warn)'},{v:k,c:'var(--rp-bad)'}],rows.length,String(y),rows.length+' işletmeden')+'<div class="t">Yolunda giden işletme</div><div class="s">yeşil · sarı: izle · kırmızı: bak</div></div>'
    +'<div class="rpRing rpG">'+rpRing([{v:ku||0,c:rpUse(ku)}],100,ku==null?'—':'%'+ku,rpTl(bt)+' / '+rpTl(bb))+'<div class="t">Bugünkü bütçe kullanımı</div><div class="s">Bugün harcanan / günlük bütçelerin toplamı</div></div></div>'
-   +'<p class="rpSec">İşletmeler · dokun, detay açılsın</p><div class="rpCards">'
-   +rows.map(r=>'<button type="button" class="rpCard rpG" data-rp="'+dEsc(r.id)+'" style="--c:'+RPC[r.durum]+'"><div class="row"><div class="n">'+dEsc(r.ad)+'</div><span class="rpPill">'+RPL[r.durum]+'</span></div>'
-     +'<div class="big">'+rpN(r.sonuc)+'<small>'+r.sonucAdi+'</small></div><div class="spark">'+rpSpark(r.id,RPC[r.durum])+'</div>'
-     +'<div class="rpMut">'+rpTl(r.harcama)+' harcandı · sonuç başı '+rpTl(r.sonucBasi)+'</div><div class="why">'+dEsc(r.durum==='yesil'?'Her şey yolunda':r.notlar[0])+'</div></button>').join('')+'</div>';
+   +rpGroup('İşletmeler · dokun, detay açılsın',rows.filter(r=>!r.emel))+rpGroup('⭐ Emel Hazır',rows.filter(r=>r.emel));
  }else{
   const r=cur;
   h+='<button type="button" class="rpBack" id="rpBack">← Tüm işletmeler</button>'
    +'<div class="rpHead"><h1>'+dEsc(r.ad)+'</h1><span class="rpPill" style="--c:'+RPC[r.durum]+'">'+RPL[r.durum]+'</span></div>'
    +rpActs()+'<div class="rpTiles"><div class="rpTile rpG"><div class="l">Bu ay harcama</div><b>'+rpTl(r.harcama)+'</b></div><div class="rpTile rpG"><div class="l">Bu ay '+r.sonucAdi+'</div><b>'+rpN(r.sonuc)+'</b></div>'
-   +'<div class="rpTile rpG"><div class="l">Sonuç başı maliyet</div><b>'+rpTl(r.sonucBasi)+'</b></div><div class="rpTile rpG"><div class="l">Bugün harcama</div><b>'+rpTl(r.bugun)+'</b></div></div>'
+   +'<div class="rpTile rpG"><div class="l">Sonuç başı maliyet</div><b>'+rpTl(r.sonucBasi)+'</b></div><div class="rpTile rpG"><div class="l">Bugün harcama</div><b>'+rpTl(r.bugun)+'</b></div><div class="rpTile rpG"><div class="l">Bugün '+r.sonucAdi+'</div><b>'+rpN(r.bugunSonuc)+'</b></div></div>'
    +'<div class="rpRings"><div class="rpRing rpG">'+rpRing([{v:r.kullanim||0,c:rpUse(r.kullanim)}],100,r.kullanim==null?'—':'%'+r.kullanim,rpTl(r.bugun)+' / '+rpTl(r.butce))+'<div class="t">Bugünkü bütçe kullanımı</div><div class="s">Bugün harcanan / günlük bütçe</div></div>'
    +'<div class="rpRing rpG">'+rpRing([{v:r.oran||0,c:'var(--rp-acc)'}],100,r.oran==null?'yeni':'%'+r.oran,r.oran==null?'geçen ay reklam yok':rpTl(r.tahmin)+' / '+rpTl(r.prev))+'<div class="t">Geçen aya göre</div><div class="s">Bu hızla ay sonu harcaması / geçen ayın harcaması</div></div></div>'
    +'<ul class="rpNotes">'+r.notlar.map(t=>'<li class="rpG" style="--c:'+(/👍|normal/.test(t)?'var(--rp-ok)':/durmuş/.test(t)?'var(--rp-warn)':'var(--rp-bad)')+'">'+dEsc(t)+'</li>').join('')+'</ul>'
